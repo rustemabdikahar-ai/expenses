@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Расходы">
+<title>Учёт расходов</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;background:#F2F2F7;color:#1C1C1E;min-height:100vh;min-height:-webkit-fill-available}
+.app{max-width:480px;margin:0 auto;padding:0 0 90px}
+.topbar{background:rgba(255,255,255,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:0.5px solid rgba(0,0,0,0.12);padding:env(safe-area-inset-top,14px) 16px 14px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:10}
+.back-btn{background:none;border:none;cursor:pointer;color:#007AFF;font-size:17px;padding:0 4px;display:flex;align-items:center;gap:3px}
+.topbar h1{font-size:17px;font-weight:600;flex:1;letter-spacing:-0.3px}
+.topbar .subtitle{font-size:13px;color:#8E8E93}
+.section{padding:12px 16px}
+.section-title{font-size:12px;font-weight:600;color:#8E8E93;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px}
+.card{background:#fff;border-radius:14px;padding:14px 16px;margin-bottom:10px;cursor:pointer;transition:opacity 0.1s;-webkit-transition:opacity 0.1s}
+.card:active{opacity:0.7}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.card-title{font-size:15px;font-weight:600}
+.card-amount{font-size:20px;font-weight:700;color:#34C759;letter-spacing:-0.5px}
+.card-meta{font-size:13px;color:#8E8E93;margin-top:2px}
+.fab{position:fixed;bottom:calc(24px + env(safe-area-inset-bottom,0px));right:20px;width:56px;height:56px;border-radius:50%;background:#34C759;border:none;color:#fff;font-size:26px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:20;box-shadow:0 4px 20px rgba(52,199,89,0.4)}
+.fab:active{transform:scale(0.93)}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:30;display:flex;align-items:flex-end;justify-content:center}
+.modal{background:#fff;border-radius:22px 22px 0 0;width:100%;max-width:480px;padding:16px 20px calc(20px + env(safe-area-inset-bottom,0px));max-height:92vh;overflow-y:auto;animation:slideup 0.28s cubic-bezier(0.32,0.72,0,1)}
+@keyframes slideup{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-handle{width:36px;height:5px;background:#E5E5EA;border-radius:3px;margin:0 auto 18px}
+.modal-title{font-size:18px;font-weight:700;margin-bottom:18px;letter-spacing:-0.3px}
+.form-group{margin-bottom:16px}
+.form-label{font-size:13px;font-weight:600;color:#8E8E93;margin-bottom:8px;display:block;text-transform:uppercase;letter-spacing:0.3px}
+.form-input{width:100%;padding:12px 14px;border:1.5px solid #E5E5EA;border-radius:12px;font-size:16px;background:#fff;color:#1C1C1E;outline:none;font-family:inherit;-webkit-appearance:none}
+.form-input:focus{border-color:#34C759}
+.cat-grid{display:flex;flex-wrap:wrap;gap:8px}
+.cat-btn{padding:8px 14px;border:1.5px solid #E5E5EA;border-radius:20px;font-size:14px;background:#fff;color:#1C1C1E;cursor:pointer;transition:all 0.15s;font-family:inherit}
+.cat-btn.active{background:#34C759;border-color:#34C759;color:#fff}
+.proj-btn{padding:12px 14px;border:1.5px solid #E5E5EA;border-radius:12px;font-size:15px;background:#fff;color:#1C1C1E;cursor:pointer;margin-bottom:8px;width:100%;text-align:left;display:flex;align-items:center;gap:10px;font-family:inherit}
+.proj-btn.active{border-color:#34C759;background:#F0FFF4;color:#1C7A3A}
+.save-btn{width:100%;padding:15px;background:#34C759;border:none;border-radius:14px;color:#fff;font-size:17px;font-weight:600;cursor:pointer;margin-top:10px;font-family:inherit;letter-spacing:-0.2px}
+.save-btn:active{opacity:0.85}
+.save-btn:disabled{background:#C7C7CC;cursor:not-allowed}
+.expense-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:0.5px solid #E5E5EA}
+.expense-row:last-child{border-bottom:none}
+.exp-icon{width:40px;height:40px;border-radius:50%;background:#F2F2F7;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.exp-info{flex:1;min-width:0}
+.exp-title{font-size:15px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.exp-sub{font-size:12px;color:#8E8E93;margin-top:2px}
+.exp-amount{font-size:16px;font-weight:600}
+.icon-btn{background:none;border:none;cursor:pointer;padding:6px;color:#C7C7CC;font-size:14px;border-radius:8px}
+.icon-btn:active{background:#F2F2F7}
+.badge{font-size:11px;padding:2px 8px;border-radius:10px;font-weight:600;display:inline-block}
+.badge-0{background:#D1FAE5;color:#065F46}
+.badge-1{background:#DBEAFE;color:#1E40AF}
+.badge-2{background:#FEF3C7;color:#92400E}
+.badge-3{background:#FFE4E6;color:#9F1239}
+.badge-4{background:#EDE9FE;color:#5B21B6}
+.badge-5{background:#F3F4F6;color:#374151}
+.badge-6{background:#ECFDF5;color:#064E3B}
+.badge-7{background:#FDF2F8;color:#831843}
+.empty{text-align:center;padding:40px 16px;color:#8E8E93;font-size:15px;line-height:1.6}
+.search-wrap{position:relative;margin-bottom:10px}
+.search-input{width:100%;padding:10px 14px 10px 38px;border:none;border-radius:12px;font-size:15px;background:#E5E5EA;color:#1C1C1E;outline:none;font-family:inherit}
+.search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:#8E8E93;font-size:15px;pointer-events:none}
+.total-bar{background:#F0FFF4;border-radius:14px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.total-label{font-size:14px;color:#1C7A3A;font-weight:500}
+.total-val{font-size:22px;font-weight:700;color:#1C7A3A;letter-spacing:-0.5px}
+canvas{width:100%!important;max-height:200px}
+.proj-dot{width:10px;height:10px;border-radius:50%;display:inline-block;flex-shrink:0}
+.filter-bar{display:flex;gap:7px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.filter-bar::-webkit-scrollbar{display:none}
+.filter-chip{padding:7px 14px;border:1.5px solid #E5E5EA;border-radius:20px;font-size:13px;font-weight:500;background:#fff;color:#8E8E93;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all 0.15s;font-family:inherit}
+.filter-chip.active{background:#34C759;border-color:#34C759;color:#fff}
+.sort-select{padding:8px 10px;border:1.5px solid #E5E5EA;border-radius:12px;font-size:13px;background:#fff;color:#1C1C1E;outline:none;cursor:pointer;font-family:inherit;flex-shrink:0;-webkit-appearance:none;min-width:0;max-width:130px}
+.cat-manage-row{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:0.5px solid #E5E5EA}
+.cat-manage-row:last-child{border-bottom:none}
+.cat-icon-pick{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.icon-pick-btn{width:40px;height:40px;border:1.5px solid #E5E5EA;border-radius:12px;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;background:#fff;font-family:inherit}
+.icon-pick-btn.active{border-color:#34C759;background:#F0FFF4}
+.del-btn{background:none;border:1.5px solid #FFE4E6;border-radius:10px;padding:6px 10px;cursor:pointer;font-size:12px;font-weight:600;color:#FF3B30;flex-shrink:0;font-family:inherit}
+.del-btn:active{background:#FFE4E6}
+.tag-count{font-size:11px;background:#F2F2F7;padding:2px 8px;border-radius:10px;color:#8E8E93;font-weight:500}
+.summary-row{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:0.5px solid #E5E5EA;font-size:14px}
+.summary-row:last-child{border-bottom:none}
+.bar-wrap{background:#F2F2F7;border-radius:4px;height:7px;flex:1;margin:0 10px;overflow:hidden;min-width:40px}
+.bar-fill{height:100%;border-radius:4px;background:#34C759;transition:width 0.4s}
+.topbar-actions{display:flex;gap:4px}
+.topbar-btn{background:none;border:none;cursor:pointer;font-size:20px;padding:4px;border-radius:8px;line-height:1}
+.topbar-btn:active{background:#F2F2F7}
+</style>
+</head>
+<body>
+<div class="app" id="app"></div>
+<button class="fab" id="fab">+</button>
+
+<script>
+const COLORS=['#34C759','#007AFF','#FF6B35','#AF52DE','#FF2D55','#FF9500','#30D158','#FF3B30'];
+const ALL_ICONS=['🛒','🏠','💼','📦','🚗','💡','📢','🔧','📌','🍔','☕','🎯','🏥','📱','✈️','🎁','💰','🖥️','👗','🏋️'];
+const SORT_OPTS=[
+  {v:'date_desc',l:'Сначала новые'},
+  {v:'date_asc',l:'Сначала старые'},
+  {v:'amount_desc',l:'Дороже сначала'},
+  {v:'amount_asc',l:'Дешевле сначала'},
+  {v:'cat',l:'По категории'},
+];
+
+let state={view:'projects',projectId:null,modal:null,search:'',filterCat:'all',sortBy:'date_desc',analyticsProjectId:null};
+let data={
+  projects:[
+    {id:1,name:'Кафе «Арай»',color:'#34C759'},
+    {id:2,name:'Магазин одежды',color:'#007AFF'},
+  ],
+  categories:[
+    {id:1,name:'Продукты',icon:'🛒'},
+    {id:2,name:'Аренда',icon:'🏠'},
+    {id:3,name:'Зарплата',icon:'💼'},
+    {id:4,name:'Закуп',icon:'📦'},
+    {id:5,name:'Транспорт',icon:'🚗'},
+    {id:6,name:'Коммуналка',icon:'💡'},
+    {id:7,name:'Маркетинг',icon:'📢'},
+    {id:8,name:'Оборудование',icon:'🔧'},
+    {id:9,name:'Прочее',icon:'📌'},
+  ],
+  expenses:[
+    {id:1,project_id:1,category_id:1,amount:45000,comment:'Закуп продуктов на неделю',created_at:'2026-04-10'},
+    {id:2,project_id:1,category_id:2,amount:120000,comment:'Аренда за апрель',created_at:'2026-04-01'},
+    {id:3,project_id:1,category_id:3,amount:200000,comment:'Зарплата персонала',created_at:'2026-04-05'},
+    {id:4,project_id:2,category_id:4,amount:350000,comment:'Весенняя коллекция',created_at:'2026-04-08'},
+    {id:5,project_id:2,category_id:2,amount:80000,comment:'Аренда торговой точки',created_at:'2026-04-01'},
+  ]
+};
+let nextId=20;
+let chartInstance=null;
+let editCatId=null;
+let tempCat={name:'',icon:'📌'};
+let selProjColor=COLORS[0];
+let tempForm={project_id:null,category_id:null,amount:'',comment:''};
+
+function save(){try{localStorage.setItem('expdata3',JSON.stringify(data))}catch(e){}}
+function load(){try{const d=localStorage.getItem('expdata3');if(d)data=JSON.parse(d)}catch(e){}}
+load();
+
+function getCat(id){return data.categories.find(c=>c.id===id)||{name:'Прочее',icon:'📌'}}
+function catBadgeClass(idx){return 'badge-'+(idx%8)}
+function projectTotal(pid){return data.expenses.filter(e=>e.project_id===pid).reduce((s,e)=>s+e.amount,0)}
+function allTotal(){return data.expenses.reduce((s,e)=>s+e.amount,0)}
+function fmt(n){return (+n).toLocaleString('ru-RU')+'₸'}
+function dateStr(d){return new Date(d).toLocaleDateString('ru-RU',{day:'numeric',month:'short'})}
+function catColor(idx){return COLORS[idx%COLORS.length]}
+
+function sortExpenses(arr){
+  const a=arr.slice();
+  if(state.sortBy==='date_desc') return a.sort((x,y)=>y.id-x.id);
+  if(state.sortBy==='date_asc') return a.sort((x,y)=>x.id-y.id);
+  if(state.sortBy==='amount_desc') return a.sort((x,y)=>y.amount-x.amount);
+  if(state.sortBy==='amount_asc') return a.sort((x,y)=>x.amount-y.amount);
+  if(state.sortBy==='cat') return a.sort((x,y)=>getCat(x.category_id).name.localeCompare(getCat(y.category_id).name,'ru'));
+  return a;
+}
+
+function render(){
+  destroyChart();
+  const app=document.getElementById('app');
+  if(state.view==='projects') app.innerHTML=renderProjects();
+  else if(state.view==='project') app.innerHTML=renderProject();
+  else if(state.view==='analytics') app.innerHTML=renderAnalytics();
+  else if(state.view==='categories') app.innerHTML=renderCategoriesPage();
+  if(state.view==='analytics') setTimeout(renderChart,50);
+}
+
+function renderProjects(){
+  const total=allTotal();
+  return `
+<div class="topbar">
+  <h1>Мои проекты</h1>
+  <div class="topbar-actions">
+    <button class="topbar-btn" onclick="openAnalytics()" title="Аналитика">📊</button>
+    <button class="topbar-btn" onclick="openCategoriesPage()" title="Категории">🏷️</button>
+  </div>
+</div>
+<div class="section">
+  <div class="total-bar"><span class="total-label">Всего расходов</span><span class="total-val">${fmt(total)}</span></div>
+  <div class="section-title">Проекты</div>
+  ${data.projects.map(p=>`
+  <div class="card" onclick="openProject(${p.id})">
+    <div class="card-header">
+      <span class="card-title"><span class="proj-dot" style="background:${p.color};margin-right:7px"></span>${p.name}</span>
+      <span style="color:#C7C7CC;font-size:14px">›</span>
+    </div>
+    <div class="card-amount">${fmt(projectTotal(p.id))}</div>
+    <div class="card-meta">${data.expenses.filter(e=>e.project_id===p.id).length} расходов</div>
+  </div>`).join('')}
+  <div class="card" style="text-align:center;color:#34C759;font-size:15px;font-weight:600;border:2px dashed #D1FAE5" onclick="openNewProject()">+ Новый проект</div>
+</div>`;
+}
+
+function renderProject(){
+  const p=data.projects.find(x=>x.id===state.projectId);
+  if(!p) return '';
+  let exps=data.expenses.filter(e=>e.project_id===p.id);
+  const q=state.search.trim().toLowerCase();
+  if(q) exps=exps.filter(e=>e.comment.toLowerCase().includes(q)||getCat(e.category_id).name.toLowerCase().includes(q));
+  if(state.filterCat!=='all') exps=exps.filter(e=>e.category_id===+state.filterCat);
+  exps=sortExpenses(exps);
+  const total=data.expenses.filter(e=>e.project_id===p.id).reduce((s,e)=>s+e.amount,0);
+  const projCats=[...new Set(data.expenses.filter(e=>e.project_id===p.id).map(e=>e.category_id))];
+  return `
+<div class="topbar">
+  <button class="back-btn" onclick="goBack()">‹ Назад</button>
+  <div style="flex:1;text-align:center"><div style="font-size:17px;font-weight:600;letter-spacing:-0.3px">${p.name}</div><div class="subtitle">${fmt(total)}</div></div>
+  <button class="topbar-btn" onclick="openAnalytics(${p.id})">📊</button>
+</div>
+<div class="section" style="padding-bottom:6px">
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input class="search-input" placeholder="Поиск расходов..." value="${state.search}" oninput="state.search=this.value;render()" />
+  </div>
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+    <div class="filter-bar" style="flex:1">
+      <button class="filter-chip${state.filterCat==='all'?' active':''}" onclick="state.filterCat='all';render()">Все</button>
+      ${projCats.map(cid=>{const c=getCat(cid);return`<button class="filter-chip${state.filterCat==cid?' active':''}" onclick="state.filterCat=${cid};render()">${c.icon} ${c.name}</button>`}).join('')}
+    </div>
+    <select class="sort-select" onchange="state.sortBy=this.value;render()">
+      ${SORT_OPTS.map(o=>`<option value="${o.v}"${state.sortBy===o.v?' selected':''}>${o.l}</option>`).join('')}
+    </select>
+  </div>
+</div>
+<div class="section" style="padding-top:0;background:#fff;border-radius:14px;margin:0 16px">
+  ${exps.length===0?'<div class="empty">Расходов не найдено.<br>Нажмите + чтобы добавить</div>':
+  exps.map(e=>{const cat=getCat(e.category_id);const ci=data.categories.findIndex(c=>c.id===e.category_id);return`
+  <div class="expense-row">
+    <div class="exp-icon">${cat.icon}</div>
+    <div class="exp-info">
+      <div class="exp-title">${e.comment||cat.name}</div>
+      <div class="exp-sub"><span class="badge ${catBadgeClass(ci)}">${cat.name}</span> · ${dateStr(e.created_at)}</div>
+    </div>
+    <div style="text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:2px">
+      <span class="exp-amount">${fmt(e.amount)}</span>
+      <button class="icon-btn" onclick="deleteExpense(${e.id})" style="color:#FF3B30;font-size:13px">✕</button>
+    </div>
+  </div>`}).join('')}
+</div>`;
+}
+
+function renderCategoriesPage(){
+  return `
+<div class="topbar">
+  <button class="back-btn" onclick="goBack()">‹ Назад</button>
+  <h1 style="flex:1;text-align:center">Категории</h1>
+  <button onclick="openAddCategoryModal()" style="background:#34C759;border:none;border-radius:10px;padding:7px 12px;color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">+ Добавить</button>
+</div>
+<div class="section">
+  <div style="background:#fff;border-radius:14px;padding:0 16px">
+  ${data.categories.map((cat,i)=>{
+    const cnt=data.expenses.filter(e=>e.category_id===cat.id).length;
+    return`
+  <div class="cat-manage-row">
+    <div style="width:42px;height:42px;border-radius:50%;background:#F2F2F7;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">${cat.icon}</div>
+    <div style="flex:1;min-width:0;margin:0 10px">
+      <div style="font-size:15px;font-weight:600">${cat.name}</div>
+      <span class="tag-count">${cnt} расходов</span>
+    </div>
+    <button class="icon-btn" onclick="openEditCategoryModal(${cat.id})" style="font-size:17px">✏️</button>
+    <button class="del-btn" onclick="deleteCategory(${cat.id})">Удалить</button>
+  </div>`}).join('')}
+  </div>
+</div>`;
+}
+
+function renderAnalytics(){
+  const pid=state.analyticsProjectId;
+  let exps=pid?data.expenses.filter(e=>e.project_id===pid):data.expenses;
+  const total=exps.reduce((s,e)=>s+e.amount,0);
+  const bycat={};
+  exps.forEach(e=>{bycat[e.category_id]=(bycat[e.category_id]||0)+e.amount});
+  const cats=Object.entries(bycat).sort((a,b)=>b[1]-a[1]);
+  const proj=pid?data.projects.find(x=>x.id===pid):null;
+  return`
+<div class="topbar">
+  <button class="back-btn" onclick="goBack()">‹ Назад</button>
+  <h1 style="flex:1;text-align:center">Аналитика${proj?' — '+proj.name:''}</h1>
+</div>
+<div class="section">
+  <div class="total-bar"><span class="total-label">Итого расходов</span><span class="total-val">${fmt(total)}</span></div>
+  ${!pid?`
+  <div class="section-title">По проектам</div>
+  <div style="background:#fff;border-radius:14px;padding:0 16px;margin-bottom:16px">
+  ${data.projects.map(p=>{const pt=data.expenses.filter(e=>e.project_id===p.id).reduce((s,e)=>s+e.amount,0);const pct=total?Math.round(pt/total*100):0;return`
+  <div class="summary-row">
+    <span style="display:flex;align-items:center;gap:8px"><span class="proj-dot" style="background:${p.color}"></span>${p.name}</span>
+    <div style="display:flex;align-items:center;gap:8px;flex:1;justify-content:flex-end">
+      <div class="bar-wrap" style="max-width:70px"><div class="bar-fill" style="width:${pct}%;background:${p.color}"></div></div>
+      <span style="font-size:13px;color:#8E8E93;min-width:30px">${pct}%</span>
+      <span style="font-weight:600;min-width:85px;text-align:right">${fmt(pt)}</span>
+    </div>
+  </div>`}).join('')}
+  </div>`:''}
+  <div class="section-title">По категориям</div>
+  <canvas id="myChart" style="margin:8px 0 16px"></canvas>
+  <div style="background:#fff;border-radius:14px;padding:0 16px">
+  ${cats.map(([cid,amt])=>{const cat=getCat(+cid);const ci=data.categories.findIndex(c=>c.id===+cid);const pct=total?Math.round(amt/total*100):0;return`
+  <div class="summary-row">
+    <span style="display:flex;align-items:center;gap:8px">${cat.icon} ${cat.name}</span>
+    <div style="display:flex;align-items:center;gap:8px;flex:1;justify-content:flex-end">
+      <div class="bar-wrap" style="max-width:70px"><div class="bar-fill" style="width:${pct}%;background:${catColor(ci)}"></div></div>
+      <span style="font-size:13px;color:#8E8E93;min-width:30px">${pct}%</span>
+      <span style="font-weight:600;min-width:85px;text-align:right">${fmt(amt)}</span>
+    </div>
+  </div>`}).join('')}
+  </div>
+</div>`;
+}
+
+function destroyChart(){if(chartInstance){chartInstance.destroy();chartInstance=null;}}
+function renderChart(){
+  const pid=state.analyticsProjectId;
+  let exps=pid?data.expenses.filter(e=>e.project_id===pid):data.expenses;
+  const bycat={};
+  exps.forEach(e=>{bycat[e.category_id]=(bycat[e.category_id]||0)+e.amount});
+  const cats=Object.entries(bycat).sort((a,b)=>b[1]-a[1]);
+  const el=document.getElementById('myChart');
+  if(!el||!cats.length) return;
+  chartInstance=new Chart(el,{
+    type:'doughnut',
+    data:{
+      labels:cats.map(([cid])=>getCat(+cid).name),
+      datasets:[{data:cats.map(([,v])=>v),backgroundColor:cats.map(([cid])=>{const i=data.categories.findIndex(c=>c.id===+cid);return catColor(i)}),borderWidth:3,borderColor:'#fff'}]
+    },
+    options:{responsive:true,plugins:{legend:{position:'bottom',labels:{font:{size:13},padding:12,boxWidth:14}},tooltip:{callbacks:{label:ctx=>{const v=ctx.raw;const t=ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0);return ctx.label+': '+fmt(v)+' ('+Math.round(v/t*100)+'%)'}}}},cutout:'62%'}
+  });
+}
+
+function openAddExpense(pid){
+  tempForm={project_id:pid||null,category_id:data.categories[0]?.id||null,amount:'',comment:''};
+  state.modal='add';renderModal();
+}
+function openNewProject(){state.modal='newproject';selProjColor=COLORS[0];renderModal();}
+function openAddCategoryModal(){tempCat={name:'',icon:'📌'};editCatId=null;state.modal='addcat';renderModal();}
+function openEditCategoryModal(id){
+  const c=data.categories.find(x=>x.id===id);
+  if(!c) return;
+  tempCat={name:c.name,icon:c.icon};editCatId=id;state.modal='addcat';renderModal();
+}
+function openProject(id){state.projectId=id;state.search='';state.filterCat='all';state.sortBy='date_desc';state.view='project';render();}
+function openAnalytics(pid){state.analyticsProjectId=pid||null;state.view='analytics';render();}
+function openCategoriesPage(){state.view='categories';render();}
+function goBack(){
+  if(state.view==='project'){state.view='projects';}
+  else if(state.view==='analytics'){state.view=state.projectId?'project':'projects';}
+  else if(state.view==='categories'){state.view='projects';}
+  render();
+}
+function deleteExpense(id){data.expenses=data.expenses.filter(e=>e.id!==id);save();render();}
+function deleteCategory(id){
+  const fb=data.categories.find(c=>c.name==='Прочее'&&c.id!==id)||data.categories.find(c=>c.id!==id);
+  if(fb) data.expenses.forEach(e=>{if(e.category_id===id)e.category_id=fb.id;});
+  data.categories=data.categories.filter(c=>c.id!==id);
+  save();render();
+}
+
+function renderModal(){
+  const ex=document.querySelector('.overlay');if(ex)ex.remove();
+  const div=document.createElement('div');
+  div.className='overlay';div.id='modal-overlay';
+  div.onclick=e=>{if(e.target===div)closeModal();};
+  if(state.modal==='add') div.innerHTML=buildAddModal();
+  else if(state.modal==='newproject') div.innerHTML=buildNewProjectModal();
+  else if(state.modal==='addcat') div.innerHTML=buildCatModal();
+  document.body.appendChild(div);
+  if(state.modal==='add') setTimeout(()=>{const a=document.getElementById('amt-input');if(a)a.focus();},100);
+  if(state.modal==='addcat') setTimeout(()=>{const a=document.getElementById('cat-name-input');if(a)a.focus();},100);
+}
+
+function buildAddModal(){
+  return`<div class="modal">
+  <div class="modal-handle"></div>
+  <div class="modal-title">Добавить расход</div>
+  <div class="form-group">
+    <label class="form-label">Проект</label>
+    ${data.projects.map(p=>`<button class="proj-btn${tempForm.project_id===p.id?' active':''}" onclick="selectProj(${p.id})"><span class="proj-dot" style="background:${p.color}"></span>${p.name}</button>`).join('')}
+  </div>
+  <div class="form-group">
+    <label class="form-label">Категория</label>
+    <div class="cat-grid">
+      ${data.categories.map(c=>`<button class="cat-btn${tempForm.category_id===c.id?' active':''}" onclick="selectCat(${c.id})">${c.icon} ${c.name}</button>`).join('')}
+    </div>
+  </div>
+  <div class="form-group">
+    <label class="form-label">Сумма (₸)</label>
+    <input id="amt-input" class="form-input" type="number" inputmode="numeric" placeholder="0" value="${tempForm.amount}" oninput="tempForm.amount=this.value" onkeydown="if(event.key==='Enter')document.getElementById('cmt-input').focus()" style="font-size:22px;font-weight:700;letter-spacing:-0.5px" />
+  </div>
+  <div class="form-group">
+    <label class="form-label">Комментарий</label>
+    <input id="cmt-input" class="form-input" type="text" placeholder="Что за расход?" value="${tempForm.comment}" oninput="tempForm.comment=this.value" onkeydown="if(event.key==='Enter')saveExpense()" />
+  </div>
+  <button class="save-btn" onclick="saveExpense()" ${!tempForm.project_id||!tempForm.amount?'disabled':''}>Сохранить</button>
+</div>`;
+}
+
+function buildNewProjectModal(){
+  return`<div class="modal">
+  <div class="modal-handle"></div>
+  <div class="modal-title">Новый проект</div>
+  <div class="form-group">
+    <label class="form-label">Название</label>
+    <input id="proj-name-input" class="form-input" type="text" placeholder="Название проекта..." />
+  </div>
+  <div class="form-group">
+    <label class="form-label">Цвет</label>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      ${COLORS.map((c,i)=>`<div onclick="selectProjColor('${c}',${i})" id="pcolor-${i}" style="width:36px;height:36px;border-radius:50%;background:${c};cursor:pointer;border:3px solid ${c===selProjColor?'#1C1C1E':'transparent'};transition:border-color 0.15s"></div>`).join('')}
+    </div>
+  </div>
+  <button class="save-btn" onclick="saveNewProject()">Создать проект</button>
+</div>`;
+}
+
+function buildCatModal(){
+  return`<div class="modal">
+  <div class="modal-handle"></div>
+  <div class="modal-title">${editCatId?'Редактировать':'Новая категория'}</div>
+  <div class="form-group">
+    <label class="form-label">Название</label>
+    <input id="cat-name-input" class="form-input" type="text" placeholder="Название категории..." value="${tempCat.name}" oninput="tempCat.name=this.value" />
+  </div>
+  <div class="form-group">
+    <label class="form-label">Иконка — выбрано: <span id="cur-icon">${tempCat.icon}</span></label>
+    <div class="cat-icon-pick">
+      ${ALL_ICONS.map(ic=>`<button class="icon-pick-btn${tempCat.icon===ic?' active':''}" onclick="pickIcon('${ic}')">${ic}</button>`).join('')}
+    </div>
+  </div>
+  <button class="save-btn" onclick="saveCat()" ${!tempCat.name?'disabled':''}>Сохранить</button>
+</div>`;
+}
+
+function selectProj(id){tempForm.project_id=id;document.getElementById('modal-overlay').innerHTML=buildAddModal();setTimeout(()=>{const a=document.getElementById('amt-input');if(a)a.focus();},50);}
+function selectCat(id){tempForm.category_id=id;document.getElementById('modal-overlay').innerHTML=buildAddModal();setTimeout(()=>{const a=document.getElementById('amt-input');if(a)a.focus();},50);}
+function selectProjColor(c){selProjColor=c;document.getElementById('modal-overlay').innerHTML=buildNewProjectModal();}
+function pickIcon(ic){
+  tempCat.icon=ic;
+  const el=document.getElementById('cur-icon');if(el)el.textContent=ic;
+  document.querySelectorAll('.icon-pick-btn').forEach(b=>{b.classList.toggle('active',b.textContent===ic);});
+}
+function saveExpense(){
+  if(!tempForm.project_id||!tempForm.amount) return;
+  data.expenses.push({id:nextId++,project_id:tempForm.project_id,category_id:tempForm.category_id||data.categories[0]?.id,amount:parseFloat(tempForm.amount),comment:tempForm.comment,created_at:new Date().toISOString().split('T')[0]});
+  save();closeModal();render();
+}
+function saveNewProject(){
+  const inp=document.getElementById('proj-name-input');
+  if(!inp||!inp.value.trim()) return;
+  data.projects.push({id:nextId++,name:inp.value.trim(),color:selProjColor});
+  save();closeModal();render();
+}
+function saveCat(){
+  if(!tempCat.name.trim()) return;
+  if(editCatId){const c=data.categories.find(x=>x.id===editCatId);if(c){c.name=tempCat.name.trim();c.icon=tempCat.icon;}}
+  else data.categories.push({id:nextId++,name:tempCat.name.trim(),icon:tempCat.icon});
+  save();closeModal();render();
+}
+function closeModal(){const o=document.getElementById('modal-overlay');if(o)o.remove();state.modal=null;}
+
+document.getElementById('fab').onclick=()=>openAddExpense(state.view==='project'?state.projectId:null);
+render();
+</script>
+</body>
+</html>
