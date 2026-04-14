@@ -660,7 +660,7 @@ function buildAddModal(){
     <label class="form-label">Комментарий</label>
     <input id="cmt-input" class="form-input" type="text" placeholder="Что за расход?" value="${tempForm.comment}" oninput="tempForm.comment=this.value" onkeydown="if(event.key==='Enter')doSaveExpense()" />
   </div>
-  <button class="save-btn" onclick="doSaveExpense()" ${!tempForm.project_id||!tempForm.amount?'disabled':''}>Сохранить</button>
+  <button class="save-btn" onclick="doSaveExpense()" ${(tempForm.project_id&&String(tempForm.amount).trim())?'':'disabled'}>Сохранить</button>
 </div>`;
 }
 
@@ -736,9 +736,11 @@ function copyLink(link){
 }
 
 // actions
-function selectProj(id){tempForm.project_id=id;tempForm.payer_id='me';document.getElementById('modal-overlay').innerHTML=buildAddModal();setTimeout(()=>{const a=document.getElementById('amt-input');if(a)a.focus();},50);}
-function selectCat(id){tempForm.category_id=id;document.getElementById('modal-overlay').innerHTML=buildAddModal();setTimeout(()=>{const a=document.getElementById('amt-input');if(a)a.focus();},50);}
-function selectPayer(id){tempForm.payer_id=id;document.getElementById('modal-overlay').innerHTML=buildAddModal();setTimeout(()=>{const a=document.getElementById('amt-input');if(a)a.focus();},50);}
+function syncFormInputs(){const amt=document.getElementById('amt-input');const cmt=document.getElementById('cmt-input');if(amt)tempForm.amount=amt.value;if(cmt)tempForm.comment=cmt.value;}
+function refreshAddModal(){const overlay=document.getElementById('modal-overlay');if(!overlay)return;const modal=overlay.querySelector('.modal');const st=modal?modal.scrollTop:0;overlay.innerHTML=buildAddModal();const m2=document.querySelector('#modal-overlay .modal');if(m2)m2.scrollTop=st;}
+function selectProj(id){syncFormInputs();tempForm.project_id=id;tempForm.payer_id='me';refreshAddModal();}
+function selectCat(id){syncFormInputs();tempForm.category_id=id;refreshAddModal();}
+function selectPayer(id){syncFormInputs();tempForm.payer_id=id;refreshAddModal();}
 function selectProjColor(c){selProjColor=c;document.getElementById('modal-overlay').innerHTML=buildNewProjectModal();}
 function selectProjType(t){selProjType=t;document.getElementById('modal-overlay').innerHTML=buildNewProjectModal();setTimeout(()=>{const a=document.getElementById('proj-name-input');if(a)a.focus();},50);}
 function addInvestorFromInput(){
@@ -751,7 +753,9 @@ function removeInvestor(i){tempNewInvestors.splice(i,1);document.getElementById(
 function pickIcon(ic){tempCat.icon=ic;const el=document.getElementById('cur-icon');if(el)el.textContent=ic;document.querySelectorAll('.icon-pick-btn').forEach(b=>{b.classList.toggle('active',b.textContent===ic);});}
 
 async function doSaveExpense(){
-  if(!tempForm.project_id||!tempForm.amount)return;
+  const amt=document.getElementById('amt-input');const cmt=document.getElementById('cmt-input');
+  if(amt)tempForm.amount=amt.value;if(cmt)tempForm.comment=cmt.value;
+  if(!tempForm.project_id||!String(tempForm.amount).trim())return;
   const e={project_id:tempForm.project_id,category_id:tempForm.category_id||data.categories[0]?.id,amount:parseFloat(tempForm.amount),comment:tempForm.comment,payer_id:tempForm.payer_id||'me',created_at:new Date().toISOString().split('T')[0]};
   closeModal();
   await addExpense(e);
