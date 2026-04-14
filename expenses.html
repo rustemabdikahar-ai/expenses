@@ -197,8 +197,8 @@ function subscribeExpenses(){
 }
 
 async function addExpense(e){
-  const ref=await addDoc(collection(db,'expenses'),e);
-  data.expenses.push({id:ref.id,...e});
+  await addDoc(collection(db,'expenses'),e);
+  // don't push locally — onSnapshot will add it
 }
 async function removeExpense(id){
   await deleteDoc(doc(db,'expenses',id));
