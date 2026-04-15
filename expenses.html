@@ -406,16 +406,16 @@ ${isInv?`<div class="section" style="padding-bottom:4px">
   <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
     <div class="filter-bar" style="flex:1">
       <button class="filter-chip${state.filterCat==='all'?' active':''}" onclick="state.filterCat='all';render()">Все</button>
-      ${projCats.map(cid=>{const c=getCat(cid);return`<button class="filter-chip${state.filterCat===cid?' active':''}" onclick="state.filterCat='${cid}';render()">${c.icon} ${c.name}</button>`}).join('')}
+      ${projCats.map(cid=>{const c=getCat(cid);return`<button class="filter-chip${state.filterCat===cid?' active':''}" onclick="setFilterCat('${cid}')">${c.icon} ${c.name}</button>`}).join('')}
     </div>
-    <select class="sort-select" onchange="state.sortBy=this.value;render()">
+    <select class="sort-select" onchange="setSort(this.value)">
       ${SORT_OPTS.map(o=>`<option value="${o.v}"${state.sortBy===o.v?' selected':''}>${o.l}</option>`).join('')}
     </select>
   </div>
   ${isInv?`<div class="filter-bar">
     <button class="filter-chip${state.filterPayer==='all'?' active':''}" onclick="state.filterPayer='all';render()">Все</button>
     <button class="filter-chip${state.filterPayer==='me'?' active':''}" onclick="state.filterPayer='me';render()">Я</button>
-    ${(p.investors||[]).map(i=>`<button class="filter-chip${state.filterPayer===i.id?' active':''}" onclick="state.filterPayer='${i.id}';render()">${i.name}</button>`).join('')}
+    ${(p.investors||[]).map(i=>`<button class="filter-chip${state.filterPayer===i.id?' active':''}" onclick="setFilterPayer('${i.id}')">${i.name}</button>`).join('')}
   </div>`:''}
 </div>
 <div class="section" style="padding-top:0;background:#fff;border-radius:14px;margin:0 16px">
@@ -489,9 +489,9 @@ function renderAllExpenses(){
   <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
     <div class="filter-bar" style="flex:1">
       <button class="filter-chip${state.filterCat==='all'?' active':''}" onclick="state.filterCat='all';render()">Все</button>
-      ${data.categories.map(c=>`<button class="filter-chip${state.filterCat===c.id?' active':''}" onclick="state.filterCat='${c.id}';render()">${c.icon} ${c.name}</button>`).join('')}
+      ${data.categories.map(c=>`<button class="filter-chip${state.filterCat===c.id?' active':''}" onclick="setFilterCat('${c.id}')">${c.icon} ${c.name}</button>`).join('')}
     </div>
-    <select class="sort-select" onchange="state.sortBy=this.value;render()">
+    <select class="sort-select" onchange="setSort(this.value)">
       ${SORT_OPTS.map(o=>`<option value="${o.v}"${state.sortBy===o.v?' selected':''}>${o.l}</option>`).join('')}
     </select>
   </div>
@@ -806,6 +806,9 @@ async function doDeleteExpense(id){
   await removeExpense(id);
 }
 
+function setFilterCat(val){state.filterCat=val;render();}
+function setFilterPayer(val){state.filterPayer=val;render();}
+function setSort(val){state.sortBy=val;render();}
 function openBills(){state.view='bills';render();}
 
 function renderBills(){
@@ -903,7 +906,7 @@ window.doDeleteProject=doDeleteProject;window.doSaveExpense=doSaveExpense;window
 window.doSaveCategory=doSaveCategory;window.selectProj=selectProj;window.selectCat=selectCat;
 window.selectPayer=selectPayer;window.selectProjColor=selectProjColor;window.selectProjType=selectProjType;
 window.addInvestorFromInput=addInvestorFromInput;window.removeInvestor=removeInvestor;window.pickIcon=pickIcon;
-window.copyLink=copyLink;window.exportCSV=exportCSV;window.openBills=openBills;window.markAdvanceDone=markAdvanceDone;window.closeModal=closeModal;
+window.copyLink=copyLink;window.exportCSV=exportCSV;window.openBills=openBills;window.setFilterCat=setFilterCat;window.setFilterPayer=setFilterPayer;window.setSort=setSort;window.markAdvanceDone=markAdvanceDone;window.closeModal=closeModal;
 window.state=state;
 
 document.getElementById('fab').onclick=()=>openAddExpense(state.view==='project'?state.projectId:null);
