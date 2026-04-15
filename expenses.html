@@ -94,7 +94,7 @@ canvas{width:100%!important;max-height:210px}
 </head>
 <body>
 <div class="app" id="app"><div class="loading"><div class="spinner"></div><span>Загрузка...</span></div></div>
-<button class="fab" id="fab" style="display:none" onclick="openAddExpense(null)">+</button>
+<button class="fab" id="fab" style="display:none" onclick="openAddExpense(S.view==='project'?S.pid:null)">+</button>
 
 <script type="module">
 import{initializeApp}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
