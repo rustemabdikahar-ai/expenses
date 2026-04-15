@@ -117,7 +117,7 @@ let D={projects:[],categories:[],expenses:[]};
 let S={view:'projects',pid:null,modal:null,q:'',fcat:'all',fpay:'all',sort:'nd',apid:null};
 let TF={pid:null,cid:null,amt:'',note:'',payer:'me',adv:false,total:'',party:''};
 let TC={name:'',icon:'📌'};
-let NP={color:COLORS[0],type:'personal',name:'',investors:[]};
+let NP={color:COLORS[0],type:'personal',name:'',owner:'',investors:[]};
 let editPid=null,editCid=null;
 let chart=null;
 
@@ -131,7 +131,7 @@ const bi=i=>['b0','b1','b2','b3','b4','b5','b6','b7'][i%8];
 const cc=i=>COLORS[i%COLORS.length];
 const avc=s=>{const c=['#FF6B35','#AF52DE','#007AFF','#FF2D55','#FF9500','#5856D6','#00C7BE'];let h=0;for(const x of s)h=(h*31+x.charCodeAt(0))%c.length;return c[h];};
 const ini=s=>s.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
-const pname=(pid,pr)=>pid==='me'||!pid?'Я':(pr?.investors?.find(i=>i.id===pid)?.name||'—');
+const pname=(pid,pr)=>pid==='me'||!pid?(pr?.owner||'Руководитель'):(pr?.investors?.find(i=>i.id===pid)?.name||'—');
 
 function ptotal(id){return D.expenses.filter(e=>e.pid===id).reduce((s,e)=>s+e.amt,0)}
 function atotal(){return D.expenses.reduce((s,e)=>s+e.amt,0)}
@@ -220,7 +220,7 @@ function vProject(){
   const total=D.expenses.filter(e=>e.pid===p.id).reduce((s,e)=>s+e.amt,0);
   const cats=[...new Set(D.expenses.filter(e=>e.pid===p.id).map(e=>e.cid))];
   const byPay={};D.expenses.filter(e=>e.pid===p.id).forEach(e=>{const k=e.payer||'me';byPay[k]=(byPay[k]||0)+e.amt;});
-  const payers=isInv?[{id:'me',name:'Я'},...(p.investors||[])]:[];
+  const payers=isInv?[{id:'me',name:p.owner||'Руководитель'},...(p.investors||[])]:[];
   return`
   <div class="topbar">
     <button class="back-btn" onclick="go('projects')">‹ Назад</button>
@@ -250,8 +250,8 @@ function vProject(){
     </div>
     ${isInv?`<div class="fbar">
       <button class="fchip ${S.fpay==='all'?'on':''}" onclick="S.fpay='all';render()">Все</button>
-      <button class="fchip ${S.fpay==='me'?'on-p':'on'==''?'':'on'}" style="${S.fpay==='me'?'background:#34C759;border-color:#34C759;color:#fff':''}" onclick="S.fpay='me';render()">Я</button>
-      ${(p.investors||[]).map(inv=>`<button class="fchip ${S.fpay===inv.id?'on-p':''}" onclick="S.fpay='${inv.id}';render()">${inv.name}</button>`).join('')}
+      <button class="fchip ${S.fpay==='me'?'on-p':''}" onclick="S.fpay=S.fpay==='me'?'all':'me';render()">${p.owner||'Руководитель'}</button>
+      ${(p.investors||[]).map(inv=>`<button class="fchip ${S.fpay===inv.id?'on-p':''}" onclick="S.fpay=S.fpay==='${inv.id}'?'all':'${inv.id}';render()">${inv.name}</button>`).join('')}
     </div>`:''}
   </div>
   <div style="background:#fff;border-radius:14px;margin:0 16px;padding:0 16px">
@@ -475,16 +475,20 @@ function openAddExpense(pid){
 }
 function showAddModal(){
   const sp=TF.pid?proj(TF.pid):null;const isInv=sp?.type==='investor';
+  const fromProject=!!TF.pid;
   modal(`<div class="modal-title">Добавить расход</div>
-    <div class="form-group"><label class="lbl">Проект</label>
+    ${fromProject?`<div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;padding:10px 12px;background:#F0FFF4;border-radius:12px">
+      <span class="dot" style="background:${sp.color}"></span>
+      <span style="font-size:15px;font-weight:600;color:#1C7A3A">${sp.name}</span>
+    </div>`:`<div class="form-group"><label class="lbl">Проект</label>
       ${D.projects.map(p=>`<button class="prow ${TF.pid===p.id?'sel':''}" onclick="selPid('${p.id}')"><span class="dot" style="background:${p.color}"></span>${p.name}<span class="${p.type==='investor'?'type-inv':'type-per'}" style="margin-left:auto">${p.type==='investor'?'Инв.':'Личный'}</span></button>`).join('')}
-    </div>
+    </div>`}
     <div class="form-group"><label class="lbl">Категория</label>
       <div class="chip-wrap">${D.categories.map(c=>`<button class="chip ${TF.cid===c.id?'sel':''}" onclick="selCid('${c.id}')">${c.icon} ${c.name}</button>`).join('')}</div>
     </div>
     ${isInv?`<div class="form-group"><label class="lbl">Кто платит</label>
       <div class="chip-wrap">
-        <button class="chip ${TF.payer==='me'?'sel-purple':''}" onclick="selPayer('me')">🟢 Я</button>
+        <button class="chip ${TF.payer==='me'?'sel-purple':''}" onclick="selPayer('me')">🟢 ${sp.owner||'Руководитель'}</button>
         ${(sp.investors||[]).map(inv=>`<button class="chip ${TF.payer===inv.id?'sel-purple':''}" onclick="selPayer('${inv.id}')">${ini(inv.name)} ${inv.name}</button>`).join('')}
       </div></div>`:''}
     <div class="form-group"><label class="lbl">Сумма (₸)</label>
@@ -496,11 +500,11 @@ function showAddModal(){
     <div class="form-group">
       <div style="display:flex;align-items:center;justify-content:space-between">
         <label class="lbl" style="margin:0">Аванс / частичная оплата</label>
-        <button onclick="TF.adv=!TF.adv;showAddModal()" class="chip ${TF.adv?'sel-orange':''}" style="padding:6px 12px">${TF.adv?'✓ Аванс':'+ Аванс'}</button>
+        <button id="advbtn" type="button" class="chip ${TF.adv?'sel-orange':''}" style="padding:6px 12px" onclick="toggleAdv()">${TF.adv?'✓ Аванс':'+ Аванс'}</button>
       </div>
       ${TF.adv?`<div style="margin-top:8px">
-        <input class="inp" type="number" inputmode="numeric" placeholder="Общая сумма счёта..." value="${TF.total}" oninput="TF.total=this.value" style="margin-bottom:7px">
-        <input class="inp" type="text" placeholder="Кому платим (подрядчик...)" value="${TF.party}" oninput="TF.party=this.value">
+        <input id="ti" class="inp" type="number" inputmode="numeric" placeholder="Общая сумма счёта..." value="${TF.total}" oninput="TF.total=this.value" style="margin-bottom:7px">
+        <input id="pi" class="inp" type="text" placeholder="Кому платим (подрядчик...)" value="${TF.party}" oninput="TF.party=this.value">
       </div>`:''}
     </div>
     <button class="save-btn" id="sbtn" onclick="saveExp()">Сохранить</button>
@@ -520,7 +524,25 @@ function updateSaveBtn(){
 function selPid(id){syncAmt();TF.pid=id;TF.payer='me';showAddModal();}
 function selCid(id){syncAmt();TF.cid=id;showAddModal();}
 function selPayer(id){syncAmt();TF.payer=id;showAddModal();}
-function syncAmt(){const ai=$('ai');const ni=$('ni');if(ai)TF.amt=ai.value;if(ni)TF.note=ni.value;}
+function syncProjInputs(){
+  const pni=document.getElementById('pni');
+  const pwn=document.getElementById('pwn');
+  const invnm=document.getElementById('invnm');
+  if(pni)NP.name=pni.value;
+  if(pwn)NP.owner=pwn.value;
+}
+function setProjType(t){syncProjInputs();NP.type=t;showProjModal();}
+function pickColor(i){syncProjInputs();NP.color=COLORS[i];showProjModal();}
+function toggleAdv(){
+  const ai=$('ai'),ni=$('ni'),ti=$('ti'),pi=$('pi');
+  if(ai)TF.amt=ai.value;
+  if(ni)TF.note=ni.value;
+  if(ti)TF.total=ti.value;
+  if(pi)TF.party=pi.value;
+  TF.adv=!TF.adv;
+  showAddModal();
+}
+function syncAmt(){const ai=$('ai');const ni=$('ni');const ti=$('ti');const pi=$('pi');if(ai)TF.amt=ai.value;if(ni)TF.note=ni.value;if(ti)TF.total=ti.value;if(pi)TF.party=pi.value;}
 
 async function saveExp(){
   syncAmt();
@@ -532,22 +554,25 @@ async function saveExp(){
 
 // Project modals
 function newProj(){NP={color:COLORS[0],type:'personal',name:'',investors:[]};editPid=null;showProjModal();}
-function editProj(id){const p=proj(id);NP={color:p.color,type:p.type||'personal',name:p.name,investors:p.investors?[...p.investors]:[]};editPid=id;showProjModal();}
+function editProj(id){const p=proj(id);NP={color:p.color,type:p.type||'personal',name:p.name,owner:p.owner||'',investors:p.investors?[...p.investors]:[]};editPid=id;showProjModal();}
 
 function showProjModal(){
   modal(`<div class="modal-title">${editPid?'Редактировать':'Новый проект'}</div>
     <div class="form-group"><label class="lbl">Тип</label>
       <div class="chip-wrap">
-        <button class="chip ${NP.type==='personal'?'sel':''}" onclick="NP.type='personal';showProjModal()">👤 Личный</button>
-        <button class="chip ${NP.type==='investor'?'sel':''}" onclick="NP.type='investor';showProjModal()">👥 Инвесторский</button>
+        <button class="chip ${NP.type==='personal'?'sel':''}" onclick="setProjType('personal')">👤 Личный</button>
+        <button class="chip ${NP.type==='investor'?'sel':''}" onclick="setProjType('investor')">👥 Инвесторский</button>
       </div>
     </div>
     <div class="form-group"><label class="lbl">Название</label>
       <input id="pni" class="inp" type="text" placeholder="Название проекта..." value="${NP.name}" oninput="NP.name=this.value">
     </div>
+    ${NP.type==='investor'?`<div class="form-group"><label class="lbl">Ваше имя (руководитель)</label>
+      <input id="pwn" class="inp" type="text" placeholder="Например: Рустем" value="${NP.owner}" oninput="NP.owner=this.value">
+    </div>`:''}
     <div class="form-group"><label class="lbl">Цвет</label>
       <div style="display:flex;gap:9px;flex-wrap:wrap">
-        ${COLORS.map(c=>`<div onclick="NP.color='${c}';showProjModal()" style="width:34px;height:34px;border-radius:50%;background:${c};cursor:pointer;border:3px solid ${c===NP.color?'#1C1C1E':'transparent'}"></div>`).join('')}
+        ${COLORS.map((c,i)=>`<div onclick="pickColor(${i})" style="width:34px;height:34px;border-radius:50%;background:${c};cursor:pointer;border:3px solid ${c===NP.color?'#1C1C1E':'transparent'}"></div>`).join('')}
       </div>
     </div>
     ${NP.type==='investor'?`<div class="form-group"><label class="lbl">Инвесторы</label>
@@ -575,14 +600,15 @@ function showProjModal(){
   setTimeout(()=>{const i=$('pni');if(i)i.focus();},80);
 }
 
-function addInv(){const i=$('invnm');if(!i||!i.value.trim())return;NP.investors.push({id:'inv_'+Date.now(),name:i.value.trim()});showProjModal();}
+function addInv(){syncProjInputs();const i=$('invnm');if(!i||!i.value.trim())return;NP.investors.push({id:'inv_'+Date.now(),name:i.value.trim()});showProjModal();}
 function invLink(pid,iid){return location.href.split('?')[0]+'?project='+pid+'&investor='+iid;}
 function copyTxt(t){navigator.clipboard?navigator.clipboard.writeText(t).then(()=>alert('Ссылка скопирована!')):prompt('Скопируйте:',t);}
 
 async function saveProj(){
   const i=$('pni');if(i)NP.name=i.value.trim();
   if(!NP.name)return;
-  const p={name:NP.name,color:NP.color,type:NP.type,investors:NP.type==='investor'?NP.investors:[]};
+  const pwn=$('pwn');if(pwn)NP.owner=pwn.value.trim();
+  const p={name:NP.name,color:NP.color,type:NP.type,owner:NP.owner||'',investors:NP.type==='investor'?NP.investors:[]};
   closeModal();
   if(editPid){await updateDoc(doc(db,'projects',editPid),p);const i=D.projects.findIndex(x=>x.id===editPid);if(i>=0)D.projects[i]={...D.projects[i],...p};}
   else{const r=await addDoc(collection(db,'projects'),p);D.projects.push({id:r.id,...p});}
@@ -676,7 +702,7 @@ async function loadInvView(){
 function renderInvView(pr,inv){
   const ex=D.expenses;const total=ex.reduce((s,e)=>s+e.amt,0);
   const byPay={};ex.forEach(e=>{const k=e.payer||'me';byPay[k]=(byPay[k]||0)+e.amt;});
-  const payers=[{id:'me',name:'Руководитель'},...(pr.investors||[])];
+  const payers=[{id:'me',name:pr.owner||'Руководитель'},...(pr.investors||[])];
   $('app').innerHTML=`
   <div class="topbar"><h1 style="flex:1">${pr.name}</h1><span class="type-inv">Инвестор</span></div>
   <div class="section">
@@ -696,7 +722,7 @@ function renderInvView(pr,inv){
       ${ex.length===0?'<div style="text-align:center;padding:28px;color:#8E8E93">Расходов пока нет</div>':
       ex.slice().sort((a,b)=>b._t-a._t).map(e=>{
         const c=cat(e.cid);const ci=D.categories.findIndex(x=>x.id===e.cid);
-        const pn=e.payer==='me'||!e.payer?'Руководитель':(pr.investors?.find(i=>i.id===e.payer)?.name||'—');
+        const pn=e.payer==='me'||!e.payer?(pr.owner||'Руководитель'):(pr.investors?.find(i=>i.id===e.payer)?.name||'—');
         const pc=(e.payer==='me'||!e.payer)?'#34C759':avc(pn);
         return`<div class="exp-row">
           <div class="exp-icon">${c.icon}</div>
@@ -712,7 +738,7 @@ function renderInvView(pr,inv){
 }
 
 // expose globals
-Object.assign(window,{openAddExpense,showAddModal,selPid,selCid,selPayer,saveExp,newProj,editProj,showProjModal,saveProj,delProj,addInv,newCat,editCat,showCatModal,saveCat,delCat,delExp,closeBill,exportCSV,go,openProj,copyTxt,closeModal,S,TF,NP,TC,$});
+Object.assign(window,{openAddExpense,showAddModal,selPid,selCid,selPayer,saveExp,toggleAdv,pickColor,setProjType,syncProjInputs,addInv,newProj,editProj,showProjModal,saveProj,delProj,addInv,newCat,editCat,showCatModal,saveCat,delCat,delExp,closeBill,exportCSV,go,openProj,copyTxt,closeModal,S,TF,NP,TC,$});
 
 // INIT
 if(IS_INV){$('fab').style.display='none';loadInvView();}
