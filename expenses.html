@@ -12,881 +12,633 @@
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;background:#F2F2F7;color:#1C1C1E;min-height:100vh}
 .app{max-width:480px;margin:0 auto;padding:0 0 90px}
-.topbar{background:rgba(255,255,255,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:0.5px solid rgba(0,0,0,0.12);padding:env(safe-area-inset-top,14px) 16px 14px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:10}
-.back-btn{background:none;border:none;cursor:pointer;color:#007AFF;font-size:17px;padding:0 4px;display:flex;align-items:center;gap:3px}
+.topbar{background:rgba(255,255,255,0.95);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:0.5px solid rgba(0,0,0,0.12);padding:14px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:10}
+.back-btn{background:none;border:none;cursor:pointer;color:#007AFF;font-size:17px;padding:0 4px}
 .topbar h1{font-size:17px;font-weight:600;flex:1;letter-spacing:-0.3px}
-.topbar .subtitle{font-size:13px;color:#8E8E93}
+.subtitle{font-size:13px;color:#8E8E93}
 .section{padding:12px 16px}
-.section-title{font-size:12px;font-weight:600;color:#8E8E93;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px}
-.card{background:#fff;border-radius:14px;padding:14px 16px;margin-bottom:10px;cursor:pointer;transition:opacity 0.1s}
+.card{background:#fff;border-radius:14px;padding:14px 16px;margin-bottom:10px;cursor:pointer}
 .card:active{opacity:0.7}
-.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
-.card-title{font-size:15px;font-weight:600}
-.card-amount{font-size:20px;font-weight:700;letter-spacing:-0.5px}
-.card-meta{font-size:13px;color:#8E8E93;margin-top:2px}
-.fab{position:fixed;bottom:calc(24px + env(safe-area-inset-bottom,0px));right:20px;width:56px;height:56px;border-radius:50%;background:#34C759;border:none;color:#fff;font-size:26px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:20;box-shadow:0 4px 20px rgba(52,199,89,0.4)}
+.fab{position:fixed;bottom:28px;right:20px;width:56px;height:56px;border-radius:50%;background:#34C759;border:none;color:#fff;font-size:26px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:20;box-shadow:0 4px 20px rgba(52,199,89,0.4)}
 .fab:active{transform:scale(0.93)}
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:30;display:flex;align-items:flex-end;justify-content:center}
-.modal{background:#fff;border-radius:22px 22px 0 0;width:100%;max-width:480px;padding:16px 20px calc(20px + env(safe-area-inset-bottom,0px));max-height:92vh;overflow-y:auto;animation:slideup 0.28s cubic-bezier(0.32,0.72,0,1)}
+.modal{background:#fff;border-radius:22px 22px 0 0;width:100%;max-width:480px;padding:16px 20px 32px;max-height:92vh;overflow-y:auto;animation:slideup 0.25s cubic-bezier(0.32,0.72,0,1)}
 @keyframes slideup{from{transform:translateY(100%)}to{transform:translateY(0)}}
-.modal-handle{width:36px;height:5px;background:#E5E5EA;border-radius:3px;margin:0 auto 18px}
-.modal-title{font-size:18px;font-weight:700;margin-bottom:18px;letter-spacing:-0.3px}
-.form-group{margin-bottom:16px}
-.form-label{font-size:13px;font-weight:600;color:#8E8E93;margin-bottom:8px;display:block;text-transform:uppercase;letter-spacing:0.3px}
-.form-input{width:100%;padding:12px 14px;border:1.5px solid #E5E5EA;border-radius:12px;font-size:16px;background:#fff;color:#1C1C1E;outline:none;font-family:inherit;-webkit-appearance:none}
-.form-input:focus{border-color:#34C759}
-.cat-grid{display:flex;flex-wrap:wrap;gap:8px}
-.cat-btn{padding:8px 14px;border:1.5px solid #E5E5EA;border-radius:20px;font-size:14px;background:#fff;color:#1C1C1E;cursor:pointer;font-family:inherit}
-.cat-btn.active{background:#34C759;border-color:#34C759;color:#fff}
-.proj-btn{padding:12px 14px;border:1.5px solid #E5E5EA;border-radius:12px;font-size:15px;background:#fff;color:#1C1C1E;cursor:pointer;margin-bottom:8px;width:100%;text-align:left;display:flex;align-items:center;gap:10px;font-family:inherit}
-.proj-btn.active{border-color:#34C759;background:#F0FFF4;color:#1C7A3A}
-.save-btn{width:100%;padding:15px;background:#34C759;border:none;border-radius:14px;color:#fff;font-size:17px;font-weight:600;cursor:pointer;margin-top:10px;font-family:inherit}
-.save-btn:active{opacity:0.85}
+.handle{width:36px;height:5px;background:#E5E5EA;border-radius:3px;margin:0 auto 16px}
+.modal-title{font-size:18px;font-weight:700;margin-bottom:16px}
+.form-group{margin-bottom:14px}
+.lbl{font-size:12px;font-weight:600;color:#8E8E93;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:7px;display:block}
+.inp{width:100%;padding:11px 14px;border:1.5px solid #E5E5EA;border-radius:12px;font-size:16px;background:#fff;color:#1C1C1E;outline:none;font-family:inherit;-webkit-appearance:none}
+.inp:focus{border-color:#34C759}
+.chip-wrap{display:flex;flex-wrap:wrap;gap:7px}
+.chip{padding:8px 13px;border:1.5px solid #E5E5EA;border-radius:20px;font-size:13px;background:#fff;color:#3C3C43;cursor:pointer;font-family:inherit;transition:all 0.12s}
+.chip.sel{background:#34C759;border-color:#34C759;color:#fff}
+.chip.sel-purple{background:#5856D6;border-color:#5856D6;color:#fff}
+.chip.sel-orange{background:#FF9500;border-color:#FF9500;color:#fff}
+.prow{padding:11px 14px;border:1.5px solid #E5E5EA;border-radius:12px;font-size:15px;background:#fff;color:#1C1C1E;cursor:pointer;margin-bottom:7px;width:100%;text-align:left;display:flex;align-items:center;gap:10px;font-family:inherit}
+.prow.sel{border-color:#34C759;background:#F0FFF4;color:#1C7A3A}
+.save-btn{width:100%;padding:15px;background:#34C759;border:none;border-radius:14px;color:#fff;font-size:17px;font-weight:600;cursor:pointer;margin-top:8px;font-family:inherit}
 .save-btn:disabled{background:#C7C7CC;cursor:not-allowed}
-.expense-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:0.5px solid #E5E5EA}
-.expense-row:last-child{border-bottom:none}
+.save-btn:active{opacity:0.85}
+.del-btn{background:none;border:1.5px solid #FFE4E6;border-radius:10px;padding:6px 10px;cursor:pointer;font-size:12px;font-weight:600;color:#FF3B30;flex-shrink:0;font-family:inherit}
+.exp-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:0.5px solid #F2F2F7}
+.exp-row:last-child{border-bottom:none}
 .exp-icon{width:40px;height:40px;border-radius:50%;background:#F2F2F7;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
 .exp-info{flex:1;min-width:0}
 .exp-title{font-size:15px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .exp-sub{font-size:12px;color:#8E8E93;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.exp-amount{font-size:16px;font-weight:600}
-.icon-btn{background:none;border:none;cursor:pointer;padding:6px;color:#C7C7CC;font-size:14px;border-radius:8px}
-.badge{font-size:11px;padding:2px 8px;border-radius:10px;font-weight:600;display:inline-block}
-.badge-0{background:#D1FAE5;color:#065F46}.badge-1{background:#DBEAFE;color:#1E40AF}
-.badge-2{background:#FEF3C7;color:#92400E}.badge-3{background:#FFE4E6;color:#9F1239}
-.badge-4{background:#EDE9FE;color:#5B21B6}.badge-5{background:#F3F4F6;color:#374151}
-.badge-6{background:#ECFDF5;color:#064E3B}.badge-7{background:#FDF2F8;color:#831843}
-.empty{text-align:center;padding:40px 16px;color:#8E8E93;font-size:15px;line-height:1.6}
-.search-wrap{position:relative;margin-bottom:10px}
-.search-input{width:100%;padding:10px 14px 10px 38px;border:none;border-radius:12px;font-size:15px;background:#E5E5EA;color:#1C1C1E;outline:none;font-family:inherit}
-.search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:#8E8E93;font-size:15px;pointer-events:none}
-.total-bar{background:#F0FFF4;border-radius:14px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
-.total-label{font-size:14px;color:#1C7A3A;font-weight:500}
-.total-val{font-size:22px;font-weight:700;color:#1C7A3A;letter-spacing:-0.5px}
-canvas{width:100%!important;max-height:200px}
-.proj-dot{width:10px;height:10px;border-radius:50%;display:inline-block;flex-shrink:0}
-.filter-bar{display:flex;gap:7px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
-.filter-bar::-webkit-scrollbar{display:none}
-.filter-chip{padding:7px 14px;border:1.5px solid #E5E5EA;border-radius:20px;font-size:13px;font-weight:500;background:#fff;color:#8E8E93;cursor:pointer;white-space:nowrap;flex-shrink:0;font-family:inherit}
-.filter-chip.active{background:#34C759;border-color:#34C759;color:#fff}
-.sort-select{padding:8px 10px;border:1.5px solid #E5E5EA;border-radius:12px;font-size:13px;background:#fff;color:#1C1C1E;outline:none;cursor:pointer;font-family:inherit;flex-shrink:0;-webkit-appearance:none;max-width:130px}
-.cat-manage-row{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:0.5px solid #E5E5EA}
-.cat-manage-row:last-child{border-bottom:none}
-.cat-icon-pick{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
-.icon-pick-btn{width:40px;height:40px;border:1.5px solid #E5E5EA;border-radius:12px;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;background:#fff;font-family:inherit}
-.icon-pick-btn.active{border-color:#34C759;background:#F0FFF4}
-.del-btn{background:none;border:1.5px solid #FFE4E6;border-radius:10px;padding:6px 10px;cursor:pointer;font-size:12px;font-weight:600;color:#FF3B30;flex-shrink:0;font-family:inherit}
-.del-btn:active{background:#FFE4E6}
-.tag-count{font-size:11px;background:#F2F2F7;padding:2px 8px;border-radius:10px;color:#8E8E93;font-weight:500}
-.adv-badge-pending{background:#FEF3C7;color:#92400E;font-size:11px;padding:3px 9px;border-radius:10px;font-weight:600;display:inline-block}
-.adv-badge-done{background:#D1FAE5;color:#065F46;font-size:11px;padding:3px 9px;border-radius:10px;font-weight:600;display:inline-block}
-.adv-bar-wrap{background:#E5E5EA;border-radius:4px;height:5px;width:100%;margin-top:5px;overflow:hidden}
-.adv-bar-fill{height:100%;border-radius:4px;background:#34C759}
+.badge{font-size:11px;padding:2px 7px;border-radius:8px;font-weight:600;display:inline-block}
+.b0{background:#D1FAE5;color:#065F46}.b1{background:#DBEAFE;color:#1E40AF}
+.b2{background:#FEF3C7;color:#92400E}.b3{background:#FFE4E6;color:#9F1239}
+.b4{background:#EDE9FE;color:#5B21B6}.b5{background:#F3F4F6;color:#374151}
+.b6{background:#ECFDF5;color:#064E3B}.b7{background:#FDF2F8;color:#831843}
+.dot{width:9px;height:9px;border-radius:50%;display:inline-block;flex-shrink:0}
+.fbar{display:flex;gap:7px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.fbar::-webkit-scrollbar{display:none}
+.fchip{padding:7px 13px;border:1.5px solid #E5E5EA;border-radius:20px;font-size:13px;font-weight:500;background:#fff;color:#8E8E93;cursor:pointer;white-space:nowrap;flex-shrink:0;font-family:inherit}
+.fchip.on{background:#34C759;border-color:#34C759;color:#fff}
+.fchip.on-p{background:#5856D6;border-color:#5856D6;color:#fff}
+.sortsel{padding:8px 10px;border:1.5px solid #E5E5EA;border-radius:12px;font-size:13px;background:#fff;color:#1C1C1E;outline:none;cursor:pointer;font-family:inherit;-webkit-appearance:none;flex-shrink:0;max-width:130px}
+.tbar{background:#F0FFF4;border-radius:14px;padding:13px 16px;display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.tbar-lbl{font-size:13px;color:#1C7A3A;font-weight:500}
+.tbar-val{font-size:21px;font-weight:700;color:#1C7A3A;letter-spacing:-0.5px}
+.avatar{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0}
+.tbtn{background:none;border:none;cursor:pointer;font-size:20px;padding:4px 5px;border-radius:8px;line-height:1}
+.tbtn:active{background:#F2F2F7}
+.type-inv{background:#EDE9FE;color:#5B21B6;font-size:11px;padding:3px 9px;border-radius:8px;font-weight:600}
+.type-per{background:#D1FAE5;color:#065F46;font-size:11px;padding:3px 9px;border-radius:8px;font-weight:600}
+.adv-pend{background:#FEF3C7;color:#92400E;font-size:11px;padding:2px 8px;border-radius:8px;font-weight:600}
+.adv-done{background:#D1FAE5;color:#065F46;font-size:11px;padding:2px 8px;border-radius:8px;font-weight:600}
 .bill-card{background:#fff;border-radius:14px;padding:14px 16px;margin-bottom:10px;border-left:4px solid #FF9500}
-.bill-card.done{border-left-color:#34C759}
-.toggle-btn{padding:7px 14px;border:1.5px solid #E5E5EA;border-radius:20px;font-size:13px;font-weight:500;background:#fff;color:#8E8E93;cursor:pointer;font-family:inherit}
-.toggle-btn.active{background:#FF9500;border-color:#FF9500;color:#fff}
-.summary-row{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:0.5px solid #E5E5EA;font-size:14px}
-.summary-row:last-child{border-bottom:none}
-.bar-wrap{background:#F2F2F7;border-radius:4px;height:7px;flex:1;margin:0 10px;overflow:hidden;min-width:40px}
-.bar-fill{height:100%;border-radius:4px;transition:width 0.4s}
-.topbar-actions{display:flex;gap:4px}
-.topbar-btn{background:none;border:none;cursor:pointer;font-size:20px;padding:4px;border-radius:8px;line-height:1}
-.topbar-btn:active{background:#F2F2F7}
-.investor-card{background:#fff;border-radius:14px;padding:14px 16px;margin-bottom:10px}
-.investor-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:0.5px solid #E5E5EA}
-.investor-row:last-child{border-bottom:none}
-.avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#fff;flex-shrink:0}
-.type-badge{font-size:11px;padding:3px 10px;border-radius:10px;font-weight:600}
-.type-personal{background:#DBEAFE;color:#1E40AF}
-.type-investor{background:#EDE9FE;color:#5B21B6}
-.payer-grid{display:flex;flex-wrap:wrap;gap:8px}
-.payer-btn{padding:8px 14px;border:1.5px solid #E5E5EA;border-radius:20px;font-size:14px;background:#fff;color:#1C1C1E;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px}
-.payer-btn.active{background:#5856D6;border-color:#5856D6;color:#fff}
-.link-box{background:#F2F2F7;border-radius:12px;padding:12px 14px;font-size:13px;color:#1C1C1E;word-break:break-all;margin-top:8px;font-family:monospace}
-.copy-btn{width:100%;padding:12px;background:#F2F2F7;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;color:#007AFF;font-family:inherit;margin-top:8px}
-.spinner{display:inline-block;width:20px;height:20px;border:2px solid #E5E5EA;border-top-color:#34C759;border-radius:50%;animation:spin 0.8s linear infinite}
+.bill-card.done{border-left-color:#34C759;opacity:0.7}
+.prog-wrap{background:#E5E5EA;border-radius:4px;height:5px;width:100%;margin-top:6px;overflow:hidden}
+.prog-fill{height:100%;border-radius:4px;background:#34C759}
+.spinner{display:inline-block;width:28px;height:28px;border:3px solid #E5E5EA;border-top-color:#34C759;border-radius:50%;animation:spin 0.8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-.loading-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;gap:16px;color:#8E8E93;font-size:15px}
+.loading{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:70vh;gap:14px;color:#8E8E93;font-size:15px}
+.err-box{background:#F2F2F7;border-radius:12px;padding:14px;font-size:12px;font-family:monospace;line-height:1.9;margin:0 16px;color:#1C1C1E}
+canvas{width:100%!important;max-height:210px}
+.srow{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:0.5px solid #F2F2F7;font-size:14px}
+.srow:last-child{border-bottom:none}
+.prog-bar-wrap{background:#F2F2F7;border-radius:4px;height:7px;flex:1;margin:0 10px;overflow:hidden;min-width:40px}
+.prog-bar-fill{height:100%;border-radius:4px}
+.cat-icon-grid{display:flex;flex-wrap:wrap;gap:7px;margin-top:7px}
+.icon-btn{width:40px;height:40px;border:1.5px solid #E5E5EA;border-radius:12px;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;background:#fff;font-family:inherit}
+.icon-btn.on{border-color:#34C759;background:#F0FFF4}
+.cat-row{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:0.5px solid #F2F2F7}
+.cat-row:last-child{border-bottom:none}
+.tag{font-size:11px;background:#F2F2F7;padding:2px 8px;border-radius:8px;color:#8E8E93;font-weight:500}
+.inv-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:0.5px solid #F2F2F7}
+.inv-row:last-child{border-bottom:none}
 </style>
 </head>
 <body>
-<div class="app" id="app"><div class="loading-screen"><div class="spinner"></div><div>Загрузка...</div></div></div>
-<button class="fab" id="fab" style="display:none">+</button>
+<div class="app" id="app"><div class="loading"><div class="spinner"></div><span>Загрузка...</span></div></div>
+<button class="fab" id="fab" style="display:none" onclick="openAddExpense(null)">+</button>
 
 <script type="module">
 import{initializeApp}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import{getFirestore,collection,doc,getDocs,addDoc,setDoc,updateDoc,deleteDoc,onSnapshot,query,orderBy}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import{getFirestore,collection,addDoc,updateDoc,deleteDoc,doc,getDocs,onSnapshot}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
-const firebaseConfig={
-  apiKey:"AIzaSyAaDOtqcnqQbyxttj5y8IYAUHxMTsrspj4",
-  authDomain:"expenses-app-a4565.firebaseapp.com",
-  projectId:"expenses-app-a4565",
-  storageBucket:"expenses-app-a4565.firebasestorage.app",
-  messagingSenderId:"918179761678",
-  appId:"1:918179761678:web:85968596424ed5cc1bb65f"
-};
-const fbApp=initializeApp(firebaseConfig);
+const FB={apiKey:"AIzaSyAaDOtqcnqQbyxttj5y8IYAUHxMTsrspj4",authDomain:"expenses-app-a4565.firebaseapp.com",projectId:"expenses-app-a4565",storageBucket:"expenses-app-a4565.firebasestorage.app",messagingSenderId:"918179761678",appId:"1:918179761678:web:85968596424ed5cc1bb65f"};
+const fbApp=initializeApp(FB);
 const db=getFirestore(fbApp);
 
 const COLORS=['#34C759','#007AFF','#FF6B35','#AF52DE','#FF2D55','#FF9500','#30D158','#FF3B30','#5856D6','#00C7BE'];
-const ALL_ICONS=['🛒','🏠','💼','📦','🚗','💡','📢','🔧','📌','🍔','☕','🎯','🏥','📱','✈️','🎁','💰','🖥️','👗','🏋️'];
-const SORT_OPTS=[{v:'date_desc',l:'Сначала новые'},{v:'date_asc',l:'Сначала старые'},{v:'amount_desc',l:'Дороже сначала'},{v:'amount_asc',l:'Дешевле сначала'},{v:'cat',l:'По категории'}];
+const ICONS=['🛒','🏠','💼','📦','🚗','💡','📢','🔧','📌','🍔','☕','🎯','🏥','📱','✈️','🎁','💰','🖥️','👗','🏋️'];
+const SORTS=[{v:'nd',l:'Сначала новые'},{v:'od',l:'Сначала старые'},{v:'hi',l:'Дороже сначала'},{v:'lo',l:'Дешевле сначала'},{v:'cat',l:'По категории'}];
 
-// check if investor view
-const urlParams=new URLSearchParams(window.location.search);
-const investorToken=urlParams.get('investor');
-const projectToken=urlParams.get('project');
-const isInvestorView=!!(investorToken&&projectToken);
+// Check investor view
+const P=new URLSearchParams(location.search);
+const INV_TOKEN=P.get('investor'), PROJ_TOKEN=P.get('project');
+const IS_INV=!!(INV_TOKEN&&PROJ_TOKEN);
 
-let state={view:'projects',projectId:null,modal:null,search:'',filterCat:'all',filterPayer:'all',sortBy:'date_desc',analyticsProjectId:null};
-let data={projects:[],categories:[],expenses:[]};
-let chartInstance=null;
-let editCatId=null;
-let editProjId=null;
-let tempCat={name:'',icon:'📌'};
-let selProjColor=COLORS[0];
-let selProjType='personal';
-let projInvestors=[];
-let tempForm={project_id:null,category_id:null,amount:'',comment:'',payer_id:'me'};
-let unsubscribes=[];
+let D={projects:[],categories:[],expenses:[]};
+let S={view:'projects',pid:null,modal:null,q:'',fcat:'all',fpay:'all',sort:'nd',apid:null};
+let TF={pid:null,cid:null,amt:'',note:'',payer:'me',adv:false,total:'',party:''};
+let TC={name:'',icon:'📌'};
+let NP={color:COLORS[0],type:'personal',name:'',investors:[]};
+let editPid=null,editCid=null;
+let chart=null;
 
-function getCat(id){return data.categories.find(c=>c.id===id)||{name:'Прочее',icon:'📌',id:'?'}}
-function getProj(id){return data.projects.find(p=>p.id===id)||{name:'—',color:'#C7C7CC',type:'personal',investors:[]}}
-function catBadgeClass(idx){return 'badge-'+(idx%8)}
-function projectTotal(pid){return data.expenses.filter(e=>e.project_id===pid).reduce((s,e)=>s+e.amount,0)}
-function allTotal(){return data.expenses.reduce((s,e)=>s+e.amount,0)}
-function fmt(n){return (+n).toLocaleString('ru-RU')+'₸'}
-function dateStr(d){return new Date(d).toLocaleDateString('ru-RU',{day:'numeric',month:'short'})}
-function catColor(idx){return COLORS[idx%COLORS.length]}
-function avatarColor(str){const colors=['#FF6B35','#AF52DE','#007AFF','#FF2D55','#FF9500','#5856D6','#00C7BE'];let h=0;for(let c of str)h=(h*31+c.charCodeAt(0))%colors.length;return colors[h]}
-function initials(name){return name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2)}
-function payerName(payerId,proj){if(payerId==='me'||!payerId)return'Я';const inv=proj?.investors?.find(i=>i.id===payerId);return inv?inv.name:'—'}
+// helpers
+const $=id=>document.getElementById(id);
+const fmt=n=>(+n||0).toLocaleString('ru-RU')+'₸';
+const dt=d=>new Date(d).toLocaleDateString('ru-RU',{day:'numeric',month:'short'});
+const cat=id=>D.categories.find(c=>c.id===id)||{name:'Прочее',icon:'📌'};
+const proj=id=>D.projects.find(p=>p.id===id)||{name:'—',color:'#C7C7CC',type:'personal',investors:[]};
+const bi=i=>['b0','b1','b2','b3','b4','b5','b6','b7'][i%8];
+const cc=i=>COLORS[i%COLORS.length];
+const avc=s=>{const c=['#FF6B35','#AF52DE','#007AFF','#FF2D55','#FF9500','#5856D6','#00C7BE'];let h=0;for(const x of s)h=(h*31+x.charCodeAt(0))%c.length;return c[h];};
+const ini=s=>s.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+const pname=(pid,pr)=>pid==='me'||!pid?'Я':(pr?.investors?.find(i=>i.id===pid)?.name||'—');
 
-function sortExpenses(arr){
+function ptotal(id){return D.expenses.filter(e=>e.pid===id).reduce((s,e)=>s+e.amt,0)}
+function atotal(){return D.expenses.reduce((s,e)=>s+e.amt,0)}
+
+function sortArr(arr){
   const a=arr.slice();
-  if(state.sortBy==='date_desc')return a.sort((x,y)=>y.id>x.id?1:-1);
-  if(state.sortBy==='date_asc')return a.sort((x,y)=>x.id>y.id?1:-1);
-  if(state.sortBy==='amount_desc')return a.sort((x,y)=>y.amount-x.amount);
-  if(state.sortBy==='amount_asc')return a.sort((x,y)=>x.amount-y.amount);
-  if(state.sortBy==='cat')return a.sort((x,y)=>getCat(x.category_id).name.localeCompare(getCat(y.category_id).name,'ru'));
+  if(S.sort==='nd')return a.sort((x,y)=>y._t-x._t);
+  if(S.sort==='od')return a.sort((x,y)=>x._t-y._t);
+  if(S.sort==='hi')return a.sort((x,y)=>y.amt-x.amt);
+  if(S.sort==='lo')return a.sort((x,y)=>x.amt-y.amt);
+  if(S.sort==='cat')return a.sort((x,y)=>cat(x.cid).name.localeCompare(cat(y.cid).name,'ru'));
   return a;
 }
 
-// FIRESTORE
-async function loadData(){
-  const [projSnap,catSnap,expSnap]=await Promise.all([
-    getDocs(collection(db,'projects')),
-    getDocs(collection(db,'categories')),
-    getDocs(collection(db,'expenses'))
-  ]);
-  data.projects=projSnap.docs.map(d=>({id:d.id,...d.data()}));
-  data.categories=catSnap.docs.map(d=>({id:d.id,...d.data()}));
-  data.expenses=expSnap.docs.map(d=>({id:d.id,...d.data()}));
-  if(data.categories.length===0) await seedCategories();
+// Firebase ops
+async function loadAll(){
+  const[ps,cs,es]=await Promise.all([getDocs(collection(db,'projects')),getDocs(collection(db,'categories')),getDocs(collection(db,'expenses'))]);
+  D.projects=ps.docs.map(d=>({id:d.id,...d.data()}));
+  D.categories=cs.docs.map(d=>({id:d.id,...d.data()}));
+  D.expenses=es.docs.map(d=>({id:d.id,...d.data(),_t:d.data().created_at?new Date(d.data().created_at).getTime():0}));
+  if(!D.categories.length)await seedCats();
 }
 
-async function seedCategories(){
-  const cats=[{name:'Продукты',icon:'🛒'},{name:'Аренда',icon:'🏠'},{name:'Зарплата',icon:'💼'},{name:'Закуп',icon:'📦'},{name:'Транспорт',icon:'🚗'},{name:'Коммуналка',icon:'💡'},{name:'Маркетинг',icon:'📢'},{name:'Оборудование',icon:'🔧'},{name:'Прочее',icon:'📌'}];
-  for(const c of cats){const ref=await addDoc(collection(db,'categories'),c);data.categories.push({id:ref.id,...c});}
+async function seedCats(){
+  const cats=[{name:'Закуп',icon:'📦'},{name:'Аренда',icon:'🏠'},{name:'Зарплата',icon:'💼'},{name:'Маркетинг',icon:'📢'},{name:'Продукты',icon:'🛒'},{name:'Транспорт',icon:'🚗'},{name:'Коммуналка',icon:'💡'},{name:'Оборудование',icon:'🔧'},{name:'Прочее',icon:'📌'}];
+  for(const c of cats){const r=await addDoc(collection(db,'categories'),c);D.categories.push({id:r.id,...c});}
 }
 
-function subscribeExpenses(){
-  unsubscribes.forEach(u=>u());unsubscribes=[];
-  const unsub=onSnapshot(collection(db,'expenses'),snap=>{
-    snap.docChanges().forEach(change=>{
-      if(change.type==='added'){if(!data.expenses.find(e=>e.id===change.doc.id))data.expenses.push({id:change.doc.id,...change.doc.data()});}
-      else if(change.type==='modified'){const i=data.expenses.findIndex(e=>e.id===change.doc.id);if(i>=0)data.expenses[i]={id:change.doc.id,...change.doc.data()};}
-      else if(change.type==='removed'){data.expenses=data.expenses.filter(e=>e.id!==change.doc.id);}
+function subscribe(){
+  onSnapshot(collection(db,'expenses'),snap=>{
+    snap.docChanges().forEach(ch=>{
+      const d={id:ch.doc.id,...ch.doc.data(),_t:ch.doc.data().created_at?new Date(ch.doc.data().created_at).getTime():0};
+      if(ch.type==='added'&&!D.expenses.find(e=>e.id===d.id))D.expenses.push(d);
+      else if(ch.type==='modified'){const i=D.expenses.findIndex(e=>e.id===d.id);if(i>=0)D.expenses[i]=d;}
+      else if(ch.type==='removed')D.expenses=D.expenses.filter(e=>e.id!==ch.doc.id);
     });
     render();
   });
-  unsubscribes.push(unsub);
 }
 
-async function addExpense(e){
-  await addDoc(collection(db,'expenses'),e);
-  // don't push locally — onSnapshot will add it
-}
-async function removeExpense(id){
-  await deleteDoc(doc(db,'expenses',id));
-  data.expenses=data.expenses.filter(e=>e.id!==id);
-  render();
-}
-async function addProject(p){
-  const ref=await addDoc(collection(db,'projects'),p);
-  data.projects.push({id:ref.id,...p});
-}
-async function updateProject(id,p){
-  await updateDoc(doc(db,'projects',id),p);
-  const i=data.projects.findIndex(x=>x.id===id);
-  if(i>=0)data.projects[i]={...data.projects[i],...p};
-}
-async function removeProject(id){
-  await deleteDoc(doc(db,'projects',id));
-  data.projects=data.projects.filter(p=>p.id!==id);
-  const toDelete=data.expenses.filter(e=>e.project_id===id);
-  for(const e of toDelete)await deleteDoc(doc(db,'expenses',e.id));
-  data.expenses=data.expenses.filter(e=>e.project_id!==id);
-}
-async function addCategory(c){
-  const ref=await addDoc(collection(db,'categories'),c);
-  data.categories.push({id:ref.id,...c});
-}
-async function updateCategory(id,c){
-  await updateDoc(doc(db,'categories',id),c);
-  const i=data.categories.findIndex(x=>x.id===id);
-  if(i>=0)data.categories[i]={...data.categories[i],...c};
-}
-async function removeCategory(id){
-  const fb=data.categories.find(c=>c.name==='Прочее'&&c.id!==id)||data.categories.find(c=>c.id!==id);
-  if(fb){
-    const toUpdate=data.expenses.filter(e=>e.category_id===id);
-    for(const e of toUpdate){await updateDoc(doc(db,'expenses',e.id),{category_id:fb.id});e.category_id=fb.id;}
-  }
-  await deleteDoc(doc(db,'categories',id));
-  data.categories=data.categories.filter(c=>c.id!==id);
-}
-
-// INVESTOR VIEW
-async function loadInvestorView(){
-  const snap=await getDocs(collection(db,'projects'));
-  const proj=snap.docs.map(d=>({id:d.id,...d.data()})).find(p=>p.id===projectToken);
-  if(!proj){document.getElementById('app').innerHTML='<div class="empty" style="padding-top:80px">Проект не найден</div>';return;}
-  const inv=proj.investors?.find(i=>i.id===investorToken);
-  if(!inv){document.getElementById('app').innerHTML='<div class="empty" style="padding-top:80px">Нет доступа</div>';return;}
-  const expSnap=await getDocs(collection(db,'expenses'));
-  const catSnap=await getDocs(collection(db,'categories'));
-  data.projects=[proj];
-  data.categories=catSnap.docs.map(d=>({id:d.id,...d.data()}));
-  data.expenses=expSnap.docs.map(d=>({id:d.id,...d.data()})).filter(e=>e.project_id===projectToken);
-  state.view='investorview';
-  state.projectId=projectToken;
-  renderInvestorView(proj,inv);
-  // live update
-  onSnapshot(collection(db,'expenses'),snap=>{
-    data.expenses=snap.docs.map(d=>({id:d.id,...d.data()})).filter(e=>e.project_id===projectToken);
-    renderInvestorView(proj,inv);
-  });
-}
-
-function renderInvestorView(proj,inv){
-  const exps=data.expenses;
-  const total=exps.reduce((s,e)=>s+e.amount,0);
-  const byPayer={};
-  exps.forEach(e=>{const pid=e.payer_id||'me';byPayer[pid]=(byPayer[pid]||0)+e.amount;});
-  const allPayers=[{id:'me',name:'Руководитель'},...(proj.investors||[])];
-  document.getElementById('app').innerHTML=`
-<div class="topbar">
-  <h1 style="flex:1">${proj.name}</h1>
-  <span class="type-badge type-investor">Инвестор</span>
-</div>
-<div class="section">
-  <div class="total-bar"><span class="total-label">Общие расходы</span><span class="total-val">${fmt(total)}</span></div>
-  <div class="section-title">Участники</div>
-  <div class="investor-card">
-    ${allPayers.map(p=>{
-      const amt=byPayer[p.id]||0;
-      const pct=total?Math.round(amt/total*100):0;
-      const col=p.id==='me'?'#34C759':avatarColor(p.name);
-      return`<div class="investor-row">
-        <div style="display:flex;align-items:center;gap:10px;flex:1">
-          <div class="avatar" style="background:${col}">${p.id==='me'?'Я':initials(p.name)}</div>
-          <div>
-            <div style="font-size:15px;font-weight:600">${p.id==='me'?'Руководитель':p.name}</div>
-            <div style="font-size:12px;color:#8E8E93">${pct}% от общего</div>
-          </div>
-        </div>
-        <div style="font-size:17px;font-weight:700">${fmt(amt)}</div>
-      </div>`;
-    }).join('')}
-  </div>
-  <div class="section-title" style="margin-top:8px">Все расходы</div>
-  <div style="background:#fff;border-radius:14px;padding:0 16px">
-    ${exps.length===0?'<div class="empty">Расходов пока нет</div>':
-    exps.slice().sort((a,b)=>b.id>a.id?1:-1).map(e=>{
-      const cat=getCat(e.category_id);
-      const ci=data.categories.findIndex(c=>c.id===e.category_id);
-      const pname=e.payer_id==='me'||!e.payer_id?'Руководитель':(proj.investors?.find(i=>i.id===e.payer_id)?.name||'—');
-      const pcol=e.payer_id==='me'||!e.payer_id?'#34C759':avatarColor(pname);
-      return`<div class="expense-row">
-        <div class="exp-icon">${cat.icon}</div>
-        <div class="exp-info">
-          <div class="exp-title">${e.comment||cat.name}</div>
-          <div class="exp-sub"><span class="badge ${catBadgeClass(ci)}">${cat.name}</span> · <span style="display:inline-flex;align-items:center;gap:3px"><span style="width:8px;height:8px;border-radius:50%;background:${pcol};display:inline-block"></span>${pname}</span> · ${dateStr(e.created_at)}</div>
-        </div>
-        <span style="font-size:16px;font-weight:600;white-space:nowrap">${fmt(e.amount)}</span>
-      </div>`;
-    }).join('')}
-  </div>
-</div>`;
-}
-
-// RENDER
+// ---- RENDER ----
 function render(){
   destroyChart();
-  const app=document.getElementById('app');
-  const fab=document.getElementById('fab');
-  if(state.view==='projects'){app.innerHTML=renderProjects();fab.style.display='flex';}
-  else if(state.view==='project'){app.innerHTML=renderProject();fab.style.display='flex';}
-  else if(state.view==='analytics'){app.innerHTML=renderAnalytics();fab.style.display='none';setTimeout(renderChart,50);}
-  else if(state.view==='categories'){app.innerHTML=renderCategoriesPage();fab.style.display='none';}
-  else if(state.view==='allexpenses'){app.innerHTML=renderAllExpenses();fab.style.display='flex';}
-  else if(state.view==='bills'){app.innerHTML=renderBills();fab.style.display='none';}
+  const app=$('app'),fab=$('fab');
+  if(S.view==='projects'){app.innerHTML=vProjects();fab.style.display='flex';}
+  else if(S.view==='project'){app.innerHTML=vProject();fab.style.display='flex';}
+  else if(S.view==='analytics'){app.innerHTML=vAnalytics();fab.style.display='none';setTimeout(renderChart,60);}
+  else if(S.view==='categories'){app.innerHTML=vCategories();fab.style.display='none';}
+  else if(S.view==='all'){app.innerHTML=vAll();fab.style.display='flex';}
+  else if(S.view==='bills'){app.innerHTML=vBills();fab.style.display='none';}
 }
 
-function renderProjects(){
-  const total=allTotal();
-  return`
-<div class="topbar">
-  <h1>Мои проекты</h1>
-  <div class="topbar-actions">
-    <button class="topbar-btn" onclick="openAllExpenses()">📋</button>
-    <button class="topbar-btn" onclick="openAnalytics()">📊</button>
-    <button class="topbar-btn" onclick="openBills()">🧾</button>
-    <button class="topbar-btn" onclick="openCategoriesPage()">🏷️</button>
-  </div>
-</div>
-<div class="section">
-  <div class="total-bar"><span class="total-label">Всего расходов</span><span class="total-val">${fmt(total)}</span></div>
-  <div class="section-title">Проекты</div>
-  ${data.projects.map(p=>`
-  <div class="card" onclick="openProject('${p.id}')">
-    <div class="card-header">
-      <span class="card-title"><span class="proj-dot" style="background:${p.color};margin-right:7px"></span>${p.name}</span>
-      <div style="display:flex;align-items:center;gap:6px">
-        <span class="type-badge ${p.type==='investor'?'type-investor':'type-personal'}">${p.type==='investor'?'Инвесторский':'Личный'}</span>
-        <button onclick="event.stopPropagation();openEditProject('${p.id}')" style="background:none;border:none;cursor:pointer;font-size:16px;padding:2px 6px;color:#C7C7CC;border-radius:8px">✏️</button>
+function vProjects(){
+  return`<div class="topbar"><h1>Мои проекты</h1><div style="display:flex;gap:2px">
+    <button class="tbtn" onclick="go('all')">📋</button>
+    <button class="tbtn" onclick="go('analytics')">📊</button>
+    <button class="tbtn" onclick="go('bills')">🧾</button>
+    <button class="tbtn" onclick="go('categories')">🏷️</button>
+  </div></div>
+  <div class="section">
+    <div class="tbar"><span class="tbar-lbl">Всего расходов</span><span class="tbar-val">${fmt(atotal())}</span></div>
+    ${D.projects.map(p=>`
+    <div class="card" onclick="openProj('${p.id}')">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <span style="font-size:15px;font-weight:600"><span class="dot" style="background:${p.color};margin-right:6px"></span>${p.name}</span>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span class="${p.type==='investor'?'type-inv':'type-per'}">${p.type==='investor'?'Инв.':'Личный'}</span>
+          <button onclick="event.stopPropagation();editProj('${p.id}')" style="background:none;border:none;font-size:16px;cursor:pointer;color:#C7C7CC;padding:2px 5px">✏️</button>
+        </div>
       </div>
-    </div>
-    <div class="card-amount" style="color:${p.color}">${fmt(projectTotal(p.id))}</div>
-    <div class="card-meta">${data.expenses.filter(e=>e.project_id===p.id).length} расходов${p.type==='investor'&&p.investors?.length?' · '+p.investors.length+' инвесторов':''}</div>
-  </div>`).join('')}
-  <div class="card" style="text-align:center;color:#34C759;font-size:15px;font-weight:600;border:2px dashed #D1FAE5" onclick="openNewProject()">+ Новый проект</div>
-</div>`;
+      <div style="font-size:20px;font-weight:700;color:${p.color}">${fmt(ptotal(p.id))}</div>
+      <div style="font-size:13px;color:#8E8E93;margin-top:2px">${D.expenses.filter(e=>e.pid===p.id).length} расходов${p.type==='investor'&&p.investors?.length?' · '+p.investors.length+' уч.':''}</div>
+    </div>`).join('')}
+    <div class="card" style="text-align:center;color:#34C759;font-weight:600;border:2px dashed #D1FAE5" onclick="newProj()">+ Новый проект</div>
+  </div>`;
 }
 
-function renderProject(){
-  const p=getProj(state.projectId);
-  let exps=data.expenses.filter(e=>e.project_id===p.id);
-  const q=state.search.trim().toLowerCase();
-  if(q) exps=exps.filter(e=>(e.comment||'').toLowerCase().includes(q)||getCat(e.category_id).name.toLowerCase().includes(q));
-  if(state.filterCat!=='all') exps=exps.filter(e=>e.category_id===state.filterCat);
-  if(state.filterPayer!=='all') exps=exps.filter(e=>(e.payer_id||'me')===state.filterPayer);
-  exps=sortExpenses(exps);
-  const total=data.expenses.filter(e=>e.project_id===p.id).reduce((s,e)=>s+e.amount,0);
-  const projCats=[...new Set(data.expenses.filter(e=>e.project_id===p.id).map(e=>e.category_id))];
+function vProject(){
+  const p=proj(S.pid);
+  let ex=D.expenses.filter(e=>e.pid===p.id);
+  if(S.q)ex=ex.filter(e=>(e.note||'').toLowerCase().includes(S.q.toLowerCase())||cat(e.cid).name.toLowerCase().includes(S.q.toLowerCase()));
+  if(S.fcat!=='all')ex=ex.filter(e=>e.cid===S.fcat);
+  if(S.fpay!=='all')ex=ex.filter(e=>(e.payer||'me')===S.fpay);
+  ex=sortArr(ex);
   const isInv=p.type==='investor';
-  const allPayers=isInv?[{id:'me',name:'Я'},...(p.investors||[])]:[];
-  const byPayer={};
-  if(isInv)data.expenses.filter(e=>e.project_id===p.id).forEach(e=>{const pid=e.payer_id||'me';byPayer[pid]=(byPayer[pid]||0)+e.amount;});
+  const total=D.expenses.filter(e=>e.pid===p.id).reduce((s,e)=>s+e.amt,0);
+  const cats=[...new Set(D.expenses.filter(e=>e.pid===p.id).map(e=>e.cid))];
+  const byPay={};D.expenses.filter(e=>e.pid===p.id).forEach(e=>{const k=e.payer||'me';byPay[k]=(byPay[k]||0)+e.amt;});
+  const payers=isInv?[{id:'me',name:'Я'},...(p.investors||[])]:[];
   return`
-<div class="topbar">
-  <button class="back-btn" onclick="goBack()">‹ Назад</button>
-  <div style="flex:1;text-align:center"><div style="font-size:17px;font-weight:600">${p.name}</div><div class="subtitle">${fmt(total)}</div></div>
-  <button onclick="openAnalytics('${p.id}')" class="topbar-btn">📊</button>
-</div>
-${isInv?`<div class="section" style="padding-bottom:4px">
-  <div style="background:#fff;border-radius:14px;padding:10px 16px;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none">
-    ${[{id:'me',name:'Я',color:'#34C759'},...(p.investors||[]).map(i=>({...i,color:avatarColor(i.name)}))].map(inv=>{
-      const amt=byPayer[inv.id]||0;
-      return`<div style="flex-shrink:0;text-align:center;min-width:60px">
-        <div class="avatar" style="background:${inv.color};margin:0 auto 4px;width:36px;height:36px;font-size:13px">${inv.id==='me'?'Я':initials(inv.name)}</div>
-        <div style="font-size:11px;font-weight:600;color:#1C1C1E">${inv.id==='me'?'Я':inv.name.split(' ')[0]}</div>
-        <div style="font-size:12px;color:#34C759;font-weight:600">${fmt(amt)}</div>
+  <div class="topbar">
+    <button class="back-btn" onclick="go('projects')">‹ Назад</button>
+    <div style="flex:1;text-align:center"><div style="font-size:17px;font-weight:600">${p.name}</div><div class="subtitle">${fmt(total)}</div></div>
+    <button class="tbtn" onclick="S.apid='${p.id}';go('analytics')">📊</button>
+  </div>
+  ${isInv?`<div class="section" style="padding-bottom:4px"><div style="background:#fff;border-radius:14px;padding:10px 14px;display:flex;gap:10px;overflow-x:auto;scrollbar-width:none">
+    ${payers.map(inv=>{const a=byPay[inv.id]||0;const col=inv.id==='me'?'#34C759':avc(inv.name);return`<div style="flex-shrink:0;text-align:center;min-width:55px">
+      <div class="avatar" style="background:${col};margin:0 auto 3px;width:34px;height:34px;font-size:12px">${inv.id==='me'?'Я':ini(inv.name)}</div>
+      <div style="font-size:11px;font-weight:600">${inv.id==='me'?'Я':inv.name.split(' ')[0]}</div>
+      <div style="font-size:12px;color:#34C759;font-weight:600">${fmt(a)}</div>
+    </div>`;}).join('')}
+  </div></div>`:''}
+  <div class="section" style="padding-bottom:4px">
+    <div style="position:relative;margin-bottom:8px">
+      <span style="position:absolute;left:11px;top:50%;transform:translateY(-50%);color:#8E8E93;font-size:14px;pointer-events:none">🔍</span>
+      <input style="width:100%;padding:9px 12px 9px 34px;border:none;border-radius:12px;font-size:15px;background:#E5E5EA;color:#1C1C1E;outline:none;font-family:inherit" placeholder="Поиск..." value="${S.q}" oninput="S.q=this.value;render()">
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px">
+      <div class="fbar" style="flex:1">
+        <button class="fchip ${S.fcat==='all'?'on':''}" onclick="S.fcat='all';render()">Все</button>
+        ${cats.map(cid=>{const c=cat(cid);return`<button class="fchip ${S.fcat===cid?'on':''}" onclick="S.fcat='${cid}';render()">${c.icon} ${c.name}</button>`;}).join('')}
+      </div>
+      <select class="sortsel" onchange="S.sort=this.value;render()">
+        ${SORTS.map(o=>`<option value="${o.v}"${S.sort===o.v?' selected':''}>${o.l}</option>`).join('')}
+      </select>
+    </div>
+    ${isInv?`<div class="fbar">
+      <button class="fchip ${S.fpay==='all'?'on':''}" onclick="S.fpay='all';render()">Все</button>
+      <button class="fchip ${S.fpay==='me'?'on-p':'on'==''?'':'on'}" style="${S.fpay==='me'?'background:#34C759;border-color:#34C759;color:#fff':''}" onclick="S.fpay='me';render()">Я</button>
+      ${(p.investors||[]).map(inv=>`<button class="fchip ${S.fpay===inv.id?'on-p':''}" onclick="S.fpay='${inv.id}';render()">${inv.name}</button>`).join('')}
+    </div>`:''}
+  </div>
+  <div style="background:#fff;border-radius:14px;margin:0 16px;padding:0 16px">
+    ${ex.length===0?'<div style="text-align:center;padding:32px;color:#8E8E93;font-size:14px">Расходов нет</div>':ex.map(e=>{
+      const c=cat(e.cid);const ci=D.categories.findIndex(x=>x.id===e.cid);
+      const pr=proj(e.pid);const pn=pname(e.payer,pr);const pc=(e.payer==='me'||!e.payer)?'#34C759':avc(pn);
+      return`<div class="exp-row">
+        <div class="exp-icon">${c.icon}</div>
+        <div class="exp-info">
+          <div class="exp-title">${e.note||c.name}</div>
+          <div class="exp-sub"><span class="badge ${bi(ci)}">${c.name}</span>${isInv?` · <span style="display:inline-flex;align-items:center;gap:3px"><span style="width:7px;height:7px;border-radius:50%;background:${pc};display:inline-block"></span>${pn}</span>`:''} · ${dt(e.created_at)}</div>
+          ${e.adv&&e.adv_status==='pending'?`<span class="adv-pend">Ждёт доплаты ${fmt((e.adv_total||0)-(e.amt||0))}</span>`:''}
+          ${e.adv&&e.adv_status==='done'?`<span class="adv-done">Закрыт</span>`:''}
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div style="font-size:16px;font-weight:600">${fmt(e.amt)}</div>
+          <button onclick="delExp('${e.id}')" style="background:none;border:none;cursor:pointer;color:#FF3B30;font-size:13px;padding:2px 0">✕</button>
+        </div>
       </div>`;
     }).join('')}
-  </div>
-</div>`:''}
-<div class="section" style="padding-bottom:6px">
-  <div class="search-wrap">
-    <span class="search-icon">🔍</span>
-    <input class="search-input" placeholder="Поиск..." value="${state.search}" oninput="state.search=this.value;render()" />
-  </div>
-  <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
-    <div class="filter-bar" style="flex:1">
-      <button class="filter-chip${state.filterCat==='all'?' active':''}" onclick="state.filterCat='all';render()">Все</button>
-      ${projCats.map(cid=>{const c=getCat(cid);return`<button class="filter-chip${state.filterCat===cid?' active':''}" onclick="setFilterCat('${cid}')">${c.icon} ${c.name}</button>`}).join('')}
-    </div>
-    <select class="sort-select" onchange="setSort(this.value)">
-      ${SORT_OPTS.map(o=>`<option value="${o.v}"${state.sortBy===o.v?' selected':''}>${o.l}</option>`).join('')}
-    </select>
-  </div>
-  ${isInv?`<div class="filter-bar">
-    <button class="filter-chip${state.filterPayer==='all'?' active':''}" onclick="state.filterPayer='all';render()">Все</button>
-    <button class="filter-chip${state.filterPayer==='me'?' active':''}" onclick="state.filterPayer='me';render()">Я</button>
-    ${(p.investors||[]).map(i=>`<button class="filter-chip${state.filterPayer===i.id?' active':''}" onclick="setFilterPayer('${i.id}')">${i.name}</button>`).join('')}
-  </div>`:''}
-</div>
-<div class="section" style="padding-top:0;background:#fff;border-radius:14px;margin:0 16px">
-  ${exps.length===0?'<div class="empty">Расходов не найдено</div>':
-  exps.map(e=>{
-    const cat=getCat(e.category_id);
-    const ci=data.categories.findIndex(c=>c.id===e.category_id);
-    const pname=payerName(e.payer_id,p);
-    const pcol=(e.payer_id==='me'||!e.payer_id)?'#34C759':avatarColor(pname);
-    return`<div class="expense-row">
-      <div class="exp-icon">${cat.icon}</div>
-      <div class="exp-info">
-        <div class="exp-title">${e.comment||cat.name}</div>
-        <div class="exp-sub">
-          <span class="badge ${catBadgeClass(ci)}">${cat.name}</span>
-          ${isInv?` · <span style="display:inline-flex;align-items:center;gap:3px"><span style="width:7px;height:7px;border-radius:50%;background:${pcol};display:inline-block"></span>${pname}</span>`:''}
-          · ${dateStr(e.created_at)}
-        </div>
-      </div>
-      <div style="text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:2px">
-        <span class="exp-amount">${fmt(e.amount)}</span>
-        <button class="icon-btn" onclick="doDeleteExpense('${e.id}')" style="color:#FF3B30;font-size:13px">✕</button>
-      </div>
-    </div>`;
-  }).join('')}
-</div>`;
+  </div>`;
 }
 
-function renderCategoriesPage(){
+function vAll(){
+  let ex=D.expenses.slice();
+  if(S.q)ex=ex.filter(e=>(e.note||'').toLowerCase().includes(S.q.toLowerCase())||cat(e.cid).name.toLowerCase().includes(S.q.toLowerCase())||proj(e.pid).name.toLowerCase().includes(S.q.toLowerCase()));
+  if(S.fcat!=='all')ex=ex.filter(e=>e.cid===S.fcat);
+  ex=sortArr(ex);
+  const total=ex.reduce((s,e)=>s+e.amt,0);
   return`
-<div class="topbar">
-  <button class="back-btn" onclick="goBack()">‹ Назад</button>
-  <h1 style="flex:1;text-align:center">Категории</h1>
-  <button onclick="openAddCategoryModal()" style="background:#34C759;border:none;border-radius:10px;padding:7px 12px;color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">+ Добавить</button>
-</div>
-<div class="section">
-  <div style="background:#fff;border-radius:14px;padding:0 16px">
-  ${data.categories.map((cat,i)=>{
-    const cnt=data.expenses.filter(e=>e.category_id===cat.id).length;
-    return`<div class="cat-manage-row">
-      <div style="width:42px;height:42px;border-radius:50%;background:#F2F2F7;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">${cat.icon}</div>
-      <div style="flex:1;min-width:0;margin:0 10px">
-        <div style="font-size:15px;font-weight:600">${cat.name}</div>
-        <span class="tag-count">${cnt} расходов</span>
-      </div>
-      <button class="icon-btn" onclick="openEditCategoryModal('${cat.id}')" style="font-size:17px">✏️</button>
-      <button class="del-btn" onclick="doDeleteCategory('${cat.id}')">Удалить</button>
-    </div>`;
-  }).join('')}
+  <div class="topbar">
+    <button class="back-btn" onclick="go('projects')">‹ Назад</button>
+    <div style="flex:1;text-align:center"><div style="font-size:17px;font-weight:600">Все расходы</div><div class="subtitle">${fmt(total)}</div></div>
+    <button onclick="exportCSV()" style="background:#34C759;border:none;border-radius:10px;padding:7px 11px;color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">⬇ CSV</button>
   </div>
-</div>`;
-}
-
-function renderAllExpenses(){
-  let exps=data.expenses.slice();
-  const q=state.search.trim().toLowerCase();
-  if(q) exps=exps.filter(e=>(e.comment||'').toLowerCase().includes(q)||getCat(e.category_id).name.toLowerCase().includes(q)||getProj(e.project_id).name.toLowerCase().includes(q));
-  if(state.filterCat!=='all') exps=exps.filter(e=>e.category_id===state.filterCat);
-  exps=sortExpenses(exps);
-  const total=exps.reduce((s,e)=>s+e.amount,0);
-  return`
-<div class="topbar">
-  <button class="back-btn" onclick="goBack()">‹ Назад</button>
-  <div style="flex:1;text-align:center"><div style="font-size:17px;font-weight:600">Все расходы</div><div class="subtitle">${fmt(total)}</div></div>
-  <button onclick="exportCSV()" style="background:#34C759;border:none;border-radius:10px;padding:7px 12px;color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">⬇ CSV</button>
-</div>
-<div class="section" style="padding-bottom:6px">
-  <div class="search-wrap"><span class="search-icon">🔍</span>
-    <input class="search-input" placeholder="Поиск по всем расходам..." value="${state.search}" oninput="state.search=this.value;render()" />
-  </div>
-  <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-    <div class="filter-bar" style="flex:1">
-      <button class="filter-chip${state.filterCat==='all'?' active':''}" onclick="state.filterCat='all';render()">Все</button>
-      ${data.categories.map(c=>`<button class="filter-chip${state.filterCat===c.id?' active':''}" onclick="setFilterCat('${c.id}')">${c.icon} ${c.name}</button>`).join('')}
+  <div class="section" style="padding-bottom:4px">
+    <div style="position:relative;margin-bottom:8px">
+      <span style="position:absolute;left:11px;top:50%;transform:translateY(-50%);color:#8E8E93;font-size:14px;pointer-events:none">🔍</span>
+      <input style="width:100%;padding:9px 12px 9px 34px;border:none;border-radius:12px;font-size:15px;background:#E5E5EA;color:#1C1C1E;outline:none;font-family:inherit" placeholder="Поиск по всем..." value="${S.q}" oninput="S.q=this.value;render()">
     </div>
-    <select class="sort-select" onchange="setSort(this.value)">
-      ${SORT_OPTS.map(o=>`<option value="${o.v}"${state.sortBy===o.v?' selected':''}>${o.l}</option>`).join('')}
-    </select>
+    <div style="display:flex;gap:8px;align-items:center">
+      <div class="fbar" style="flex:1">
+        <button class="fchip ${S.fcat==='all'?'on':''}" onclick="S.fcat='all';render()">Все</button>
+        ${D.categories.map(c=>`<button class="fchip ${S.fcat===c.id?'on':''}" onclick="S.fcat='${c.id}';render()">${c.icon} ${c.name}</button>`).join('')}
+      </div>
+      <select class="sortsel" onchange="S.sort=this.value;render()">
+        ${SORTS.map(o=>`<option value="${o.v}"${S.sort===o.v?' selected':''}>${o.l}</option>`).join('')}
+      </select>
+    </div>
   </div>
-</div>
-<div class="section" style="padding-top:0;background:#fff;border-radius:14px;margin:0 16px">
-  ${exps.length===0?'<div class="empty">Расходов не найдено</div>':
-  exps.map(e=>{
-    const cat=getCat(e.category_id);
-    const ci=data.categories.findIndex(c=>c.id===e.category_id);
-    const proj=getProj(e.project_id);
-    const pname=payerName(e.payer_id,proj);
-    const pcol=(e.payer_id==='me'||!e.payer_id)?'#34C759':avatarColor(pname);
-    return`<div class="expense-row">
-      <div class="exp-icon">${cat.icon}</div>
-      <div class="exp-info">
-        <div class="exp-title">${e.comment||cat.name}</div>
-        <div class="exp-sub">
-          <span class="badge ${catBadgeClass(ci)}">${cat.name}</span> ·
-          <span style="display:inline-flex;align-items:center;gap:3px"><span class="proj-dot" style="background:${proj.color}"></span>${proj.name}</span>
-          ${proj.type==='investor'?` · <span style="display:inline-flex;align-items:center;gap:3px"><span style="width:7px;height:7px;border-radius:50%;background:${pcol};display:inline-block"></span>${pname}</span>`:''}
-          · ${dateStr(e.created_at)}
+  <div style="background:#fff;border-radius:14px;margin:0 16px;padding:0 16px">
+    ${ex.length===0?'<div style="text-align:center;padding:32px;color:#8E8E93;font-size:14px">Ничего не найдено</div>':ex.map(e=>{
+      const c=cat(e.cid);const ci=D.categories.findIndex(x=>x.id===e.cid);
+      const pr=proj(e.pid);const pn=pname(e.payer,pr);const pc=(e.payer==='me'||!e.payer)?'#34C759':avc(pn);
+      return`<div class="exp-row">
+        <div class="exp-icon">${c.icon}</div>
+        <div class="exp-info">
+          <div class="exp-title">${e.note||c.name}</div>
+          <div class="exp-sub"><span class="badge ${bi(ci)}">${c.name}</span> · <span style="display:inline-flex;align-items:center;gap:3px"><span class="dot" style="background:${pr.color}"></span>${pr.name}</span>${pr.type==='investor'?` · <span style="display:inline-flex;align-items:center;gap:3px"><span style="width:7px;height:7px;border-radius:50%;background:${pc};display:inline-block"></span>${pn}</span>`:''} · ${dt(e.created_at)}</div>
         </div>
-      </div>
-      <div style="text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:2px">
-        <span class="exp-amount">${fmt(e.amount)}</span>
-        <button class="icon-btn" onclick="doDeleteExpense('${e.id}')" style="color:#FF3B30;font-size:13px">✕</button>
-      </div>
-    </div>`;
-  }).join('')}
-</div>`;
+        <div style="text-align:right;flex-shrink:0">
+          <div style="font-size:16px;font-weight:600">${fmt(e.amt)}</div>
+          <button onclick="delExp('${e.id}')" style="background:none;border:none;cursor:pointer;color:#FF3B30;font-size:13px;padding:2px 0">✕</button>
+        </div>
+      </div>`;
+    }).join('')}
+  </div>`;
 }
 
-function renderAnalytics(){
-  const pid=state.analyticsProjectId;
-  let exps=pid?data.expenses.filter(e=>e.project_id===pid):data.expenses;
-  const total=exps.reduce((s,e)=>s+e.amount,0);
-  const bycat={};exps.forEach(e=>{bycat[e.category_id]=(bycat[e.category_id]||0)+e.amount});
+function vBills(){
+  const bills=D.expenses.filter(e=>e.adv);
+  const pend=bills.filter(e=>e.adv_status==='pending');
+  const done=bills.filter(e=>e.adv_status==='done');
+  const tpend=pend.reduce((s,e)=>s+((e.adv_total||0)-(e.amt||0)),0);
+  return`
+  <div class="topbar">
+    <button class="back-btn" onclick="go('projects')">‹ Назад</button>
+    <h1 style="flex:1;text-align:center">Счета и авансы</h1>
+  </div>
+  <div class="section">
+    ${pend.length?`<div style="background:#FEF3C7;border-radius:14px;padding:13px 16px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center">
+      <div><div style="font-size:13px;font-weight:600;color:#92400E">Ожидает доплаты</div><div style="font-size:11px;color:#92400E;margin-top:2px">${pend.length} счётов</div></div>
+      <div style="font-size:20px;font-weight:700;color:#92400E">${fmt(tpend)}</div>
+    </div>`:''}
+    ${pend.length?`<div style="font-size:12px;font-weight:600;color:#8E8E93;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:8px">Не закрытые (${pend.length})</div>
+    ${pend.map(e=>{
+      const c=cat(e.cid);const pr=proj(e.pid);
+      const paid=e.amt||0;const total=e.adv_total||paid;const rem=total-paid;const pct=Math.round(paid/total*100);
+      return`<div class="bill-card">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+          <div style="flex:1;min-width:0">
+            <div style="font-size:15px;font-weight:600">${e.note||c.name}</div>
+            <div style="font-size:12px;color:#8E8E93;margin-top:2px">${c.icon} ${c.name} · <span style="display:inline-flex;align-items:center;gap:3px"><span class="dot" style="background:${pr.color}"></span>${pr.name}</span></div>
+            ${e.party?`<div style="font-size:12px;color:#8E8E93;margin-top:1px">👤 ${e.party}</div>`:''}
+          </div>
+          <button onclick="closeBill('${e.id}')" style="background:#34C759;border:none;border-radius:10px;padding:6px 10px;color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;flex-shrink:0;margin-left:8px">✓ Закрыть</button>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px">
+          <span style="color:#8E8E93">Аванс: <b style="color:#1C1C1E">${fmt(paid)}</b></span>
+          <span style="color:#8E8E93">Остаток: <b style="color:#FF3B30">${fmt(rem)}</b></span>
+          <span style="color:#8E8E93">Итого: <b style="color:#1C1C1E">${fmt(total)}</b></span>
+        </div>
+        <div class="prog-wrap"><div class="prog-fill" style="width:${pct}%"></div></div>
+        <div style="font-size:11px;color:#8E8E93;margin-top:3px;text-align:right">${pct}% оплачено · ${dt(e.created_at)}</div>
+      </div>`;
+    }).join('')}`:'<div style="text-align:center;padding:32px;color:#8E8E93;font-size:14px">Все счета закрыты 🎉</div>'}
+    ${done.length?`<div style="font-size:12px;font-weight:600;color:#8E8E93;text-transform:uppercase;letter-spacing:0.4px;margin:8px 0">Закрытые (${done.length})</div>
+    ${done.map(e=>{
+      const c=cat(e.cid);const pr=proj(e.pid);
+      return`<div class="bill-card done">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div><div style="font-size:15px;font-weight:600">${e.note||c.name}</div>
+          <div style="font-size:12px;color:#8E8E93">${c.icon} ${c.name} · ${pr.name}${e.party?' · 👤 '+e.party:''}</div></div>
+          <div style="text-align:right"><div style="font-size:16px;font-weight:700;color:#34C759">${fmt(e.adv_total||e.amt)}</div><span class="adv-done">Закрыт</span></div>
+        </div>
+      </div>`;
+    }).join('')}`:''}
+  </div>`;
+}
+
+function vAnalytics(){
+  const pid=S.apid;
+  let ex=pid?D.expenses.filter(e=>e.pid===pid):D.expenses;
+  const total=ex.reduce((s,e)=>s+e.amt,0);
+  const bycat={};ex.forEach(e=>{bycat[e.cid]=(bycat[e.cid]||0)+e.amt;});
   const cats=Object.entries(bycat).sort((a,b)=>b[1]-a[1]);
-  const proj=pid?getProj(pid):null;
-  const isInv=proj?.type==='investor';
-  const byPayer={};
-  if(isInv)exps.forEach(e=>{const pid2=e.payer_id||'me';byPayer[pid2]=(byPayer[pid2]||0)+e.amount;});
+  const pr=pid?proj(pid):null;
+  const isInv=pr?.type==='investor';
+  const byPay={};if(isInv)ex.forEach(e=>{const k=e.payer||'me';byPay[k]=(byPay[k]||0)+e.amt;});
   return`
-<div class="topbar">
-  <button class="back-btn" onclick="goBack()">‹ Назад</button>
-  <h1 style="flex:1;text-align:center">Аналитика${proj?' — '+proj.name:''}</h1>
-</div>
-<div class="section">
-  <div class="total-bar"><span class="total-label">Итого расходов</span><span class="total-val">${fmt(total)}</span></div>
-  ${isInv?`<div class="section-title">По участникам</div>
-  <div style="background:#fff;border-radius:14px;padding:0 16px;margin-bottom:16px">
-    ${[{id:'me',name:'Я'},...(proj.investors||[])].map(inv=>{
-      const amt=byPayer[inv.id]||0;const pct=total?Math.round(amt/total*100):0;
-      const col=inv.id==='me'?'#34C759':avatarColor(inv.name);
-      return`<div class="summary-row">
-        <span style="display:flex;align-items:center;gap:8px"><span style="width:10px;height:10px;border-radius:50%;background:${col};display:inline-block"></span>${inv.id==='me'?'Я':inv.name}</span>
+  <div class="topbar">
+    <button class="back-btn" onclick="go(${pid?`'project'`:`'projects'`})">‹ Назад</button>
+    <h1 style="flex:1;text-align:center">Аналитика${pr?' — '+pr.name:''}</h1>
+  </div>
+  <div class="section">
+    <div class="tbar"><span class="tbar-lbl">Итого расходов</span><span class="tbar-val">${fmt(total)}</span></div>
+    ${isInv?`<div style="font-size:12px;font-weight:600;color:#8E8E93;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:8px">По участникам</div>
+    <div style="background:#fff;border-radius:14px;padding:0 16px;margin-bottom:14px">
+      ${[{id:'me',name:'Я'},...(pr.investors||[])].map(inv=>{
+        const a=byPay[inv.id]||0;const pct=total?Math.round(a/total*100):0;
+        const col=inv.id==='me'?'#34C759':avc(inv.name);
+        return`<div class="srow"><span style="display:flex;align-items:center;gap:8px"><span style="width:9px;height:9px;border-radius:50%;background:${col};display:inline-block"></span>${inv.id==='me'?'Я':inv.name}</span>
         <div style="display:flex;align-items:center;gap:8px;flex:1;justify-content:flex-end">
-          <div class="bar-wrap" style="max-width:70px"><div class="bar-fill" style="width:${pct}%;background:${col}"></div></div>
+          <div class="prog-bar-wrap" style="max-width:70px"><div class="prog-bar-fill" style="width:${pct}%;background:${col}"></div></div>
+          <span style="font-size:13px;color:#8E8E93;min-width:30px">${pct}%</span>
+          <span style="font-weight:600;min-width:85px;text-align:right">${fmt(a)}</span>
+        </div></div>`;
+      }).join('')}
+    </div>`:''}
+    ${!pid?`<div style="font-size:12px;font-weight:600;color:#8E8E93;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:8px">По проектам</div>
+    <div style="background:#fff;border-radius:14px;padding:0 16px;margin-bottom:14px">
+      ${D.projects.map(p=>{const pt=D.expenses.filter(e=>e.pid===p.id).reduce((s,e)=>s+e.amt,0);const pct=total?Math.round(pt/total*100):0;return`<div class="srow">
+        <span style="display:flex;align-items:center;gap:7px"><span class="dot" style="background:${p.color}"></span>${p.name}</span>
+        <div style="display:flex;align-items:center;gap:8px;flex:1;justify-content:flex-end">
+          <div class="prog-bar-wrap" style="max-width:70px"><div class="prog-bar-fill" style="width:${pct}%;background:${p.color}"></div></div>
+          <span style="font-size:13px;color:#8E8E93;min-width:30px">${pct}%</span>
+          <span style="font-weight:600;min-width:85px;text-align:right">${fmt(pt)}</span>
+        </div></div>`;}).join('')}
+    </div>`:''}
+    <div style="font-size:12px;font-weight:600;color:#8E8E93;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:8px">По категориям</div>
+    <canvas id="ch" style="margin-bottom:12px"></canvas>
+    <div style="background:#fff;border-radius:14px;padding:0 16px">
+      ${cats.map(([cid,amt])=>{const c=cat(cid);const ci=D.categories.findIndex(x=>x.id===cid);const pct=total?Math.round(amt/total*100):0;return`<div class="srow">
+        <span>${c.icon} ${c.name}</span>
+        <div style="display:flex;align-items:center;gap:8px;flex:1;justify-content:flex-end">
+          <div class="prog-bar-wrap" style="max-width:70px"><div class="prog-bar-fill" style="width:${pct}%;background:${cc(ci)}"></div></div>
           <span style="font-size:13px;color:#8E8E93;min-width:30px">${pct}%</span>
           <span style="font-weight:600;min-width:85px;text-align:right">${fmt(amt)}</span>
-        </div>
-      </div>`;
-    }).join('')}
-  </div>`:''}
-  ${!pid?`<div class="section-title">По проектам</div>
-  <div style="background:#fff;border-radius:14px;padding:0 16px;margin-bottom:16px">
-  ${data.projects.map(p=>{const pt=data.expenses.filter(e=>e.project_id===p.id).reduce((s,e)=>s+e.amount,0);const pct=total?Math.round(pt/total*100):0;return`
-  <div class="summary-row">
-    <span style="display:flex;align-items:center;gap:7px"><span class="proj-dot" style="background:${p.color}"></span>${p.name}</span>
-    <div style="display:flex;align-items:center;gap:8px;flex:1;justify-content:flex-end">
-      <div class="bar-wrap" style="max-width:70px"><div class="bar-fill" style="width:${pct}%;background:${p.color}"></div></div>
-      <span style="font-size:13px;color:#8E8E93;min-width:30px">${pct}%</span>
-      <span style="font-weight:600;min-width:85px;text-align:right">${fmt(pt)}</span>
+        </div></div>`;}).join('')}
     </div>
-  </div>`}).join('')}
-  </div>`:''}
-  <div class="section-title">По категориям</div>
-  <canvas id="myChart" style="margin:8px 0 16px"></canvas>
-  <div style="background:#fff;border-radius:14px;padding:0 16px">
-  ${cats.map(([cid,amt])=>{const cat=getCat(cid);const ci=data.categories.findIndex(c=>c.id===cid);const pct=total?Math.round(amt/total*100):0;return`
-  <div class="summary-row">
-    <span style="display:flex;align-items:center;gap:7px">${cat.icon} ${cat.name}</span>
-    <div style="display:flex;align-items:center;gap:8px;flex:1;justify-content:flex-end">
-      <div class="bar-wrap" style="max-width:70px"><div class="bar-fill" style="width:${pct}%;background:${catColor(ci)}"></div></div>
-      <span style="font-size:13px;color:#8E8E93;min-width:30px">${pct}%</span>
-      <span style="font-weight:600;min-width:85px;text-align:right">${fmt(amt)}</span>
-    </div>
-  </div>`}).join('')}
+  </div>`;
+}
+
+function vCategories(){
+  return`
+  <div class="topbar">
+    <button class="back-btn" onclick="go('projects')">‹ Назад</button>
+    <h1 style="flex:1;text-align:center">Категории</h1>
+    <button onclick="newCat()" style="background:#34C759;border:none;border-radius:10px;padding:7px 11px;color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">+ Добавить</button>
   </div>
-</div>`;
+  <div class="section"><div style="background:#fff;border-radius:14px;padding:0 16px">
+    ${D.categories.map(c=>{const cnt=D.expenses.filter(e=>e.cid===c.id).length;return`<div class="cat-row">
+      <div style="width:40px;height:40px;border-radius:50%;background:#F2F2F7;display:flex;align-items:center;justify-content:center;font-size:20px">${c.icon}</div>
+      <div style="flex:1;margin:0 10px"><div style="font-size:15px;font-weight:600">${c.name}</div><span class="tag">${cnt} расходов</span></div>
+      <button onclick="editCat('${c.id}')" style="background:none;border:none;font-size:17px;cursor:pointer;padding:4px">✏️</button>
+      <button class="del-btn" onclick="delCat('${c.id}')">Удалить</button>
+    </div>`;}).join('')}
+  </div></div>`;
 }
 
-function destroyChart(){if(chartInstance){chartInstance.destroy();chartInstance=null;}}
+// ---- CHARTS ----
+function destroyChart(){if(chart){chart.destroy();chart=null;}}
 function renderChart(){
-  const pid=state.analyticsProjectId;
-  let exps=pid?data.expenses.filter(e=>e.project_id===pid):data.expenses;
-  const bycat={};exps.forEach(e=>{bycat[e.category_id]=(bycat[e.category_id]||0)+e.amount});
+  const pid=S.apid;
+  let ex=pid?D.expenses.filter(e=>e.pid===pid):D.expenses;
+  const bycat={};ex.forEach(e=>{bycat[e.cid]=(bycat[e.cid]||0)+e.amt;});
   const cats=Object.entries(bycat).sort((a,b)=>b[1]-a[1]);
-  const el=document.getElementById('myChart');
-  if(!el||!cats.length)return;
-  chartInstance=new Chart(el,{type:'doughnut',data:{labels:cats.map(([cid])=>getCat(cid).name),datasets:[{data:cats.map(([,v])=>v),backgroundColor:cats.map(([cid])=>{const i=data.categories.findIndex(c=>c.id===cid);return catColor(i)}),borderWidth:3,borderColor:'#fff'}]},options:{responsive:true,plugins:{legend:{position:'bottom',labels:{font:{size:13},padding:12,boxWidth:14}},tooltip:{callbacks:{label:ctx=>{const v=ctx.raw;const t=ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0);return ctx.label+': '+fmt(v)+' ('+Math.round(v/t*100)+'%)'}}}},cutout:'62%'}});
+  const el=$('ch');if(!el||!cats.length)return;
+  chart=new Chart(el,{type:'doughnut',data:{
+    labels:cats.map(([cid])=>cat(cid).name),
+    datasets:[{data:cats.map(([,v])=>v),backgroundColor:cats.map(([cid])=>{const i=D.categories.findIndex(c=>c.id===cid);return cc(i);}),borderWidth:3,borderColor:'#fff'}]
+  },options:{responsive:true,cutout:'62%',plugins:{legend:{position:'bottom',labels:{font:{size:12},padding:10,boxWidth:13}},
+    tooltip:{callbacks:{label:ctx=>{const v=ctx.raw;const t=ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0);return ctx.label+': '+fmt(v)+' ('+Math.round(v/t*100)+'%)';}}}}
+  }});
 }
 
-// MODALS
-let tempNewInvestors=[];
-let newInvestorInput='';
+// ---- MODALS ----
+function modal(html){
+  closeModal();
+  const ov=document.createElement('div');
+  ov.className='overlay';ov.id='ov';
+  ov.onclick=e=>{if(e.target===ov)closeModal();};
+  ov.innerHTML=`<div class="modal"><div class="handle"></div>${html}</div>`;
+  document.body.appendChild(ov);
+}
+function closeModal(){const o=$('ov');if(o)o.remove();S.modal=null;}
 
 function openAddExpense(pid){
-  const p=pid?getProj(pid):null;
-  tempForm={project_id:pid||null,category_id:data.categories[0]?.id||null,amount:'',comment:'',payer_id:'me',is_advance:false,total_amount:'',counterparty:''};
-  state.modal='add';renderModal();
+  TF={pid:pid||null,cid:D.categories[0]?.id||null,amt:'',note:'',payer:'me',adv:false,total:'',party:''};
+  showAddModal();
 }
-function openNewProject(){state.modal='newproject';selProjColor=COLORS[0];selProjType='personal';editProjId=null;tempNewInvestors=[];renderModal();}
-function openEditProject(id){
-  const p=getProj(id);
-  selProjColor=p.color;selProjType=p.type||'personal';editProjId=id;
-  tempNewInvestors=p.investors?[...p.investors]:[];
-  state.modal='newproject';renderModal();
-}
-function openAddCategoryModal(){tempCat={name:'',icon:'📌'};editCatId=null;state.modal='addcat';renderModal();}
-function openEditCategoryModal(id){
-  const c=data.categories.find(x=>x.id===id);
-  if(!c)return;tempCat={name:c.name,icon:c.icon};editCatId=id;state.modal='addcat';renderModal();
-}
-function openProject(id){state.projectId=id;state.search='';state.filterCat='all';state.filterPayer='all';state.sortBy='date_desc';state.view='project';render();}
-function openAnalytics(pid){state.analyticsProjectId=pid||null;state.view='analytics';render();}
-function openCategoriesPage(){state.view='categories';render();}
-function openAllExpenses(){state.view='allexpenses';state.search='';state.filterCat='all';state.sortBy='date_desc';render();}
-
-function goBack(){
-  if(state.view==='project'){state.view='projects';}
-  else if(state.view==='analytics'){state.view=state.projectId?'project':'projects';}
-  else if(state.view==='categories'||state.view==='allexpenses'||state.view==='bills'){state.view='projects';}
-  render();
-}
-
-function renderModal(){
-  const ex=document.querySelector('.overlay');if(ex)ex.remove();
-  const div=document.createElement('div');div.className='overlay';div.id='modal-overlay';
-  div.onclick=e=>{if(e.target===div)closeModal();};
-  if(state.modal==='add') div.innerHTML=buildAddModal();
-  else if(state.modal==='newproject') div.innerHTML=buildNewProjectModal();
-  else if(state.modal==='addcat') div.innerHTML=buildCatModal();
-  else if(state.modal==='sharelink') div.innerHTML=buildShareModal();
-  document.body.appendChild(div);
-  if(state.modal==='add') setTimeout(()=>{const a=document.getElementById('amt-input');if(a)a.focus();},100);
-  if(state.modal==='addcat') setTimeout(()=>{const a=document.getElementById('cat-name-input');if(a)a.focus();},100);
-}
-
-function buildAddModal(){
-  const selProj=tempForm.project_id?getProj(tempForm.project_id):null;
-  const isInv=selProj?.type==='investor';
-  return`<div class="modal">
-  <div class="modal-handle"></div>
-  <div class="modal-title">Добавить расход</div>
-  <div class="form-group">
-    <label class="form-label">Проект</label>
-    ${data.projects.map(p=>`<button class="proj-btn${tempForm.project_id===p.id?' active':''}" onclick="selectProj('${p.id}')"><span class="proj-dot" style="background:${p.color}"></span>${p.name}<span class="type-badge ${p.type==='investor'?'type-investor':'type-personal'}" style="margin-left:auto">${p.type==='investor'?'Инв.':'Личный'}</span></button>`).join('')}
-  </div>
-  <div class="form-group">
-    <label class="form-label">Категория</label>
-    <div class="cat-grid">${data.categories.map(c=>`<button class="cat-btn${tempForm.category_id===c.id?' active':''}" onclick="selectCat('${c.id}')">${c.icon} ${c.name}</button>`).join('')}</div>
-  </div>
-  ${isInv?`<div class="form-group">
-    <label class="form-label">Кто платит</label>
-    <div class="payer-grid">
-      <button class="payer-btn${tempForm.payer_id==='me'?' active':''}" onclick="selectPayer('me')"><span style="width:24px;height:24px;border-radius:50%;background:#34C759;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff">Я</span>Я</button>
-      ${(selProj.investors||[]).map(inv=>`<button class="payer-btn${tempForm.payer_id===inv.id?' active':''}" onclick="selectPayer('${inv.id}')"><span style="width:24px;height:24px;border-radius:50%;background:${avatarColor(inv.name)};display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff">${initials(inv.name)}</span>${inv.name}</button>`).join('')}
+function showAddModal(){
+  const sp=TF.pid?proj(TF.pid):null;const isInv=sp?.type==='investor';
+  modal(`<div class="modal-title">Добавить расход</div>
+    <div class="form-group"><label class="lbl">Проект</label>
+      ${D.projects.map(p=>`<button class="prow ${TF.pid===p.id?'sel':''}" onclick="selPid('${p.id}')"><span class="dot" style="background:${p.color}"></span>${p.name}<span class="${p.type==='investor'?'type-inv':'type-per'}" style="margin-left:auto">${p.type==='investor'?'Инв.':'Личный'}</span></button>`).join('')}
     </div>
-  </div>`:''}
-  <div class="form-group">
-    <label class="form-label">Сумма (₸)</label>
-    <input id="amt-input" class="form-input" type="number" inputmode="numeric" placeholder="0" value="${tempForm.amount}" oninput="tempForm.amount=this.value" onkeydown="if(event.key==='Enter')document.getElementById('cmt-input').focus()" style="font-size:22px;font-weight:700" />
-  </div>
-  <div class="form-group">
-    <label class="form-label">Комментарий</label>
-    <input id="cmt-input" class="form-input" type="text" placeholder="Что за расход?" value="${tempForm.comment}" oninput="tempForm.comment=this.value" onkeydown="if(event.key==='Enter')doSaveExpense()" />
-  </div>
-  <button class="save-btn" onclick="doSaveExpense()" ${(tempForm.project_id&&String(tempForm.amount).trim())?'':'disabled'}>Сохранить</button>
-</div>`;
+    <div class="form-group"><label class="lbl">Категория</label>
+      <div class="chip-wrap">${D.categories.map(c=>`<button class="chip ${TF.cid===c.id?'sel':''}" onclick="selCid('${c.id}')">${c.icon} ${c.name}</button>`).join('')}</div>
+    </div>
+    ${isInv?`<div class="form-group"><label class="lbl">Кто платит</label>
+      <div class="chip-wrap">
+        <button class="chip ${TF.payer==='me'?'sel-purple':''}" onclick="selPayer('me')">🟢 Я</button>
+        ${(sp.investors||[]).map(inv=>`<button class="chip ${TF.payer===inv.id?'sel-purple':''}" onclick="selPayer('${inv.id}')">${ini(inv.name)} ${inv.name}</button>`).join('')}
+      </div></div>`:''}
+    <div class="form-group"><label class="lbl">Сумма (₸)</label>
+      <input id="ai" class="inp" type="number" inputmode="numeric" placeholder="0" value="${TF.amt}" oninput="TF.amt=this.value" style="font-size:22px;font-weight:700" onkeydown="if(event.key==='Enter')$('ni')?.focus()">
+    </div>
+    <div class="form-group"><label class="lbl">Комментарий</label>
+      <input id="ni" class="inp" type="text" placeholder="Что за расход?" value="${TF.note}" oninput="TF.note=this.value" onkeydown="if(event.key==='Enter')saveExp()">
+    </div>
+    <div class="form-group">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <label class="lbl" style="margin:0">Аванс / частичная оплата</label>
+        <button onclick="TF.adv=!TF.adv;showAddModal()" class="chip ${TF.adv?'sel-orange':''}" style="padding:6px 12px">${TF.adv?'✓ Аванс':'+ Аванс'}</button>
+      </div>
+      ${TF.adv?`<div style="margin-top:8px">
+        <input class="inp" type="number" inputmode="numeric" placeholder="Общая сумма счёта..." value="${TF.total}" oninput="TF.total=this.value" style="margin-bottom:7px">
+        <input class="inp" type="text" placeholder="Кому платим (подрядчик...)" value="${TF.party}" oninput="TF.party=this.value">
+      </div>`:''}
+    </div>
+    <button class="save-btn" id="sbtn" onclick="saveExp()">Сохранить</button>
+  `);
+  setTimeout(()=>{
+    const ai=$('ai');if(ai)ai.focus();
+    updateSaveBtn();
+  },80);
 }
 
-function buildNewProjectModal(){
-  const editing=editProjId?getProj(editProjId):null;
-  return`<div class="modal">
-  <div class="modal-handle"></div>
-  <div class="modal-title">${editing?'Редактировать проект':'Новый проект'}</div>
-  <div class="form-group">
-    <label class="form-label">Тип проекта</label>
-    <div style="display:flex;gap:8px">
-      <button class="cat-btn${selProjType==='personal'?' active':''}" onclick="selectProjType('personal')">👤 Личный</button>
-      <button class="cat-btn${selProjType==='investor'?' active':''}" onclick="selectProjType('investor')">👥 Инвесторский</button>
+function updateSaveBtn(){
+  const b=$('sbtn');if(!b)return;
+  const ok=TF.pid&&String(TF.amt).trim()&&parseFloat(TF.amt)>0;
+  b.disabled=!ok;
+}
+
+function selPid(id){syncAmt();TF.pid=id;TF.payer='me';showAddModal();}
+function selCid(id){syncAmt();TF.cid=id;showAddModal();}
+function selPayer(id){syncAmt();TF.payer=id;showAddModal();}
+function syncAmt(){const ai=$('ai');const ni=$('ni');if(ai)TF.amt=ai.value;if(ni)TF.note=ni.value;}
+
+async function saveExp(){
+  syncAmt();
+  if(!TF.pid||!TF.amt||parseFloat(TF.amt)<=0)return;
+  const e={pid:TF.pid,cid:TF.cid||D.categories[0]?.id,amt:parseFloat(TF.amt),note:TF.note,payer:TF.payer||'me',created_at:new Date().toISOString().split('T')[0],adv:TF.adv,adv_total:TF.adv&&TF.total?parseFloat(TF.total):null,party:TF.party||'',adv_status:TF.adv?'pending':null};
+  closeModal();
+  await addDoc(collection(db,'expenses'),e);
+}
+
+// Project modals
+function newProj(){NP={color:COLORS[0],type:'personal',name:'',investors:[]};editPid=null;showProjModal();}
+function editProj(id){const p=proj(id);NP={color:p.color,type:p.type||'personal',name:p.name,investors:p.investors?[...p.investors]:[]};editPid=id;showProjModal();}
+
+function showProjModal(){
+  modal(`<div class="modal-title">${editPid?'Редактировать':'Новый проект'}</div>
+    <div class="form-group"><label class="lbl">Тип</label>
+      <div class="chip-wrap">
+        <button class="chip ${NP.type==='personal'?'sel':''}" onclick="NP.type='personal';showProjModal()">👤 Личный</button>
+        <button class="chip ${NP.type==='investor'?'sel':''}" onclick="NP.type='investor';showProjModal()">👥 Инвесторский</button>
+      </div>
     </div>
-  </div>
-  <div class="form-group">
-    <label class="form-label">Название</label>
-    <input id="proj-name-input" class="form-input" type="text" placeholder="Название проекта..." value="${editing?editing.name:''}" />
-  </div>
-  <div class="form-group">
-    <label class="form-label">Цвет</label>
-    <div style="display:flex;gap:10px;flex-wrap:wrap">
-      ${COLORS.map((c,i)=>`<div onclick="selectProjColor('${c}')" style="width:36px;height:36px;border-radius:50%;background:${c};cursor:pointer;border:3px solid ${c===selProjColor?'#1C1C1E':'transparent'};transition:border-color 0.15s"></div>`).join('')}
+    <div class="form-group"><label class="lbl">Название</label>
+      <input id="pni" class="inp" type="text" placeholder="Название проекта..." value="${NP.name}" oninput="NP.name=this.value">
     </div>
-  </div>
-  ${selProjType==='investor'?`<div class="form-group">
-    <label class="form-label">Инвесторы</label>
-    ${tempNewInvestors.map((inv,i)=>`<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-      <div class="avatar" style="background:${avatarColor(inv.name)};width:34px;height:34px;font-size:13px">${initials(inv.name)}</div>
-      <span style="flex:1;font-size:15px">${inv.name}</span>
-      <button onclick="removeInvestor(${i})" class="del-btn">✕</button>
-    </div>`).join('')}
-    <div style="display:flex;gap:8px;margin-top:4px">
-      <input id="inv-name-input" class="form-input" type="text" placeholder="Имя инвестора..." style="flex:1" onkeydown="if(event.key==='Enter')addInvestorFromInput()" />
-      <button onclick="addInvestorFromInput()" style="padding:10px 14px;background:#5856D6;border:none;border-radius:12px;color:#fff;font-size:15px;cursor:pointer;font-family:inherit">+</button>
+    <div class="form-group"><label class="lbl">Цвет</label>
+      <div style="display:flex;gap:9px;flex-wrap:wrap">
+        ${COLORS.map(c=>`<div onclick="NP.color='${c}';showProjModal()" style="width:34px;height:34px;border-radius:50%;background:${c};cursor:pointer;border:3px solid ${c===NP.color?'#1C1C1E':'transparent'}"></div>`).join('')}
+      </div>
     </div>
-    ${tempNewInvestors.length>0?`<div style="margin-top:12px">
-      <div style="font-size:13px;color:#8E8E93;margin-bottom:6px">Ссылки для инвесторов (после сохранения):</div>
-      ${editProjId?tempNewInvestors.map(inv=>`<div style="margin-bottom:10px">
-        <div style="font-size:13px;font-weight:600;margin-bottom:4px">${inv.name}</div>
-        <div class="link-box">${buildInvestorLink(editProjId,inv.id)}</div>
-        <button class="copy-btn" onclick="copyLink('${buildInvestorLink(editProjId,inv.id)}')">📋 Копировать ссылку</button>
-      </div>`).join(''):'<div style="font-size:13px;color:#8E8E93">Ссылки появятся после создания проекта</div>'}
+    ${NP.type==='investor'?`<div class="form-group"><label class="lbl">Инвесторы</label>
+      ${NP.investors.map((inv,i)=>`<div style="display:flex;align-items:center;gap:8px;margin-bottom:7px">
+        <div class="avatar" style="background:${avc(inv.name)};width:32px;height:32px;font-size:12px">${ini(inv.name)}</div>
+        <span style="flex:1;font-size:15px">${inv.name}</span>
+        <button class="del-btn" onclick="NP.investors.splice(${i},1);showProjModal()">✕</button>
+      </div>`).join('')}
+      <div style="display:flex;gap:7px;margin-top:4px">
+        <input id="invnm" class="inp" style="flex:1" type="text" placeholder="Имя инвестора..." onkeydown="if(event.key==='Enter')addInv()">
+        <button onclick="addInv()" style="padding:10px 14px;background:#5856D6;border:none;border-radius:12px;color:#fff;font-size:16px;cursor:pointer;font-family:inherit">+</button>
+      </div>
+      ${editPid&&NP.investors.length?`<div style="margin-top:12px">
+        <div class="lbl" style="margin-bottom:6px">Ссылки для инвесторов</div>
+        ${NP.investors.map(inv=>`<div style="margin-bottom:10px">
+          <div style="font-size:13px;font-weight:600;margin-bottom:4px">${inv.name}</div>
+          <div style="background:#F2F2F7;border-radius:10px;padding:10px;font-size:11px;font-family:monospace;word-break:break-all">${invLink(editPid,inv.id)}</div>
+          <button onclick="copyTxt('${invLink(editPid,inv.id)}')" style="width:100%;padding:10px;background:#F2F2F7;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;color:#007AFF;font-family:inherit;margin-top:6px">📋 Копировать ссылку</button>
+        </div>`).join('')}
+      </div>`:''}
     </div>`:''}
-  </div>`:''}
-  ${editing?`<button class="del-btn" style="width:100%;margin-bottom:8px;padding:12px;font-size:15px;border-radius:14px" onclick="doDeleteProject('${editing.id}')">Удалить проект</button>`:''}
-  <button class="save-btn" onclick="doSaveProject()">${editing?'Сохранить':'Создать проект'}</button>
-</div>`;
+    ${editPid?`<button class="del-btn" style="width:100%;padding:13px;font-size:15px;border-radius:14px;margin-bottom:8px" onclick="delProj('${editPid}')">Удалить проект</button>`:''}
+    <button class="save-btn" onclick="saveProj()">Сохранить</button>
+  `);
+  setTimeout(()=>{const i=$('pni');if(i)i.focus();},80);
 }
 
-function buildCatModal(){
-  return`<div class="modal">
-  <div class="modal-handle"></div>
-  <div class="modal-title">${editCatId?'Редактировать':'Новая категория'}</div>
-  <div class="form-group">
-    <label class="form-label">Название</label>
-    <input id="cat-name-input" class="form-input" type="text" placeholder="Название категории..." value="${tempCat.name}" oninput="tempCat.name=this.value" />
-  </div>
-  <div class="form-group">
-    <label class="form-label">Иконка — <span id="cur-icon">${tempCat.icon}</span></label>
-    <div class="cat-icon-pick">${ALL_ICONS.map(ic=>`<button class="icon-pick-btn${tempCat.icon===ic?' active':''}" onclick="pickIcon('${ic}')">${ic}</button>`).join('')}</div>
-  </div>
-  <button class="save-btn" onclick="doSaveCategory()" ${!tempCat.name?'disabled':''}>Сохранить</button>
-</div>`;
-}
+function addInv(){const i=$('invnm');if(!i||!i.value.trim())return;NP.investors.push({id:'inv_'+Date.now(),name:i.value.trim()});showProjModal();}
+function invLink(pid,iid){return location.href.split('?')[0]+'?project='+pid+'&investor='+iid;}
+function copyTxt(t){navigator.clipboard?navigator.clipboard.writeText(t).then(()=>alert('Ссылка скопирована!')):prompt('Скопируйте:',t);}
 
-function buildInvestorLink(projId,invId){
-  const base=window.location.href.split('?')[0];
-  return`${base}?project=${projId}&investor=${invId}`;
-}
-function copyLink(link){
-  navigator.clipboard.writeText(link).then(()=>{alert('Ссылка скопирована!')}).catch(()=>{prompt('Скопируйте ссылку:',link)});
-}
-
-// actions
-function syncFormInputs(){const amt=document.getElementById('amt-input');const cmt=document.getElementById('cmt-input');if(amt)tempForm.amount=amt.value;if(cmt)tempForm.comment=cmt.value;}
-function refreshAddModal(){const overlay=document.getElementById('modal-overlay');if(!overlay)return;const modal=overlay.querySelector('.modal');const st=modal?modal.scrollTop:0;overlay.innerHTML=buildAddModal();const m2=document.querySelector('#modal-overlay .modal');if(m2)m2.scrollTop=st;}
-function selectProj(id){syncFormInputs();tempForm.project_id=id;tempForm.payer_id='me';refreshAddModal();}
-function selectCat(id){syncFormInputs();tempForm.category_id=id;refreshAddModal();}
-function selectPayer(id){syncFormInputs();tempForm.payer_id=id;refreshAddModal();}
-function selectProjColor(c){selProjColor=c;document.getElementById('modal-overlay').innerHTML=buildNewProjectModal();}
-function selectProjType(t){selProjType=t;document.getElementById('modal-overlay').innerHTML=buildNewProjectModal();setTimeout(()=>{const a=document.getElementById('proj-name-input');if(a)a.focus();},50);}
-function addInvestorFromInput(){
-  const inp=document.getElementById('inv-name-input');
-  if(!inp||!inp.value.trim())return;
-  tempNewInvestors.push({id:'inv_'+Date.now()+'_'+Math.random().toString(36).slice(2,6),name:inp.value.trim()});
-  document.getElementById('modal-overlay').innerHTML=buildNewProjectModal();
-}
-function removeInvestor(i){tempNewInvestors.splice(i,1);document.getElementById('modal-overlay').innerHTML=buildNewProjectModal();}
-function pickIcon(ic){tempCat.icon=ic;const el=document.getElementById('cur-icon');if(el)el.textContent=ic;document.querySelectorAll('.icon-pick-btn').forEach(b=>{b.classList.toggle('active',b.textContent===ic);});}
-
-async function doSaveExpense(){
-  const amt=document.getElementById('amt-input');const cmt=document.getElementById('cmt-input');
-  if(amt)tempForm.amount=amt.value;if(cmt)tempForm.comment=cmt.value;
-  if(!tempForm.project_id||!String(tempForm.amount).trim())return;
-  const totalAmt=tempForm.is_advance&&tempForm.total_amount?parseFloat(tempForm.total_amount):null;
-  const e={project_id:tempForm.project_id,category_id:tempForm.category_id||data.categories[0]?.id,amount:parseFloat(tempForm.amount),comment:tempForm.comment,payer_id:tempForm.payer_id||'me',created_at:new Date().toISOString().split('T')[0],is_advance:tempForm.is_advance||false,total_amount:totalAmt,counterparty:tempForm.counterparty||'',advance_paid:tempForm.is_advance?parseFloat(tempForm.amount):null,advance_status:tempForm.is_advance?'pending':null};
+async function saveProj(){
+  const i=$('pni');if(i)NP.name=i.value.trim();
+  if(!NP.name)return;
+  const p={name:NP.name,color:NP.color,type:NP.type,investors:NP.type==='investor'?NP.investors:[]};
   closeModal();
-  await addExpense(e);
+  if(editPid){await updateDoc(doc(db,'projects',editPid),p);const i=D.projects.findIndex(x=>x.id===editPid);if(i>=0)D.projects[i]={...D.projects[i],...p};}
+  else{const r=await addDoc(collection(db,'projects'),p);D.projects.push({id:r.id,...p});}
   render();
 }
-
-async function doSaveProject(){
-  const inp=document.getElementById('proj-name-input');
-  if(!inp||!inp.value.trim())return;
-  const p={name:inp.value.trim(),color:selProjColor,type:selProjType,investors:selProjType==='investor'?tempNewInvestors:[]};
+async function delProj(id){
   closeModal();
-  if(editProjId){await updateProject(editProjId,p);}
-  else{await addProject(p);}
+  await deleteDoc(doc(db,'projects',id));
+  D.projects=D.projects.filter(p=>p.id!==id);
+  const toD=D.expenses.filter(e=>e.pid===id);
+  for(const e of toD)await deleteDoc(doc(db,'expenses',e.id));
+  D.expenses=D.expenses.filter(e=>e.pid!==id);
+  go('projects');
+}
+
+// Category modals
+function newCat(){TC={name:'',icon:'📌'};editCid=null;showCatModal();}
+function editCat(id){const c=D.categories.find(x=>x.id===id);if(!c)return;TC={name:c.name,icon:c.icon};editCid=id;showCatModal();}
+function showCatModal(){
+  modal(`<div class="modal-title">${editCid?'Редактировать':'Новая категория'}</div>
+    <div class="form-group"><label class="lbl">Название</label>
+      <input id="cni" class="inp" type="text" value="${TC.name}" oninput="TC.name=this.value" placeholder="Название...">
+    </div>
+    <div class="form-group"><label class="lbl">Иконка — <span id="cic">${TC.icon}</span></label>
+      <div class="cat-icon-grid">${ICONS.map(ic=>`<button class="icon-btn ${TC.icon===ic?'on':''}" onclick="TC.icon='${ic}';$('cic').textContent='${ic}';document.querySelectorAll('.icon-btn').forEach(b=>b.classList.toggle('on',b.textContent==='${ic}'))">${ic}</button>`).join('')}</div>
+    </div>
+    <button class="save-btn" onclick="saveCat()">Сохранить</button>
+  `);
+  setTimeout(()=>{const i=$('cni');if(i)i.focus();},80);
+}
+async function saveCat(){
+  const i=$('cni');if(i)TC.name=i.value.trim();
+  if(!TC.name)return;
+  closeModal();
+  if(editCid){await updateDoc(doc(db,'categories',editCid),{name:TC.name,icon:TC.icon});const i=D.categories.findIndex(x=>x.id===editCid);if(i>=0)D.categories[i]={...D.categories[i],name:TC.name,icon:TC.icon};}
+  else{const r=await addDoc(collection(db,'categories'),{name:TC.name,icon:TC.icon});D.categories.push({id:r.id,name:TC.name,icon:TC.icon});}
   render();
 }
-
-async function doDeleteProject(id){
-  closeModal();
-  await removeProject(id);
-  state.view='projects';state.projectId=null;
-  render();
+async function delCat(id){
+  const fb=D.categories.find(c=>c.name==='Прочее'&&c.id!==id)||D.categories.find(c=>c.id!==id);
+  if(fb){const toU=D.expenses.filter(e=>e.cid===id);for(const e of toU){await updateDoc(doc(db,'expenses',e.id),{cid:fb.id});e.cid=fb.id;}}
+  await deleteDoc(doc(db,'categories',id));D.categories=D.categories.filter(c=>c.id!==id);render();
 }
 
-async function doSaveCategory(){
-  if(!tempCat.name.trim())return;
-  closeModal();
-  if(editCatId){await updateCategory(editCatId,{name:tempCat.name.trim(),icon:tempCat.icon});}
-  else{await addCategory({name:tempCat.name.trim(),icon:tempCat.icon});}
-  render();
-}
-
-async function doDeleteCategory(id){
-  await removeCategory(id);render();
-}
-
-async function doDeleteExpense(id){
-  await removeExpense(id);
-}
-
-function setFilterCat(val){state.filterCat=val;render();}
-function setFilterPayer(val){state.filterPayer=val;render();}
-function setSort(val){state.sortBy=val;render();}
-function openBills(){state.view='bills';render();}
-
-function renderBills(){
-  const bills=data.expenses.filter(e=>e.is_advance);
-  const pending=bills.filter(e=>e.advance_status==='pending');
-  const done=bills.filter(e=>e.advance_status==='done');
-  const totalPending=pending.reduce((s,e)=>s+(e.total_amount||0)-(e.advance_paid||e.amount),0);
-  return\`
-<div class="topbar">
-  <button class="back-btn" onclick="goBack()">‹ Назад</button>
-  <h1 style="flex:1;text-align:center">Счета и авансы</h1>
-</div>
-<div class="section">
-  \${pending.length>0?\`<div style="background:#FEF3C7;border-radius:14px;padding:14px 16px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center">
-    <div><div style="font-size:13px;font-weight:600;color:#92400E">Ожидает доплаты</div><div style="font-size:11px;color:#92400E;margin-top:2px">\${pending.length} счётов</div></div>
-    <div style="font-size:20px;font-weight:700;color:#92400E">\${fmt(totalPending)}</div>
-  </div>\`:''}
-  \${pending.length>0?\`<div class="section-title">Не закрытые (\${pending.length})</div>
-  \${pending.map(e=>{
-    const proj=getProj(e.project_id);
-    const cat=getCat(e.category_id);
-    const paid=e.advance_paid||e.amount;
-    const total=e.total_amount||paid;
-    const remain=total-paid;
-    const pct=Math.round(paid/total*100);
-    return\`<div class="bill-card">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
-        <div style="flex:1;min-width:0">
-          <div style="font-size:15px;font-weight:600">\${e.comment||cat.name}</div>
-          <div style="font-size:12px;color:#8E8E93;margin-top:2px">\${cat.icon} \${cat.name} · <span style="display:inline-flex;align-items:center;gap:3px"><span class="proj-dot" style="background:\${proj.color}"></span>\${proj.name}</span></div>
-          \${e.counterparty?\`<div style="font-size:12px;color:#8E8E93;margin-top:2px">👤 \${e.counterparty}</div>\`:''}
-        </div>
-        <button class="icon-btn" onclick="markAdvanceDone('\${e.id}')" style="color:#34C759;font-size:20px;flex-shrink:0" title="Отметить как оплачено">✓</button>
-      </div>
-      <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px">
-        <span style="color:#8E8E93">Аванс: <strong style="color:#1C1C1E">\${fmt(paid)}</strong></span>
-        <span style="color:#8E8E93">Остаток: <strong style="color:#FF3B30">\${fmt(remain)}</strong></span>
-        <span style="color:#8E8E93">Итого: <strong style="color:#1C1C1E">\${fmt(total)}</strong></span>
-      </div>
-      <div class="adv-bar-wrap"><div class="adv-bar-fill" style="width:\${pct}%"></div></div>
-      <div style="font-size:11px;color:#8E8E93;margin-top:4px;text-align:right">\${pct}% оплачено · \${dateStr(e.created_at)}</div>
-    </div>\`;
-  }).join('')}\`:'<div class="empty">Все счета закрыты 🎉</div>'}
-  \${done.length>0?\`<div class="section-title" style="margin-top:8px">Закрытые (\${done.length})</div>
-  \${done.map(e=>{
-    const proj=getProj(e.project_id);
-    const cat=getCat(e.category_id);
-    const total=e.total_amount||e.amount;
-    return\`<div class="bill-card done" style="opacity:0.7">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <div>
-          <div style="font-size:15px;font-weight:600">\${e.comment||cat.name}</div>
-          <div style="font-size:12px;color:#8E8E93;margin-top:2px">\${cat.icon} \${cat.name} · \${proj.name}</div>
-          \${e.counterparty?\`<div style="font-size:12px;color:#8E8E93">👤 \${e.counterparty}</div>\`:''}
-        </div>
-        <div style="text-align:right">
-          <div style="font-size:16px;font-weight:700;color:#34C759">\${fmt(total)}</div>
-          <span class="adv-badge-done">Закрыт</span>
-        </div>
-      </div>
-    </div>\`;
-  }).join('')}\`:''}
-</div>\`;
-}
-
-async function markAdvanceDone(id){
-  const {updateDoc,doc}=await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
-  await updateDoc(doc(db,'expenses',id),{advance_status:'done'});
-  const e=data.expenses.find(x=>x.id===id);
-  if(e) e.advance_status='done';
+async function delExp(id){await deleteDoc(doc(db,'expenses',id));}
+async function closeBill(id){
+  await updateDoc(doc(db,'expenses',id),{adv_status:'done'});
+  const e=D.expenses.find(x=>x.id===id);if(e)e.adv_status='done';
   render();
 }
 
 function exportCSV(){
-  const rows=[['Дата','Проект','Категория','Кто платит','Сумма','Комментарий']];
-  data.expenses.slice().sort((a,b)=>b.id>a.id?1:-1).forEach(e=>{
-    const proj=getProj(e.project_id);
-    rows.push([e.created_at,proj.name,getCat(e.category_id).name,payerName(e.payer_id,proj),e.amount,'"'+(e.comment||'').replace(/"/g,'""')+'"']);
+  const rows=[['Дата','Проект','Категория','Кто платит','Сумма','Комментарий','Аванс','Общая сумма','Остаток','Статус']];
+  D.expenses.slice().sort((a,b)=>b._t-a._t).forEach(e=>{
+    const pr=proj(e.pid);const c=cat(e.cid);const pn=pname(e.payer,pr);
+    rows.push([e.created_at,pr.name,c.name,pn,e.amt,'"'+(e.note||'').replace(/"/g,'""')+'"',e.adv?'Да':'Нет',e.adv_total||'',e.adv?(e.adv_total||0)-e.amt:'',e.adv_status||'']);
   });
   const csv='\uFEFF'+rows.map(r=>r.join(';')).join('\n');
   const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
@@ -895,46 +647,86 @@ function exportCSV(){
   document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
 }
 
-function closeModal(){const o=document.getElementById('modal-overlay');if(o)o.remove();state.modal=null;}
+function go(view){
+  if(view==='project'&&!S.pid)view='projects';
+  if(view==='analytics'&&!S.apid)S.apid=null;
+  S.view=view;S.q='';S.fcat='all';S.fpay='all';
+  render();
+}
+function openProj(id){S.pid=id;S.apid=id;go('project');}
 
-// expose to global
-window.openProject=openProject;window.openAnalytics=openAnalytics;window.openCategoriesPage=openCategoriesPage;
-window.openAllExpenses=openAllExpenses;window.openNewProject=openNewProject;window.openEditProject=openEditProject;
-window.openAddCategoryModal=openAddCategoryModal;window.openEditCategoryModal=openEditCategoryModal;
-window.goBack=goBack;window.doDeleteExpense=doDeleteExpense;window.doDeleteCategory=doDeleteCategory;
-window.doDeleteProject=doDeleteProject;window.doSaveExpense=doSaveExpense;window.doSaveProject=doSaveProject;
-window.doSaveCategory=doSaveCategory;window.selectProj=selectProj;window.selectCat=selectCat;
-window.selectPayer=selectPayer;window.selectProjColor=selectProjColor;window.selectProjType=selectProjType;
-window.addInvestorFromInput=addInvestorFromInput;window.removeInvestor=removeInvestor;window.pickIcon=pickIcon;
-window.copyLink=copyLink;window.exportCSV=exportCSV;window.openBills=openBills;window.setFilterCat=setFilterCat;window.setFilterPayer=setFilterPayer;window.setSort=setSort;window.markAdvanceDone=markAdvanceDone;window.closeModal=closeModal;
-window.state=state;
+// INVESTOR VIEW
+async function loadInvView(){
+  try{
+    const[ps,cs,es]=await Promise.all([getDocs(collection(db,'projects')),getDocs(collection(db,'categories')),getDocs(collection(db,'expenses'))]);
+    const pr=ps.docs.map(d=>({id:d.id,...d.data()})).find(p=>p.id===PROJ_TOKEN);
+    if(!pr){$('app').innerHTML='<div class="loading">Проект не найден</div>';return;}
+    const inv=pr.investors?.find(i=>i.id===INV_TOKEN);
+    if(!inv){$('app').innerHTML='<div class="loading">Нет доступа</div>';return;}
+    D.projects=[pr];D.categories=cs.docs.map(d=>({id:d.id,...d.data()}));
+    D.expenses=es.docs.map(d=>({id:d.id,...d.data(),_t:d.data().created_at?new Date(d.data().created_at).getTime():0})).filter(e=>e.pid===PROJ_TOKEN);
+    renderInvView(pr,inv);
+    onSnapshot(collection(db,'expenses'),snap=>{
+      D.expenses=snap.docs.map(d=>({id:d.id,...d.data(),_t:d.data().created_at?new Date(d.data().created_at).getTime():0})).filter(e=>e.pid===PROJ_TOKEN);
+      renderInvView(pr,inv);
+    });
+  }catch(e){$('app').innerHTML='<div class="loading">Ошибка загрузки</div>';}
+}
 
-document.getElementById('fab').onclick=()=>openAddExpense(state.view==='project'?state.projectId:null);
+function renderInvView(pr,inv){
+  const ex=D.expenses;const total=ex.reduce((s,e)=>s+e.amt,0);
+  const byPay={};ex.forEach(e=>{const k=e.payer||'me';byPay[k]=(byPay[k]||0)+e.amt;});
+  const payers=[{id:'me',name:'Руководитель'},...(pr.investors||[])];
+  $('app').innerHTML=`
+  <div class="topbar"><h1 style="flex:1">${pr.name}</h1><span class="type-inv">Инвестор</span></div>
+  <div class="section">
+    <div class="tbar"><span class="tbar-lbl">Общие расходы</span><span class="tbar-val">${fmt(total)}</span></div>
+    <div style="font-size:12px;font-weight:600;color:#8E8E93;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:8px">Участники</div>
+    <div style="background:#fff;border-radius:14px;padding:0 16px;margin-bottom:14px">
+      ${payers.map(p=>{const a=byPay[p.id]||0;const pct=total?Math.round(a/total*100):0;const col=p.id==='me'?'#34C759':avc(p.name);return`<div class="inv-row">
+        <div style="display:flex;align-items:center;gap:10px;flex:1">
+          <div class="avatar" style="background:${col}">${p.id==='me'?'Р':ini(p.name)}</div>
+          <div><div style="font-size:15px;font-weight:600">${p.name}</div><div style="font-size:12px;color:#8E8E93">${pct}%</div></div>
+        </div>
+        <div style="font-size:17px;font-weight:700">${fmt(a)}</div>
+      </div>`;}).join('')}
+    </div>
+    <div style="font-size:12px;font-weight:600;color:#8E8E93;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:8px">Все расходы</div>
+    <div style="background:#fff;border-radius:14px;padding:0 16px">
+      ${ex.length===0?'<div style="text-align:center;padding:28px;color:#8E8E93">Расходов пока нет</div>':
+      ex.slice().sort((a,b)=>b._t-a._t).map(e=>{
+        const c=cat(e.cid);const ci=D.categories.findIndex(x=>x.id===e.cid);
+        const pn=e.payer==='me'||!e.payer?'Руководитель':(pr.investors?.find(i=>i.id===e.payer)?.name||'—');
+        const pc=(e.payer==='me'||!e.payer)?'#34C759':avc(pn);
+        return`<div class="exp-row">
+          <div class="exp-icon">${c.icon}</div>
+          <div class="exp-info">
+            <div class="exp-title">${e.note||c.name}</div>
+            <div class="exp-sub"><span class="badge ${bi(ci)}">${c.name}</span> · <span style="display:inline-flex;align-items:center;gap:3px"><span style="width:7px;height:7px;border-radius:50%;background:${pc};display:inline-block"></span>${pn}</span> · ${dt(e.created_at)}</div>
+          </div>
+          <span style="font-size:16px;font-weight:600;flex-shrink:0">${fmt(e.amt)}</span>
+        </div>`;
+      }).join('')}
+    </div>
+  </div>`;
+}
+
+// expose globals
+Object.assign(window,{openAddExpense,showAddModal,selPid,selCid,selPayer,saveExp,newProj,editProj,showProjModal,saveProj,delProj,addInv,newCat,editCat,showCatModal,saveCat,delCat,delExp,closeBill,exportCSV,go,openProj,copyTxt,closeModal,S,TF,NP,TC,$});
 
 // INIT
-if(isInvestorView){
-  document.getElementById('fab').style.display='none';
-  loadInvestorView();
-} else {
-  loadData().then(()=>{subscribeExpenses();render();}).catch(err=>{
-    console.error('Firebase error:', err);
-    document.getElementById('app').innerHTML=`<div class="loading-screen" style="gap:20px">
-      <div style="font-size:40px">⚠️</div>
-      <div style="font-size:17px;font-weight:600;color:#1C1C1E;text-align:center">Нет доступа к базе данных</div>
-      <div style="font-size:14px;color:#8E8E93;text-align:center;padding:0 32px;line-height:1.6">Зайдите в Firebase Console → Firestore Database → Rules и установите правила доступа</div>
-      <div style="background:#F2F2F7;border-radius:12px;padding:14px 16px;font-size:13px;font-family:monospace;color:#1C1C1E;margin:0 16px;line-height:1.8">
-        rules_version = '2';<br>
-        service cloud.firestore {<br>
-        &nbsp;match /databases/{db}/documents {<br>
-        &nbsp;&nbsp;match /{doc=**} {<br>
-        &nbsp;&nbsp;&nbsp;allow read, write: if true;<br>
-        &nbsp;&nbsp;}<br>
-        &nbsp;}<br>
-        }
-      </div>
-      <button onclick="location.reload()" style="background:#34C759;border:none;border-radius:12px;padding:13px 24px;color:#fff;font-size:16px;font-weight:600;cursor:pointer;font-family:inherit">Обновить после настройки</button>
+if(IS_INV){$('fab').style.display='none';loadInvView();}
+else{
+  loadAll().then(()=>{subscribe();render();}).catch(err=>{
+    $('app').innerHTML=`<div class="loading" style="gap:16px;padding:24px;text-align:center">
+      <div style="font-size:36px">⚠️</div>
+      <div style="font-size:17px;font-weight:600;color:#1C1C1E">Ошибка подключения</div>
+      <div style="font-size:14px;color:#8E8E93;line-height:1.6">Зайдите в Firebase Console →<br>Firestore Database → Rules<br>и нажмите Publish</div>
+      <div class="err-box">allow read, write: if true;</div>
+      <button onclick="location.reload()" style="background:#34C759;border:none;border-radius:12px;padding:13px 24px;color:#fff;font-size:16px;font-weight:600;cursor:pointer;font-family:inherit">Обновить</button>
     </div>`;
-    document.getElementById('fab').style.display='none';
+    $('fab').style.display='none';
+    console.error(err);
   });
 }
 </script>
