@@ -78,6 +78,14 @@ canvas{width:100%!important;max-height:200px}
 .del-btn{background:none;border:1.5px solid #FFE4E6;border-radius:10px;padding:6px 10px;cursor:pointer;font-size:12px;font-weight:600;color:#FF3B30;flex-shrink:0;font-family:inherit}
 .del-btn:active{background:#FFE4E6}
 .tag-count{font-size:11px;background:#F2F2F7;padding:2px 8px;border-radius:10px;color:#8E8E93;font-weight:500}
+.adv-badge-pending{background:#FEF3C7;color:#92400E;font-size:11px;padding:3px 9px;border-radius:10px;font-weight:600;display:inline-block}
+.adv-badge-done{background:#D1FAE5;color:#065F46;font-size:11px;padding:3px 9px;border-radius:10px;font-weight:600;display:inline-block}
+.adv-bar-wrap{background:#E5E5EA;border-radius:4px;height:5px;width:100%;margin-top:5px;overflow:hidden}
+.adv-bar-fill{height:100%;border-radius:4px;background:#34C759}
+.bill-card{background:#fff;border-radius:14px;padding:14px 16px;margin-bottom:10px;border-left:4px solid #FF9500}
+.bill-card.done{border-left-color:#34C759}
+.toggle-btn{padding:7px 14px;border:1.5px solid #E5E5EA;border-radius:20px;font-size:13px;font-weight:500;background:#fff;color:#8E8E93;cursor:pointer;font-family:inherit}
+.toggle-btn.active{background:#FF9500;border-color:#FF9500;color:#fff}
 .summary-row{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:0.5px solid #E5E5EA;font-size:14px}
 .summary-row:last-child{border-bottom:none}
 .bar-wrap{background:#F2F2F7;border-radius:4px;height:7px;flex:1;margin:0 10px;overflow:hidden;min-width:40px}
@@ -324,6 +332,7 @@ function render(){
   else if(state.view==='analytics'){app.innerHTML=renderAnalytics();fab.style.display='none';setTimeout(renderChart,50);}
   else if(state.view==='categories'){app.innerHTML=renderCategoriesPage();fab.style.display='none';}
   else if(state.view==='allexpenses'){app.innerHTML=renderAllExpenses();fab.style.display='flex';}
+  else if(state.view==='bills'){app.innerHTML=renderBills();fab.style.display='none';}
 }
 
 function renderProjects(){
@@ -334,6 +343,7 @@ function renderProjects(){
   <div class="topbar-actions">
     <button class="topbar-btn" onclick="openAllExpenses()">📋</button>
     <button class="topbar-btn" onclick="openAnalytics()">📊</button>
+    <button class="topbar-btn" onclick="openBills()">🧾</button>
     <button class="topbar-btn" onclick="openCategoriesPage()">🏷️</button>
   </div>
 </div>
@@ -591,7 +601,7 @@ let newInvestorInput='';
 
 function openAddExpense(pid){
   const p=pid?getProj(pid):null;
-  tempForm={project_id:pid||null,category_id:data.categories[0]?.id||null,amount:'',comment:'',payer_id:'me'};
+  tempForm={project_id:pid||null,category_id:data.categories[0]?.id||null,amount:'',comment:'',payer_id:'me',is_advance:false,total_amount:'',counterparty:''};
   state.modal='add';renderModal();
 }
 function openNewProject(){state.modal='newproject';selProjColor=COLORS[0];selProjType='personal';editProjId=null;tempNewInvestors=[];renderModal();}
@@ -614,7 +624,7 @@ function openAllExpenses(){state.view='allexpenses';state.search='';state.filter
 function goBack(){
   if(state.view==='project'){state.view='projects';}
   else if(state.view==='analytics'){state.view=state.projectId?'project':'projects';}
-  else if(state.view==='categories'||state.view==='allexpenses'){state.view='projects';}
+  else if(state.view==='categories'||state.view==='allexpenses'||state.view==='bills'){state.view='projects';}
   render();
 }
 
@@ -756,7 +766,8 @@ async function doSaveExpense(){
   const amt=document.getElementById('amt-input');const cmt=document.getElementById('cmt-input');
   if(amt)tempForm.amount=amt.value;if(cmt)tempForm.comment=cmt.value;
   if(!tempForm.project_id||!String(tempForm.amount).trim())return;
-  const e={project_id:tempForm.project_id,category_id:tempForm.category_id||data.categories[0]?.id,amount:parseFloat(tempForm.amount),comment:tempForm.comment,payer_id:tempForm.payer_id||'me',created_at:new Date().toISOString().split('T')[0]};
+  const totalAmt=tempForm.is_advance&&tempForm.total_amount?parseFloat(tempForm.total_amount):null;
+  const e={project_id:tempForm.project_id,category_id:tempForm.category_id||data.categories[0]?.id,amount:parseFloat(tempForm.amount),comment:tempForm.comment,payer_id:tempForm.payer_id||'me',created_at:new Date().toISOString().split('T')[0],is_advance:tempForm.is_advance||false,total_amount:totalAmt,counterparty:tempForm.counterparty||'',advance_paid:tempForm.is_advance?parseFloat(tempForm.amount):null,advance_status:tempForm.is_advance?'pending':null};
   closeModal();
   await addExpense(e);
   render();
@@ -795,6 +806,79 @@ async function doDeleteExpense(id){
   await removeExpense(id);
 }
 
+function openBills(){state.view='bills';render();}
+
+function renderBills(){
+  const bills=data.expenses.filter(e=>e.is_advance);
+  const pending=bills.filter(e=>e.advance_status==='pending');
+  const done=bills.filter(e=>e.advance_status==='done');
+  const totalPending=pending.reduce((s,e)=>s+(e.total_amount||0)-(e.advance_paid||e.amount),0);
+  return\`
+<div class="topbar">
+  <button class="back-btn" onclick="goBack()">‹ Назад</button>
+  <h1 style="flex:1;text-align:center">Счета и авансы</h1>
+</div>
+<div class="section">
+  \${pending.length>0?\`<div style="background:#FEF3C7;border-radius:14px;padding:14px 16px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center">
+    <div><div style="font-size:13px;font-weight:600;color:#92400E">Ожидает доплаты</div><div style="font-size:11px;color:#92400E;margin-top:2px">\${pending.length} счётов</div></div>
+    <div style="font-size:20px;font-weight:700;color:#92400E">\${fmt(totalPending)}</div>
+  </div>\`:''}
+  \${pending.length>0?\`<div class="section-title">Не закрытые (\${pending.length})</div>
+  \${pending.map(e=>{
+    const proj=getProj(e.project_id);
+    const cat=getCat(e.category_id);
+    const paid=e.advance_paid||e.amount;
+    const total=e.total_amount||paid;
+    const remain=total-paid;
+    const pct=Math.round(paid/total*100);
+    return\`<div class="bill-card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+        <div style="flex:1;min-width:0">
+          <div style="font-size:15px;font-weight:600">\${e.comment||cat.name}</div>
+          <div style="font-size:12px;color:#8E8E93;margin-top:2px">\${cat.icon} \${cat.name} · <span style="display:inline-flex;align-items:center;gap:3px"><span class="proj-dot" style="background:\${proj.color}"></span>\${proj.name}</span></div>
+          \${e.counterparty?\`<div style="font-size:12px;color:#8E8E93;margin-top:2px">👤 \${e.counterparty}</div>\`:''}
+        </div>
+        <button class="icon-btn" onclick="markAdvanceDone('\${e.id}')" style="color:#34C759;font-size:20px;flex-shrink:0" title="Отметить как оплачено">✓</button>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px">
+        <span style="color:#8E8E93">Аванс: <strong style="color:#1C1C1E">\${fmt(paid)}</strong></span>
+        <span style="color:#8E8E93">Остаток: <strong style="color:#FF3B30">\${fmt(remain)}</strong></span>
+        <span style="color:#8E8E93">Итого: <strong style="color:#1C1C1E">\${fmt(total)}</strong></span>
+      </div>
+      <div class="adv-bar-wrap"><div class="adv-bar-fill" style="width:\${pct}%"></div></div>
+      <div style="font-size:11px;color:#8E8E93;margin-top:4px;text-align:right">\${pct}% оплачено · \${dateStr(e.created_at)}</div>
+    </div>\`;
+  }).join('')}\`:'<div class="empty">Все счета закрыты 🎉</div>'}
+  \${done.length>0?\`<div class="section-title" style="margin-top:8px">Закрытые (\${done.length})</div>
+  \${done.map(e=>{
+    const proj=getProj(e.project_id);
+    const cat=getCat(e.category_id);
+    const total=e.total_amount||e.amount;
+    return\`<div class="bill-card done" style="opacity:0.7">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div style="font-size:15px;font-weight:600">\${e.comment||cat.name}</div>
+          <div style="font-size:12px;color:#8E8E93;margin-top:2px">\${cat.icon} \${cat.name} · \${proj.name}</div>
+          \${e.counterparty?\`<div style="font-size:12px;color:#8E8E93">👤 \${e.counterparty}</div>\`:''}
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:16px;font-weight:700;color:#34C759">\${fmt(total)}</div>
+          <span class="adv-badge-done">Закрыт</span>
+        </div>
+      </div>
+    </div>\`;
+  }).join('')}\`:''}
+</div>\`;
+}
+
+async function markAdvanceDone(id){
+  const {updateDoc,doc}=await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+  await updateDoc(doc(db,'expenses',id),{advance_status:'done'});
+  const e=data.expenses.find(x=>x.id===id);
+  if(e) e.advance_status='done';
+  render();
+}
+
 function exportCSV(){
   const rows=[['Дата','Проект','Категория','Кто платит','Сумма','Комментарий']];
   data.expenses.slice().sort((a,b)=>b.id>a.id?1:-1).forEach(e=>{
@@ -819,7 +903,7 @@ window.doDeleteProject=doDeleteProject;window.doSaveExpense=doSaveExpense;window
 window.doSaveCategory=doSaveCategory;window.selectProj=selectProj;window.selectCat=selectCat;
 window.selectPayer=selectPayer;window.selectProjColor=selectProjColor;window.selectProjType=selectProjType;
 window.addInvestorFromInput=addInvestorFromInput;window.removeInvestor=removeInvestor;window.pickIcon=pickIcon;
-window.copyLink=copyLink;window.exportCSV=exportCSV;window.closeModal=closeModal;
+window.copyLink=copyLink;window.exportCSV=exportCSV;window.openBills=openBills;window.markAdvanceDone=markAdvanceDone;window.closeModal=closeModal;
 window.state=state;
 
 document.getElementById('fab').onclick=()=>openAddExpense(state.view==='project'?state.projectId:null);
