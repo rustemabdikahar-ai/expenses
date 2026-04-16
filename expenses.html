@@ -417,12 +417,16 @@ function vProject(){
           ${isInv?`<span class="pdot" style="background:${pc}"></span><span>${pn}</span>`:''}
           <span style="color:var(--text3)">·</span><span>${dt(e.created_at)}</span>
           ${e.adv&&e.adv_status==='pending'?`<span class="pill" style="background:rgba(255,159,10,0.15);color:var(--orange)">Аванс</span>`:''}
+          ${e.adv&&e.adv_status==='pending'&&e.deadline?`<span class="pill" style="background:${new Date(e.deadline)<new Date()?'rgba(255,69,58,0.15)':'rgba(0,0,0,0.06)'};color:${new Date(e.deadline)<new Date()?'var(--red)':'var(--text2)'}">⏰ до ${dt(e.deadline)}</span>`:''}
           ${e.adv&&e.adv_status==='done'?`<span class="pill" style="background:rgba(48,209,88,0.15);color:var(--green2)">Закрыт</span>`:''}
         </div>
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
         <div class="exp-amt">${fmt(e.amt)}</div>
-        <button onclick="delExp('${e.id}')" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:14px;padding:0">✕</button>
+        <div style="display:flex;gap:4px">
+          <button onclick="editExp('${e.id}')" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:14px;padding:2px 4px">✏️</button>
+          <button onclick="delExp('${e.id}')" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:14px;padding:2px 0">✕</button>
+        </div>
       </div>
     </div>`;}).join('')}</div>`}
 </div>`;
@@ -470,7 +474,10 @@ function vAll(){
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
         <div class="exp-amt">${fmt(e.amt)}</div>
-        <button onclick="delExp('${e.id}')" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:14px;padding:0">✕</button>
+        <div style="display:flex;gap:4px">
+          <button onclick="editExp('${e.id}')" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:14px;padding:2px 4px">✏️</button>
+          <button onclick="delExp('${e.id}')" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:14px;padding:2px 0">✕</button>
+        </div>
       </div>
     </div>`;}).join('')}</div>`}
 </div>`;
@@ -496,7 +503,7 @@ function vBills(){
     <div class="bill-accent" style="background:var(--orange)"></div>
     <div class="bill-body">
       <div class="bill-name">${e.note||c.name}</div>
-      <div class="bill-meta">${c.icon} ${c.name} · <span class="cdot" style="background:${pr.color||'#8E8E93'}"></span> ${pr.name}${e.party?' · 👤 '+e.party:''}</div>
+      <div class="bill-meta">${c.icon} ${c.name} · <span class="cdot" style="background:${pr.color||'#8E8E93'}"></span> ${pr.name}${e.party?' · 👤 '+e.party:''}${e.deadline?` · ⏰ до ${dt(e.deadline)}`:''}${e.deadline&&new Date(e.deadline)<new Date()?` <span style="color:var(--red);font-weight:700">(просрочено)</span>`:''}</div>
       <div class="bill-nums">
         <span style="color:var(--text2)">Аванс: <b style="color:var(--text)">${fmt(paid)}</b></span>
         <span style="color:var(--text2)">Остаток: <b style="color:var(--red)">${fmt(rem)}</b></span>
@@ -580,7 +587,7 @@ function vCategories(){
 <div class="page">
   <div class="exp-list">
     ${D.categories.map(c=>{const cnt=D.expenses.filter(e=>e.cid===c.id).length;return`<div class="exp-item">
-      <div class="exp-ico" style="background:rgba(0,0,0,0.06)">${c.icon}</div>
+      <div class="exp-ico" style="background:rgba(0,0,0,0.06);cursor:pointer" onclick="editCat('${c.id}')">${c.icon}</div>
       <div class="exp-body"><div class="exp-name">${c.name}</div><div class="exp-meta"><span style="font-size:12px;background:rgba(0,0,0,0.06);padding:2px 8px;border-radius:8px">${cnt} расходов</span></div></div>
       <button onclick="editCat('${c.id}')" style="background:none;border:none;font-size:18px;cursor:pointer;padding:4px 6px">✏️</button>
       <button onclick="delCat('${c.id}')" style="background:none;border:none;font-size:18px;cursor:pointer;padding:4px 2px;color:var(--text3)">✕</button>
@@ -623,7 +630,7 @@ function closeSheet(){
 
 // ADD EXPENSE
 function openAddExp(pid){
-  TF={pid:pid||null,cid:null,amt:'',note:'',payer:'me',adv:false,total:'',party:''};
+  TF={pid:pid||null,cid:null,amt:'',note:'',payer:'me',adv:false,total:'',party:'',deadline:''};
   const sp=TF.pid?getproj(TF.pid):null;
   if(sp&&projCats(TF.pid).length>0)TF.cid=projCats(TF.pid)[0].id;
   else if(D.categories.length>0)TF.cid=D.categories[0].id;
@@ -664,6 +671,10 @@ function showAddSheet(){
       ${TF.adv?`<div style="margin-top:10px;display:flex;flex-direction:column;gap:8px">
         <input id="ti" class="inp" type="number" inputmode="numeric" placeholder="Общая сумма счёта..." value="${TF.total}" oninput="TF.total=this.value">
         <input id="pi" class="inp" type="text" placeholder="Кому платим (подрядчик, поставщик...)" value="${TF.party}" oninput="TF.party=this.value">
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(0,0,0,0.03);border-radius:var(--r2)">
+          <div style="flex:1"><div style="font-size:14px;font-weight:600">Дата расчёта</div><div style="font-size:12px;color:var(--text2);margin-top:1px">Крайний срок оплаты</div></div>
+          <input id="di" type="date" class="inp" style="width:auto;padding:8px 10px;font-size:14px" value="${TF.deadline||''}" oninput="TF.deadline=this.value" placeholder="">
+        </div>
       </div>`:''}
     </div>
     <button class="btn-main" id="sbtn" onclick="doSaveExp()" ${TF.pid&&TF.amt&&parseFloat(TF.amt)>0?'':'disabled'}>Сохранить</button>
@@ -684,7 +695,7 @@ function tfToggleAdv(){syncTF();TF.adv=!TF.adv;showAddSheet();}
 async function doSaveExp(){
   syncTF();
   if(!TF.pid||!TF.amt||parseFloat(TF.amt)<=0)return;
-  const e={pid:TF.pid,cid:TF.cid||D.categories[0]?.id,amt:parseFloat(TF.amt),note:TF.note,payer:TF.payer||'me',created_at:new Date().toISOString().split('T')[0],adv:TF.adv,adv_total:TF.adv&&TF.total?parseFloat(TF.total):null,party:TF.party||'',adv_status:TF.adv?'pending':null};
+  const e={pid:TF.pid,cid:TF.cid||D.categories[0]?.id,amt:parseFloat(TF.amt),note:TF.note,payer:TF.payer||'me',created_at:new Date().toISOString().split('T')[0],adv:TF.adv,adv_total:TF.adv&&TF.total?parseFloat(TF.total):null,party:TF.party||'',adv_status:TF.adv?'pending':null,deadline:TF.adv&&TF.deadline?TF.deadline:null};
   closeSheet();
   await addDoc(collection(db,'expenses'),e);
 }
@@ -837,10 +848,10 @@ function showProjCatsSheet(){
     <div class="sheet-section">
       <label class="sheet-label">Свои категории проекта</label>
       <div style="font-size:12px;color:var(--text2);margin-bottom:8px">Только для этого проекта</div>
-      ${ownCats.map((c,i)=>`<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;padding:8px 12px;background:rgba(0,0,0,0.03);border-radius:12px">
-        <span style="font-size:20px">${c.icon}</span>
-        <span style="flex:1;font-size:15px;font-weight:500">${c.name}</span>
-        <button onclick="delOwnCat('${pid}',${i})" style="background:rgba(255,69,58,0.1);border:none;border-radius:8px;padding:5px 9px;color:var(--red);cursor:pointer;font-size:13px">✕</button>
+      ${ownCats.map((c,i)=>`<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;padding:8px 12px;background:rgba(0,0,0,0.03);border-radius:12px">
+        <input id="oc-icon-${i}" class="inp" style="width:52px;text-align:center;font-size:20px;padding:6px 4px;background:rgba(0,0,0,0.04);border-radius:10px" value="${c.icon}" oninput="saveOwnCatIcon('${pid}',${i},this.value)">
+        <input id="oc-name-${i}" class="inp" style="flex:1;font-size:15px;font-weight:500;padding:8px 10px" value="${c.name}" oninput="saveOwnCatName('${pid}',${i},this.value)">
+        <button onclick="delOwnCat('${pid}',${i})" style="background:rgba(255,69,58,0.1);border:none;border-radius:8px;padding:6px 10px;color:var(--red);cursor:pointer;font-size:13px;flex-shrink:0">✕</button>
       </div>`).join('')}
       <div style="display:flex;gap:8px;margin-top:4px">
         <input id="own-cat-icon" class="inp" style="width:60px;text-align:center;font-size:20px;padding:10px 8px" placeholder="📌" value="">
@@ -876,6 +887,22 @@ async function addOwnCat(pid){
   showProjCatsSheet();
 }
 
+async function saveOwnCatIcon(pid,idx,val){
+  const p=getproj(pid);
+  const ownCats=p.own_cats?[...p.own_cats]:[];
+  if(!ownCats[idx])return;
+  ownCats[idx].icon=val||'📌';
+  await updateDoc(doc(db,'projects',pid),{own_cats:ownCats});
+  p.own_cats=ownCats;
+}
+async function saveOwnCatName(pid,idx,val){
+  const p=getproj(pid);
+  const ownCats=p.own_cats?[...p.own_cats]:[];
+  if(!ownCats[idx])return;
+  ownCats[idx].name=val;
+  await updateDoc(doc(db,'projects',pid),{own_cats:ownCats});
+  p.own_cats=ownCats;
+}
 async function delOwnCat(pid,idx){
   const p=getproj(pid);
   const ownCats=p.own_cats?[...p.own_cats]:[];
@@ -883,6 +910,79 @@ async function delOwnCat(pid,idx){
   await updateDoc(doc(db,'projects',pid),{own_cats:ownCats});
   p.own_cats=ownCats;
   showProjCatsSheet();
+}
+
+function editExp(id){
+  const e=D.expenses.find(x=>x.id===id);
+  if(!e)return;
+  TF={pid:e.pid,cid:e.cid,amt:String(e.amt),note:e.note||'',payer:e.payer||'me',adv:e.adv||false,total:e.adv_total?String(e.adv_total):'',party:e.party||'',deadline:e.deadline||''};
+  TF._editId=id;
+  showEditSheet();
+}
+
+function showEditSheet(){
+  const id=TF._editId;
+  const sp=TF.pid?getproj(TF.pid):null;
+  const isInv=sp?.type==='investor';
+  const cats=TF.pid?projCats(TF.pid):D.categories;
+  sheetOpen(`
+    <div class="sheet-title">Редактировать расход</div>
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:${sp?sp.color+'18':'rgba(0,0,0,0.04)'};border-radius:var(--r2);margin-bottom:16px">
+      <span class="cdot" style="background:${sp?sp.color:'#8E8E93'};width:12px;height:12px"></span>
+      <span style="font-size:15px;font-weight:700">${sp?sp.name:'Проект'}</span>
+    </div>
+    <div class="sheet-section"><label class="sheet-label">Категория</label>
+      <div class="chips">${cats.map(c=>`<button class="chip ${TF.cid===c.id?'on':''}" onclick="tfSetCidEdit('${c.id}')">${c.icon} ${c.name}</button>`).join('')}</div>
+    </div>
+    ${isInv?`<div class="sheet-section"><label class="sheet-label">Кто платит</label>
+      <div class="chips">
+        <button class="chip ${TF.payer==='me'?'on-p':''}" onclick="tfSetPayerEdit('me')">${sp.owner||'Руководитель'}</button>
+        ${(sp.investors||[]).map(inv=>`<button class="chip ${TF.payer===inv.id?'on-p':''}" onclick="tfSetPayerEdit('${inv.id}')">${inv.name}</button>`).join('')}
+      </div></div>`:''}
+    <div class="sheet-section"><label class="sheet-label">Сумма (₸)</label>
+      <input id="ei" class="inp inp-big" type="number" inputmode="numeric" placeholder="0" value="${TF.amt}" oninput="TF.amt=this.value">
+    </div>
+    <div class="sheet-section"><label class="sheet-label">Комментарий</label>
+      <input id="eni" class="inp" type="text" placeholder="Что за расход?" value="${TF.note}" oninput="TF.note=this.value" onkeydown="if(event.key==='Enter')doUpdateExp()">
+    </div>
+    <div class="sheet-section">
+      <div class="adv-toggle" onclick="tfToggleAdvEdit()">
+        <div><div class="adv-lbl">Аванс / частичная оплата</div><div class="adv-sub">Указать остаток к доплате</div></div>
+        <div class="toggle-pill ${TF.adv?'on':''}"></div>
+      </div>
+      ${TF.adv?`<div style="margin-top:10px;display:flex;flex-direction:column;gap:8px">
+        <input id="eti" class="inp" type="number" inputmode="numeric" placeholder="Общая сумма счёта..." value="${TF.total}" oninput="TF.total=this.value">
+        <input id="epi" class="inp" type="text" placeholder="Кому платим..." value="${TF.party}" oninput="TF.party=this.value">
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(0,0,0,0.03);border-radius:var(--r2)">
+          <div style="flex:1"><div style="font-size:14px;font-weight:600">Дата расчёта</div><div style="font-size:12px;color:var(--text2);margin-top:1px">Крайний срок оплаты</div></div>
+          <input id="edi" type="date" class="inp" style="width:auto;padding:8px 10px;font-size:14px" value="${TF.deadline||''}" oninput="TF.deadline=this.value">
+        </div>
+      </div>`:''}
+    </div>
+    <button class="btn-main" onclick="doUpdateExp()">Сохранить изменения</button>
+    <button class="btn-del" style="margin-top:8px" onclick="delExp('${id}');closeSheet()">Удалить расход</button>
+  `);
+  setTimeout(()=>{const ei=$('ei');if(ei)ei.focus();},350);
+}
+
+function syncEditTF(){
+  const ei=$('ei'),eni=$('eni'),eti=$('eti'),epi=$('epi'),edi=$('edi');
+  if(ei)TF.amt=ei.value;if(eni)TF.note=eni.value;if(eti)TF.total=eti.value;if(epi)TF.party=epi.value;if(edi)TF.deadline=edi.value;
+}
+function tfSetCidEdit(id){syncEditTF();TF.cid=id;showEditSheet();}
+function tfSetPayerEdit(id){syncEditTF();TF.payer=id;showEditSheet();}
+function tfToggleAdvEdit(){syncEditTF();TF.adv=!TF.adv;showEditSheet();}
+
+async function doUpdateExp(){
+  syncEditTF();
+  const id=TF._editId;
+  if(!id||!TF.amt||parseFloat(TF.amt)<=0)return;
+  const upd={cid:TF.cid,amt:parseFloat(TF.amt),note:TF.note,payer:TF.payer||'me',adv:TF.adv,adv_total:TF.adv&&TF.total?parseFloat(TF.total):null,party:TF.party||'',adv_status:TF.adv?'pending':null,deadline:TF.adv&&TF.deadline?TF.deadline:null};
+  closeSheet();
+  await updateDoc(doc(db,'expenses',id),upd);
+  const e=D.expenses.find(x=>x.id===id);
+  if(e)Object.assign(e,upd);
+  render();
 }
 
 function exportCSV(){
@@ -962,7 +1062,7 @@ function renderInvView(pr,inv){
 }
 
 // EXPOSE
-Object.assign(window,{openAddExp,showAddSheet,tfSetPid,tfSetCid,tfSetPayer,tfToggleAdv,doSaveExp,npToggleCat,openProjCats,showProjCatsSheet,toggleGlobalCat,addOwnCat,delOwnCat,
+Object.assign(window,{openAddExp,showAddSheet,tfSetPid,tfSetCid,tfSetPayer,tfToggleAdv,doSaveExp,npToggleCat,openProjCats,showProjCatsSheet,toggleGlobalCat,addOwnCat,delOwnCat,saveOwnCatIcon,saveOwnCatName,editExp,showEditSheet,tfSetCidEdit,tfSetPayerEdit,tfToggleAdvEdit,doUpdateExp,
   newProj,editProj,showProjSheet,doSaveProj,doDelProj,npSetType,npPickColor,npAddInv,syncNP,
   newCat,editCat,showCatSheet,tcPickIcon,doSaveCat,delCat,delExp,closeBill,exportCSV,
   go,openProj,copyTxt,closeSheet,sheetClose,S,TF,NP,TC});
