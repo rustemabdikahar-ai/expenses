@@ -231,7 +231,12 @@ let editPid=null,editCid=null,myChart=null;
 const $=id=>document.getElementById(id);
 const fmt=n=>(+n||0).toLocaleString('ru-RU')+'₸';
 const dt=d=>new Date(d).toLocaleDateString('ru-RU',{day:'numeric',month:'short'});
-const getcat=id=>D.categories.find(c=>c.id===id)||{name:'Прочее',icon:'📌'};
+const getcat=(id,pid)=>{
+  if(pid){const p=getproj(pid);const oc=(p.own_cats||[]).find(c=>c.id===id);if(oc)return oc;}
+  // search all projects own_cats
+  for(const p of D.projects){const oc=(p.own_cats||[]).find(c=>c.id===id);if(oc)return oc;}
+  return D.categories.find(c=>c.id===id)||{name:'Прочее',icon:'📌'};
+};
 const getproj=id=>D.projects.find(p=>p.id===id)||{name:'—',color:'#8E8E93',type:'personal',investors:[]};
 const pi=i=>['p0','p1','p2','p3','p4','p5','p6','p7'][i%8];
 const cc=i=>COLORS[i%COLORS.length];
@@ -241,11 +246,16 @@ const pname=(pid,pr)=>pid==='me'||!pid?(pr?.owner||'Руководитель'):(
 const ptotal=id=>D.expenses.filter(e=>e.pid===id).reduce((s,e)=>s+e.amt,0);
 const atotal=()=>D.expenses.reduce((s,e)=>s+e.amt,0);
 
-// Get categories for a project (project-specific or global)
+// Get categories for a project: global selected + project-specific
 const projCats=pid=>{
   const p=getproj(pid);
-  if(p.cats&&p.cats.length>0) return D.categories.filter(c=>p.cats.includes(c.id));
-  return D.categories;
+  // Project-specific categories stored in p.own_cats array
+  const ownCats=(p.own_cats||[]);
+  if(p.cats&&p.cats.length>0){
+    const globals=D.categories.filter(c=>p.cats.includes(c.id));
+    return [...globals,...ownCats];
+  }
+  return [...D.categories,...ownCats];
 };
 
 function sortArr(arr){
@@ -368,6 +378,7 @@ function vProject(){
     <div style="font-size:13px;color:var(--text2)">${fmt(total)}</div>
   </div>
   <button class="icon-wrap" onclick="S.apid='${p.id}';go('analytics')">📊</button>
+  <button class="icon-wrap" onclick="openProjCats('${p.id}')" title="Категории проекта">🏷️</button>
 </div>
 <div class="page">
   ${isInv?`<div class="part-bar">
@@ -679,8 +690,8 @@ async function doSaveExp(){
 }
 
 // PROJECT MODAL
-function newProj(){NP={color:COLORS[0],type:'personal',name:'',owner:'',investors:[]};editPid=null;showProjSheet();}
-function editProj(id){const p=getproj(id);NP={color:p.color,type:p.type||'personal',name:p.name,owner:p.owner||'',investors:p.investors?[...p.investors]:[]};editPid=id;showProjSheet();}
+function newProj(){NP={color:COLORS[0],type:'personal',name:'',owner:'',investors:[],cats:[]};editPid=null;showProjSheet();}
+function editProj(id){const p=getproj(id);NP={color:p.color,type:p.type||'personal',name:p.name,owner:p.owner||'',investors:p.investors?[...p.investors]:[],cats:p.cats?[...p.cats]:[]};editPid=id;showProjSheet();}
 
 function showProjSheet(){
   sheetOpen(`
@@ -699,6 +710,10 @@ function showProjSheet(){
     </div>`:''}
     <div class="sheet-section"><label class="sheet-label">Цвет</label>
       <div class="color-row">${COLORS.map((c,i)=>`<div class="color-opt ${c===NP.color?'on':''}" style="background:${c}" onclick="npPickColor(${i})"></div>`).join('')}</div>
+    </div>
+    <div class="sheet-section"><label class="sheet-label" style="margin-bottom:4px">Категории проекта</label>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:8px">Если не выбрано — используются все категории</div>
+      <div class="chips">${D.categories.map(c=>`<button class="chip ${(NP.cats||[]).includes(c.id)?'on-b':''}" onclick="npToggleCat('${c.id}')">${c.icon} ${c.name}</button>`).join('')}</div>
     </div>
     ${NP.type==='investor'?`<div class="sheet-section"><label class="sheet-label">Инвесторы</label>
       ${NP.investors.map((inv,i)=>`<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
@@ -735,6 +750,13 @@ function syncNP(){
 }
 function npSetType(t){syncNP();NP.type=t;showProjSheet();}
 function npPickColor(i){syncNP();NP.color=COLORS[i];showProjSheet();}
+function npToggleCat(id){
+  syncNP();
+  if(!NP.cats)NP.cats=[];
+  const i=NP.cats.indexOf(id);
+  if(i>=0)NP.cats.splice(i,1);else NP.cats.push(id);
+  showProjSheet();
+}
 function npAddInv(){
   syncNP();
   const i=$('invnm');if(!i||!i.value.trim())return;
@@ -747,7 +769,7 @@ function copyTxt(t){navigator.clipboard?navigator.clipboard.writeText(t).then(()
 async function doSaveProj(){
   syncNP();
   if(!NP.name.trim())return;
-  const p={name:NP.name.trim(),color:NP.color,type:NP.type,owner:NP.owner||'',investors:NP.type==='investor'?NP.investors:[]};
+  const p={name:NP.name.trim(),color:NP.color,type:NP.type,owner:NP.owner||'',investors:NP.type==='investor'?NP.investors:[],cats:NP.cats||[]};
   closeSheet();
   if(editPid){await updateDoc(doc(db,'projects',editPid),p);const i=D.projects.findIndex(x=>x.id===editPid);if(i>=0)D.projects[i]={...D.projects[i],...p};}
   else{const r=await addDoc(collection(db,'projects'),p);D.projects.push({id:r.id,...p});}
@@ -794,6 +816,74 @@ async function delCat(id){
 
 async function delExp(id){await deleteDoc(doc(db,'expenses',id));}
 async function closeBill(id){await updateDoc(doc(db,'expenses',id),{adv_status:'done'});const e=D.expenses.find(x=>x.id===id);if(e)e.adv_status='done';render();}
+
+function openProjCats(pid){
+  S._editCatsPid=pid;
+  showProjCatsSheet();
+}
+
+function showProjCatsSheet(){
+  const pid=S._editCatsPid;
+  const p=getproj(pid);
+  const ownCats=p.own_cats||[];
+  const selectedGlobal=p.cats||[];
+  sheetOpen(`
+    <div class="sheet-title">Категории проекта</div>
+    <div class="sheet-section">
+      <label class="sheet-label">Глобальные категории</label>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:8px">Выберите какие использовать в этом проекте</div>
+      <div class="chips">${D.categories.map(c=>`<button class="chip ${selectedGlobal.includes(c.id)?'on-b':''}" onclick="toggleGlobalCat('${pid}','${c.id}')">${c.icon} ${c.name}</button>`).join('')}</div>
+    </div>
+    <div class="sheet-section">
+      <label class="sheet-label">Свои категории проекта</label>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:8px">Только для этого проекта</div>
+      ${ownCats.map((c,i)=>`<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;padding:8px 12px;background:rgba(0,0,0,0.03);border-radius:12px">
+        <span style="font-size:20px">${c.icon}</span>
+        <span style="flex:1;font-size:15px;font-weight:500">${c.name}</span>
+        <button onclick="delOwnCat('${pid}',${i})" style="background:rgba(255,69,58,0.1);border:none;border-radius:8px;padding:5px 9px;color:var(--red);cursor:pointer;font-size:13px">✕</button>
+      </div>`).join('')}
+      <div style="display:flex;gap:8px;margin-top:4px">
+        <input id="own-cat-icon" class="inp" style="width:60px;text-align:center;font-size:20px;padding:10px 8px" placeholder="📌" value="">
+        <input id="own-cat-name" class="inp" style="flex:1" type="text" placeholder="Название категории..." onkeydown="if(event.key==='Enter')addOwnCat('${pid}')">
+        <button onclick="addOwnCat('${pid}')" style="padding:12px 16px;background:var(--green);border:none;border-radius:var(--r2);color:#fff;font-size:16px;cursor:pointer">+</button>
+      </div>
+    </div>
+    <button class="btn-main" onclick="closeSheet()">Готово</button>
+  `);
+}
+
+async function toggleGlobalCat(pid,cid){
+  const p=getproj(pid);
+  let cats=p.cats?[...p.cats]:[];
+  const i=cats.indexOf(cid);
+  if(i>=0)cats.splice(i,1);else cats.push(cid);
+  await updateDoc(doc(db,'projects',pid),{cats});
+  p.cats=cats;
+  showProjCatsSheet();
+}
+
+async function addOwnCat(pid){
+  const iconEl=document.getElementById('own-cat-icon');
+  const nameEl=document.getElementById('own-cat-name');
+  if(!nameEl||!nameEl.value.trim())return;
+  const icon=iconEl&&iconEl.value.trim()?iconEl.value.trim():'📌';
+  const name=nameEl.value.trim();
+  const p=getproj(pid);
+  const ownCats=p.own_cats?[...p.own_cats]:[];
+  ownCats.push({id:'oc_'+Date.now(),name,icon});
+  await updateDoc(doc(db,'projects',pid),{own_cats:ownCats});
+  p.own_cats=ownCats;
+  showProjCatsSheet();
+}
+
+async function delOwnCat(pid,idx){
+  const p=getproj(pid);
+  const ownCats=p.own_cats?[...p.own_cats]:[];
+  ownCats.splice(idx,1);
+  await updateDoc(doc(db,'projects',pid),{own_cats:ownCats});
+  p.own_cats=ownCats;
+  showProjCatsSheet();
+}
 
 function exportCSV(){
   const rows=[['Дата','Проект','Категория','Кто платит','Сумма','Комментарий','Аванс','Общая сумма','Остаток','Статус']];
@@ -872,7 +962,7 @@ function renderInvView(pr,inv){
 }
 
 // EXPOSE
-Object.assign(window,{openAddExp,showAddSheet,tfSetPid,tfSetCid,tfSetPayer,tfToggleAdv,doSaveExp,
+Object.assign(window,{openAddExp,showAddSheet,tfSetPid,tfSetCid,tfSetPayer,tfToggleAdv,doSaveExp,npToggleCat,openProjCats,showProjCatsSheet,toggleGlobalCat,addOwnCat,delOwnCat,
   newProj,editProj,showProjSheet,doSaveProj,doDelProj,npSetType,npPickColor,npAddInv,syncNP,
   newCat,editCat,showCatSheet,tcPickIcon,doSaveCat,delCat,delExp,closeBill,exportCSV,
   go,openProj,copyTxt,closeSheet,sheetClose,S,TF,NP,TC});
