@@ -915,7 +915,7 @@ async function delOwnCat(pid,idx){
 function editExp(id){
   const e=D.expenses.find(x=>x.id===id);
   if(!e)return;
-  TF={pid:e.pid,cid:e.cid,amt:String(e.amt),note:e.note||'',payer:e.payer||'me',adv:e.adv||false,total:e.adv_total?String(e.adv_total):'',party:e.party||'',deadline:e.deadline||''};
+  TF={pid:e.pid,cid:e.cid,amt:String(e.amt),note:e.note||'',payer:e.payer||'me',adv:e.adv||false,total:e.adv_total?String(e.adv_total):'',party:e.party||'',deadline:e.deadline||'',created_at:e.created_at||new Date().toISOString().split('T')[0]};
   TF._editId=id;
   showEditSheet();
 }
@@ -945,6 +945,9 @@ function showEditSheet(){
     <div class="sheet-section"><label class="sheet-label">Комментарий</label>
       <input id="eni" class="inp" type="text" placeholder="Что за расход?" value="${TF.note}" oninput="TF.note=this.value" onkeydown="if(event.key==='Enter')doUpdateExp()">
     </div>
+    <div class="sheet-section"><label class="sheet-label">Дата расхода</label>
+      <input id="edate" type="date" class="inp" value="${TF.created_at||''}" oninput="TF.created_at=this.value">
+    </div>
     <div class="sheet-section">
       <div class="adv-toggle" onclick="tfToggleAdvEdit()">
         <div><div class="adv-lbl">Аванс / частичная оплата</div><div class="adv-sub">Указать остаток к доплате</div></div>
@@ -966,8 +969,8 @@ function showEditSheet(){
 }
 
 function syncEditTF(){
-  const ei=$('ei'),eni=$('eni'),eti=$('eti'),epi=$('epi'),edi=$('edi');
-  if(ei)TF.amt=ei.value;if(eni)TF.note=eni.value;if(eti)TF.total=eti.value;if(epi)TF.party=epi.value;if(edi)TF.deadline=edi.value;
+  const ei=$('ei'),eni=$('eni'),eti=$('eti'),epi=$('epi'),edi=$('edi'),edate=$('edate');
+  if(ei)TF.amt=ei.value;if(eni)TF.note=eni.value;if(eti)TF.total=eti.value;if(epi)TF.party=epi.value;if(edi)TF.deadline=edi.value;if(edate)TF.created_at=edate.value;
 }
 function tfSetCidEdit(id){syncEditTF();TF.cid=id;showEditSheet();}
 function tfSetPayerEdit(id){syncEditTF();TF.payer=id;showEditSheet();}
@@ -977,7 +980,7 @@ async function doUpdateExp(){
   syncEditTF();
   const id=TF._editId;
   if(!id||!TF.amt||parseFloat(TF.amt)<=0)return;
-  const upd={cid:TF.cid,amt:parseFloat(TF.amt),note:TF.note,payer:TF.payer||'me',adv:TF.adv,adv_total:TF.adv&&TF.total?parseFloat(TF.total):null,party:TF.party||'',adv_status:TF.adv?'pending':null,deadline:TF.adv&&TF.deadline?TF.deadline:null};
+  const upd={cid:TF.cid,amt:parseFloat(TF.amt),note:TF.note,payer:TF.payer||'me',created_at:TF.created_at||new Date().toISOString().split('T')[0],adv:TF.adv,adv_total:TF.adv&&TF.total?parseFloat(TF.total):null,party:TF.party||'',adv_status:TF.adv?'pending':null,deadline:TF.adv&&TF.deadline?TF.deadline:null};
   closeSheet();
   await updateDoc(doc(db,'expenses',id),upd);
   const e=D.expenses.find(x=>x.id===id);
