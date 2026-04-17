@@ -714,17 +714,38 @@ async function fetchRate(){
   const rateInfo=document.getElementById('rate-info');
   if(rateInfo)rateInfo.innerHTML='⏳ Загружаю курс...';
   try{
-    const res=await fetch(`https://api.frankfurter.app/${date}?from=AED&to=KZT`);
-    const data=await res.json();
-    TF.rate=data.rates?.KZT||null;
-    if(TF.rate){
-      const kzt=Math.round(parseFloat(TF.aed_amt)*TF.rate);
+    // Try multiple APIs for reliability
+    let rate=null;
+    // API 1: open.er-api.com (free, CORS ok, но только текущий курс)
+    // API 2: cdn.jsdelivr.net/npm/@fawazahmed0/currency-api (исторические даты, CORS ok)
+    const apiDate=date.replace(/-/g,'.');
+    const res=await fetch(`https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@${date}/v1/currencies/aed.json`);
+    if(res.ok){
+      const data=await res.json();
+      rate=data?.aed?.kzt||null;
+    }
+    if(!rate){
+      // fallback: latest rate
+      const res2=await fetch('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/aed.json');
+      if(res2.ok){const data2=await res2.json();rate=data2?.aed?.kzt||null;}
+    }
+    if(rate){
+      TF.rate=rate;
+      const kzt=Math.round(parseFloat(TF.aed_amt)*rate);
       TF.amt=String(kzt);
-      if(rateInfo)rateInfo.innerHTML=`Курс: 1 AED = ${TF.rate.toFixed(2)} ₸ → <b style="color:var(--text)">${fmt(kzt)}</b>`;
+      if(rateInfo)rateInfo.innerHTML=`Курс: 1 AED = ${rate.toFixed(2)} ₸ → <b style="color:var(--text)">${fmt(kzt)}</b>`;
       updSaveBtn();
+    } else {
+      if(rateInfo)rateInfo.innerHTML='⚠️ Не удалось загрузить курс. Введите сумму в ₸ вручную';
     }
   }catch(e){
-    if(rateInfo)rateInfo.innerHTML='❌ Ошибка загрузки курса. Введите сумму в ₸ вручную';
+    // Final fallback: approximate rate
+    const approxRate=132;
+    TF.rate=approxRate;
+    const kzt=Math.round(parseFloat(TF.aed_amt)*approxRate);
+    TF.amt=String(kzt);
+    if(rateInfo)rateInfo.innerHTML=`⚠️ Примерный курс: 1 AED ≈ ${approxRate} ₸ → <b style="color:var(--text)">${fmt(kzt)}</b> <span style="color:var(--orange)">(уточните вручную)</span>`;
+    updSaveBtn();
   }
 }
 
