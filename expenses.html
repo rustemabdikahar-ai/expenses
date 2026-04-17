@@ -214,6 +214,13 @@ const FB={apiKey:"AIzaSyAaDOtqcnqQbyxttj5y8IYAUHxMTsrspj4",authDomain:"expenses-
 const fbApp=initializeApp(FB);
 const db=getFirestore(fbApp);
 
+const CURRENCIES={
+  'AED':{name:'Дирхам',flag:'🇦🇪',sym:'AED'},
+  'USD':{name:'Доллар',flag:'💵',sym:'$'},
+  'EUR':{name:'Евро',flag:'💶',sym:'€'},
+  'CNY':{name:'Юань',flag:'🇨🇳',sym:'¥'},
+  'RUB':{name:'Рубль',flag:'🇷🇺',sym:'₽'}
+};
 const COLORS=['#30D158','#0A84FF','#FF6B35','#BF5AF2','#FF375F','#FF9F0A','#5AC8FA','#FF453A','#64D2FF','#FFD60A'];
 const ICONS=['📦','🏠','💼','📢','🛒','🚗','💡','🔧','📌','🍔','☕','🎯','🏥','📱','✈️','🎁','💰','🖥️','👗','🏋️','🎪','🏗️','🌿','🔑','📐'];
 const SORTS=[{v:'nd',l:'Новые'},{v:'od',l:'Старые'},{v:'hi',l:'Дороже'},{v:'lo',l:'Дешевле'},{v:'cat',l:'Категория'}];
