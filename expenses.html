@@ -396,7 +396,7 @@ function vProject(){
   <div style="display:flex;gap:8px;align-items:center;padding:0 16px;margin-bottom:8px">
     <div class="fbar" style="flex:1;padding:0;margin:0">
       <button class="fc ${S.fcat==='all'?'on':''}" onclick="S.fcat='all';render()">Все</button>
-      ${usedCats.map(cid=>{const c=getcat(cid);return`<button class="fc ${S.fcat===cid?'on':''}" onclick="S.fcat='${cid}';render()">${c.icon} ${c.name}</button>`;}).join('')}
+      ${usedCats.map(cid=>{const c=getcat(cid);return`<button class="fc ${S.fcat===cid?'on':''}" onclick="setFcat('${cid}')">${c.icon} ${c.name}</button>`;}).join('')}
     </div>
     <select class="sortsel" onchange="S.sort=this.value;render()">
       ${SORTS.map(o=>`<option value="${o.v}"${S.sort===o.v?' selected':''}>${o.l}</option>`).join('')}
@@ -404,7 +404,7 @@ function vProject(){
   </div>
   ${isInv?`<div class="fbar" style="margin-bottom:10px">
     <button class="fc ${S.fpay==='all'?'on':''}" onclick="S.fpay='all';render()">Все</button>
-    ${payers.map(inv=>`<button class="fc ${S.fpay===inv.id?'on-p':''}" onclick="S.fpay=S.fpay==='${inv.id}'?'all':'${inv.id}';render()">${inv.name.split(' ')[0]}</button>`).join('')}
+    ${payers.map(inv=>`<button class="fc ${S.fpay===inv.id?'on-p':''}" onclick="setFpay('${inv.id}')">${inv.name.split(' ')[0]}</button>`).join('')}
   </div>`:''}
   ${ex.length===0?`<div class="empty"><div class="empty-icon">📭</div><div class="empty-title">Нет расходов</div><div class="empty-sub">Нажмите + чтобы добавить</div></div>`:
   `<div class="exp-list">${ex.map(e=>{
@@ -453,7 +453,7 @@ function vAll(){
   <div style="display:flex;gap:8px;align-items:center;padding:0 16px;margin-bottom:10px">
     <div class="fbar" style="flex:1;padding:0;margin:0">
       <button class="fc ${S.fcat==='all'?'on':''}" onclick="S.fcat='all';render()">Все</button>
-      ${D.categories.map(c=>`<button class="fc ${S.fcat===c.id?'on':''}" onclick="S.fcat='${c.id}';render()">${c.icon} ${c.name}</button>`).join('')}
+      ${D.categories.map(c=>`<button class="fc ${S.fcat===c.id?'on':''}" onclick="setFcat('${c.id}')">${c.icon} ${c.name}</button>`).join('')}
     </div>
     <select class="sortsel" onchange="S.sort=this.value;render()">
       ${SORTS.map(o=>`<option value="${o.v}"${S.sort===o.v?' selected':''}>${o.l}</option>`).join('')}
@@ -746,7 +746,8 @@ function showProjSheet(){
         </div>`).join('')}
       </div>`:''}
     </div>`:''}
-    ${editPid?`<button class="btn-del" onclick="doDelProj('${editPid}')">Удалить проект</button>`:''}
+    ${editPid?`<button class="btn-del" onclick="doDelProj('${editPid}')">Удалить проект</button>
+    <button onclick="clearProjExpenses('${editPid}')" style="width:100%;padding:14px;background:rgba(255,159,10,0.1);border:none;border-radius:14px;color:var(--orange);font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;margin-bottom:8px">🗑️ Удалить все расходы проекта</button>`:''}
     <button class="btn-main" onclick="doSaveProj()">Сохранить</button>
   `);
   // Attach delete investor buttons
@@ -788,6 +789,22 @@ async function doSaveProj(){
   else{const r=await addDoc(collection(db,'projects'),p);D.projects.push({id:r.id,...p});}
   render();
 }
+async function clearProjExpenses(pid){
+  const p=getproj(pid);
+  const cnt=D.expenses.filter(e=>e.pid===pid).length;
+  if(!confirm('Удалить все '+cnt+' расходов проекта "'+p.name+'"? Это действие нельзя отменить.'))return;
+  closeSheet();
+  const toDelete=D.expenses.filter(e=>e.pid===pid);
+  let done=0;
+  for(const e of toDelete){
+    await deleteDoc(doc(db,'expenses',e.id));
+    done++;
+  }
+  D.expenses=D.expenses.filter(e=>e.pid!==pid);
+  render();
+  alert('✓ Удалено '+done+' расходов из проекта "'+p.name+'"');
+}
+
 async function doDelProj(id){
   closeSheet();
   await deleteDoc(doc(db,'projects',id));
@@ -990,6 +1007,8 @@ async function doUpdateExp(){
   render();
 }
 
+function setFcat(id){S.fcat=S.fcat===id?'all':id;render();}
+function setFpay(id){S.fpay=S.fpay===id?'all':id;render();}
 function openImport(){
   sheetOpen(`
     <div class="sheet-title">Импорт из CSV</div>
@@ -1222,7 +1241,7 @@ function renderInvView(pr,inv){
 }
 
 // EXPOSE
-Object.assign(window,{openImport,previewCSV,doImport,assignCat,detectCategory,openAddExp,showAddSheet,tfSetPid,tfSetCid,tfSetPayer,tfToggleAdv,doSaveExp,npToggleCat,openProjCats,showProjCatsSheet,toggleGlobalCat,addOwnCat,delOwnCat,saveOwnCatIcon,saveOwnCatName,editExp,showEditSheet,tfSetCidEdit,tfSetPayerEdit,tfToggleAdvEdit,doUpdateExp,
+Object.assign(window,{setFcat,setFpay,openImport,previewCSV,doImport,assignCat,detectCategory,clearProjExpenses,openAddExp,showAddSheet,tfSetPid,tfSetCid,tfSetPayer,tfToggleAdv,doSaveExp,npToggleCat,openProjCats,showProjCatsSheet,toggleGlobalCat,addOwnCat,delOwnCat,saveOwnCatIcon,saveOwnCatName,editExp,showEditSheet,tfSetCidEdit,tfSetPayerEdit,tfToggleAdvEdit,doUpdateExp,
   newProj,editProj,showProjSheet,doSaveProj,doDelProj,npSetType,npPickColor,npAddInv,syncNP,
   newCat,editCat,showCatSheet,tcPickIcon,doSaveCat,delCat,delExp,closeBill,exportCSV,
   go,openProj,copyTxt,closeSheet,sheetClose,S,TF,NP,TC});
