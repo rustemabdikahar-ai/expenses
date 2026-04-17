@@ -676,9 +676,9 @@ function showAddSheet(){
     <div class="sheet-section">
       ${sp&&sp.multi?`
       <label class="sheet-label">Сумма в тенге (₸)</label>
-      <input id="ai" class="inp inp-big" type="number" inputmode="numeric" placeholder="0 ₸" value="${TF.amt}" oninput="TF.amt=this.value;updSaveBtn();clearTimeout(window._ct);window._ct=setTimeout(autoConvertToC2,800)">
+      <input id="ai" class="inp inp-big" type="number" inputmode="numeric" placeholder="0 ₸" value="${TF.amt}" oninput="TF.amt=this.value;updSaveBtn();clearTimeout(window._c2t);window._c2t=setTimeout(function(){autoConvertToC2();},1000)" onblur="TF.amt=this.value;autoConvertToC2()">
       <label class="sheet-label" style="margin-top:10px">Сумма в ${CURRENCIES[sp.currency2]?.flag||''} ${CURRENCIES[sp.currency2]?.name||sp.currency2} (по курсу на дату)</label>
-      <input id="c2i" class="inp inp-big" type="number" inputmode="numeric" placeholder="0 ${CURRENCIES[sp.currency2]?.sym||sp.currency2}" value="${TF.c2_amt||''}" oninput="TF.c2_amt=this.value;autoConvertToKZT()" style="color:var(--blue)">
+      <input id="c2i" class="inp inp-big" type="number" inputmode="numeric" placeholder="0 ${CURRENCIES[sp.currency2]?.sym||sp.currency2}" value="${TF.c2_amt||''}" oninput="TF.c2_amt=this.value;clearTimeout(window._kztt);window._kztt=setTimeout(autoConvertToKZT,800)" style="color:var(--blue)">
       <div id="rate-info" style="margin-top:8px;padding:10px 12px;background:rgba(0,0,0,0.04);border-radius:var(--r2);font-size:13px;color:var(--text2)">${TF.rate?`Курс: 1 ${sp.currency2} = ${TF.rate.toFixed(2)} ₸`:'Введите сумму — курс загрузится автоматически'}</div>
       `:`
       <label class="sheet-label">Сумма (₸)</label>
@@ -708,6 +708,7 @@ function showAddSheet(){
 }
 
 async function getRateForDate(cur2,date){
+  console.log('getRateForDate',cur2,date);
   try{
     const base=cur2.toLowerCase();
     const res=await fetch(`https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@${date}/v1/currencies/${base}.json`);
@@ -736,7 +737,7 @@ async function autoConvertToC2(){
     const c2=Math.round((parseFloat(TF.amt)/rate)*100)/100;
     TF.c2_amt=String(c2);
     const c2inp=document.getElementById('c2i');
-    if(c2inp)c2inp.value=c2;
+    if(c2inp){c2inp.value=c2;c2inp.style.color='var(--blue)';}
     if(rateInfo)rateInfo.innerHTML=`Курс: 1 ${sp.currency2} = ${rate.toFixed(2)} ₸ → <b style="color:var(--blue)">${c2.toLocaleString('ru-RU',{maximumFractionDigits:2})} ${sp.currency2}</b>`;
   } else {
     if(rateInfo)rateInfo.innerHTML='⚠️ Не удалось загрузить курс';
@@ -762,7 +763,7 @@ async function autoConvertToKZT(){
     TF.amt=String(kzt);
     const ai=document.getElementById('ai');
     if(ai)ai.value=kzt;
-    if(rateInfo)rateInfo.innerHTML=`Курс: 1 ${sp.currency2} = ${rate.toFixed(2)} ₸ → <b style="color:var(--blue)">${c2.toLocaleString('ru-RU',{maximumFractionDigits:2})} ${sp.currency2}</b>`;
+    if(rateInfo)rateInfo.innerHTML=`Курс: 1 ${sp.currency2} = ${rate.toFixed(2)} ₸ → <b style="color:var(--text)">${kzt.toLocaleString('ru-RU')} ₸</b>`;
   } else {
     if(rateInfo)rateInfo.innerHTML='⚠️ Не удалось загрузить курс. Введите ₸ вручную';
   }
@@ -1069,7 +1070,7 @@ function showEditSheet(){
       <input id="eni" class="inp" type="text" placeholder="Что за расход?" value="${TF.note}" oninput="TF.note=this.value" onkeydown="if(event.key==='Enter')doUpdateExp()">
     </div>
     <div class="sheet-section"><label class="sheet-label">Дата расхода</label>
-      <input id="edate" type="date" class="inp" value="${TF.created_at||''}" oninput="TF.created_at=this.value">
+      <input id="edate" type="date" class="inp" value="${TF.created_at||''}" oninput="TF.created_at=this.value;clearTimeout(window._c2t);window._c2t=setTimeout(function(){autoConvertToC2();},300)">
     </div>
     <div class="sheet-section">
       <div class="adv-toggle" onclick="tfToggleAdvEdit()">
