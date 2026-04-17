@@ -1051,6 +1051,21 @@ function parseDate(str){
 }
 
 window._csvRows=[];
+function buildUnmatched(unmatchedRows, rows){
+  let html='<div style="margin-bottom:8px"><div style="font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:8px">Назначьте категорию вручную</div>';
+  unmatchedRows.slice(0,20).forEach(r=>{
+    const idx=rows.indexOf(r);
+    const opts=D.categories.map(c=>'<option value="'+c.id+'">'+c.icon+' '+c.name+'</option>').join('');
+    html+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;padding:8px 10px;background:rgba(0,0,0,0.03);border-radius:10px">';
+    html+='<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+r.name+'</div>';
+    html+='<div style="font-size:11px;color:var(--text2)">'+r.date+' · '+fmt(r.amt)+'</div></div>';
+    html+='<select onchange="assignCat('+idx+',this.value)" style="padding:5px 8px;border:1.5px solid var(--border);border-radius:8px;font-size:12px;background:var(--card);color:var(--text);outline:none;font-family:inherit;max-width:110px;-webkit-appearance:none"><option value="">Прочее</option>'+opts+'</select></div>';
+  });
+  if(unmatchedRows.length>20)html+='<div style="font-size:12px;color:var(--text2);text-align:center;padding:6px">+ ещё '+(unmatchedRows.length-20)+' записей</div>';
+  html+='</div>';
+  return html;
+}
+
 function previewCSV(input){
   const file=input.files[0];if(!file)return;
   const reader=new FileReader();
@@ -1085,20 +1100,7 @@ function previewCSV(input){
           <div style="font-size:14px;font-weight:700;color:var(--green2);margin-bottom:4px">✓ Найдено ${rows.length} записей</div>
           <div style="font-size:13px;color:var(--text2)">🟢 Категория определена: <b>${matched}</b> · 🟡 Не определено: <b>${unmatched}</b></div>
         </div>
-        ${unmatchedRows.length?`<div style="margin-bottom:8px">
-          <div style="font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:8px">Назначьте категорию вручную</div>
-          ${unmatchedRows.slice(0,20).map((r,i)=>`<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;padding:8px 10px;background:rgba(0,0,0,0.03);border-radius:10px">
-            <div style="flex:1;min-width:0">
-              <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.name}</div>
-              <div style="font-size:11px;color:var(--text2)">${r.date} · ${fmt(r.amt)}</div>
-            </div>
-            <select onchange="assignCat(${rows.indexOf(r)},this.value)" style="padding:5px 8px;border:1.5px solid var(--border);border-radius:8px;font-size:12px;background:var(--card);color:var(--text);outline:none;font-family:inherit;max-width:110px;-webkit-appearance:none">
-              <option value="">Прочее</option>
-              ${D.categories.map(c=>`<option value="${c.id}">${c.icon} ${c.name}</option>`).join('')}
-            </select>
-          </div>`).join('')}
-          ${unmatchedRows.length>20?`<div style="font-size:12px;color:var(--text2);text-align:center;padding:6px">+ ещё ${unmatchedRows.length-20} записей → попадут в категорию по умолчанию</div>`:''}
-        </div>`:''}
+        ${unmatchedRows.length?buildUnmatched(unmatchedRows,rows):''}
       `;
     }
     if(btn&&rows.length>0)btn.style.display='block';
