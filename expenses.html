@@ -239,7 +239,8 @@ const getcat=(id,pid)=>{
 };
 const getproj=id=>D.projects.find(p=>p.id===id)||{name:'—',color:'#8E8E93',type:'personal',investors:[]};
 const pi=i=>['p0','p1','p2','p3','p4','p5','p6','p7'][i%8];
-const cc=i=>COLORS[i%COLORS.length];
+const cc=i=>COLORS[((i%COLORS.length)+COLORS.length)%COLORS.length];
+const ccId=id=>{let h=0;for(const c of String(id))h=(h*31+c.charCodeAt(0))%COLORS.length;return COLORS[h];};
 const avc=s=>{const c=COLORS;let h=0;for(const x of s)h=(h*31+x.charCodeAt(0))%c.length;return c[h];};
 const ini=s=>s.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
 const pname=(pid,pr)=>pid==='me'||!pid?(pr?.owner||'Руководитель'):(pr?.investors?.find(i=>i.id===pid)?.name||'—');
@@ -317,6 +318,7 @@ function vProjects(){
   <button class="icon-wrap" onclick="go('analytics')" title="Аналитика">📊</button>
   <button class="icon-wrap" onclick="go('bills')" title="Счета">${bills.length?'🔴':'🧾'}</button>
   <button class="icon-wrap" onclick="go('categories')" title="Категории">🏷️</button>
+  <button class="icon-wrap" onclick="openImport()" title="Импорт CSV">📥</button>
 </div>
 <div class="page">
   <div class="stats-row">
@@ -409,7 +411,7 @@ function vProject(){
     const c=getcat(e.cid);const ci=D.categories.findIndex(x=>x.id===e.cid);
     const pr=getproj(e.pid);const pn=pname(e.payer,pr);const pc=(e.payer==='me'||!e.payer)?(pr.color||'#30D158'):avc(pn);
     return`<div class="exp-item">
-      <div class="exp-ico" style="background:${cc(ci)}22">${c.icon}</div>
+      <div class="exp-ico" style="background:${ci>=0?cc(ci):ccId(e.cid)}22">${c.icon}</div>
       <div class="exp-body">
         <div class="exp-name">${e.note||c.name}</div>
         <div class="exp-meta">
@@ -462,7 +464,7 @@ function vAll(){
     const c=getcat(e.cid);const ci=D.categories.findIndex(x=>x.id===e.cid);
     const pr=getproj(e.pid);const pn=pname(e.payer,pr);const pc=(e.payer==='me'||!e.payer)?(pr.color||'#30D158'):avc(pn);
     return`<div class="exp-item">
-      <div class="exp-ico" style="background:${cc(ci)}22">${c.icon}</div>
+      <div class="exp-ico" style="background:${ci>=0?cc(ci):ccId(e.cid)}22">${c.icon}</div>
       <div class="exp-body">
         <div class="exp-name">${e.note||c.name}</div>
         <div class="exp-meta">
@@ -570,7 +572,7 @@ function vAnalytics(){
   <div class="anl-card"><canvas id="ch"></canvas></div>
   <div class="anl-card">${cats.map(([cid,amt])=>{const c=getcat(cid);const ci=D.categories.findIndex(x=>x.id===cid);const pct=total?Math.round(amt/total*100):0;return`<div class="anl-row">
     <div style="display:flex;align-items:center;gap:8px;width:110px;flex-shrink:0"><span>${c.icon}</span><span style="font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.name}</span></div>
-    <div class="anl-bar-wrap"><div class="anl-bar" style="width:${pct}%;background:${cc(ci)}"></div></div>
+    <div class="anl-bar-wrap"><div class="anl-bar" style="width:${pct}%;background:${ci>=0?cc(ci):ccId(cid)}"></div></div>
     <span style="font-size:12px;color:var(--text2);width:30px;text-align:right">${pct}%</span>
     <span style="font-weight:700;width:90px;text-align:right;font-size:14px">${fmt(amt)}</span>
   </div>`;}).join('')}</div>
@@ -606,7 +608,7 @@ function renderChart(){
   const el=$('ch');if(!el||!cats.length)return;
   myChart=new Chart(el,{type:'doughnut',data:{
     labels:cats.map(([cid])=>getcat(cid).name),
-    datasets:[{data:cats.map(([,v])=>v),backgroundColor:cats.map(([cid])=>{const i=D.categories.findIndex(c=>c.id===cid);return cc(i);}),borderWidth:4,borderColor:'#fff'}]
+    datasets:[{data:cats.map(([,v])=>v),backgroundColor:cats.map(([cid])=>{const i=D.categories.findIndex(c=>c.id===cid);return i>=0?cc(i):ccId(cid);}),borderWidth:4,borderColor:'#fff'}]
   },options:{responsive:true,cutout:'65%',plugins:{legend:{position:'bottom',labels:{font:{size:12,weight:'600'},padding:12,boxWidth:12,usePointStyle:true}},
     tooltip:{callbacks:{label:ctx=>{const v=ctx.raw;const t=ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0);return' '+ctx.label+': '+fmt(v)+' ('+Math.round(v/t*100)+'%)';}}}}}
   });
@@ -988,6 +990,161 @@ async function doUpdateExp(){
   render();
 }
 
+function openImport(){
+  sheetOpen(`
+    <div class="sheet-title">Импорт из CSV</div>
+    <div style="font-size:14px;color:var(--text2);margin-bottom:16px;line-height:1.6">Загрузите CSV файл из Google Таблиц. Колонки: Дата, Статья расхода, Сумма. Все записи попадут в выбранный проект.</div>
+    <div class="sheet-section"><label class="sheet-label">Проект для импорта</label>
+      ${D.projects.map(p=>`<button class="proj-opt ${window._importPid===p.id?'on':''}" onclick="window._importPid='${p.id}';openImport()"><span class="cdot" style="background:${p.color};width:12px;height:12px"></span><span class="proj-opt-name">${p.name}</span></button>`).join('')}
+    </div>
+    <div class="sheet-section"><label class="sheet-label">Категория по умолчанию</label>
+      <div class="chips">${D.categories.map(c=>`<button class="chip ${window._importCid===c.id?'on':''}" onclick="window._importCid='${c.id}';openImport()">${c.icon} ${c.name}</button>`).join('')}</div>
+    </div>
+    <div class="sheet-section"><label class="sheet-label">CSV файл</label>
+      <input type="file" id="csv-file" accept=".csv" style="width:100%;padding:12px;border:1.5px dashed var(--border);border-radius:var(--r2);font-size:14px;cursor:pointer;background:rgba(0,0,0,0.02)" onchange="previewCSV(this)">
+    </div>
+    <div id="import-preview" style="margin-top:8px"></div>
+    <button class="btn-main" id="import-btn" onclick="doImport()" style="display:none">Импортировать</button>
+  `);
+  if(!window._importPid&&D.projects.length>0)window._importPid=D.projects[0].id;
+  if(!window._importCid&&D.categories.length>0)window._importCid=D.categories[0].id;
+}
+
+function parseAmount(str){
+  if(!str)return 0;
+  return parseFloat(str.replace(/[^0-9]/g,''))||0;
+}
+
+function parseDate(str){
+  if(!str||!str.trim())return null;
+  str=str.trim();
+  // formats: 20.06.2025, 02.07, 20*07
+  const clean=str.replace('*','.');
+  const parts=clean.split('.');
+  if(parts.length>=2){
+    const d=parts[0].padStart(2,'0');
+    const m=parts[1].padStart(2,'0');
+    const y=parts.length>=3?parts[2]:'2025';
+    return `${y}-${m}-${d}`;
+  }
+  return null;
+}
+
+window._csvRows=[];
+function previewCSV(input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const text=e.target.result;
+    const lines=text.split(/\r?\n/);
+    const rows=[];
+    let lastDate=null;
+    for(const line of lines){
+      const cols=line.split(',');
+      const dateRaw=cols[0]?.trim();
+      const name=cols[1]?.trim();
+      const amtRaw=cols[2]?.trim();
+      if(!name||!amtRaw)continue;
+      const amt=parseAmount(amtRaw);
+      if(!amt||amt<=0)continue;
+      const date=parseDate(dateRaw)||lastDate;
+      if(dateRaw&&parseDate(dateRaw))lastDate=parseDate(dateRaw);
+      if(!date)continue;
+      rows.push({date,name,amt});
+    }
+    window._csvRows=rows;
+    // Auto-detect categories
+    let matched=0,unmatched=0;
+    rows.forEach(r=>{const d=detectCategory(r.name);if(d){matched++;r._detectedCat=d;}else unmatched++;});
+    const prev=document.getElementById('import-preview');
+    const btn=document.getElementById('import-btn');
+    if(prev){
+      const unmatchedRows=rows.filter(r=>!r._detectedCat);
+      prev.innerHTML=`
+        <div style="background:rgba(48,209,88,0.08);border-radius:var(--r2);padding:12px 14px;margin-bottom:10px">
+          <div style="font-size:14px;font-weight:700;color:var(--green2);margin-bottom:4px">✓ Найдено ${rows.length} записей</div>
+          <div style="font-size:13px;color:var(--text2)">🟢 Категория определена: <b>${matched}</b> · 🟡 Не определено: <b>${unmatched}</b></div>
+        </div>
+        ${unmatchedRows.length?`<div style="margin-bottom:8px">
+          <div style="font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:8px">Назначьте категорию вручную</div>
+          ${unmatchedRows.slice(0,20).map((r,i)=>`<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;padding:8px 10px;background:rgba(0,0,0,0.03);border-radius:10px">
+            <div style="flex:1;min-width:0">
+              <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.name}</div>
+              <div style="font-size:11px;color:var(--text2)">${r.date} · ${fmt(r.amt)}</div>
+            </div>
+            <select onchange="assignCat(${rows.indexOf(r)},this.value)" style="padding:5px 8px;border:1.5px solid var(--border);border-radius:8px;font-size:12px;background:var(--card);color:var(--text);outline:none;font-family:inherit;max-width:110px;-webkit-appearance:none">
+              <option value="">Прочее</option>
+              ${D.categories.map(c=>`<option value="${c.id}">${c.icon} ${c.name}</option>`).join('')}
+            </select>
+          </div>`).join('')}
+          ${unmatchedRows.length>20?`<div style="font-size:12px;color:var(--text2);text-align:center;padding:6px">+ ещё ${unmatchedRows.length-20} записей → попадут в категорию по умолчанию</div>`:''}
+        </div>`:''}
+      `;
+    }
+    if(btn&&rows.length>0)btn.style.display='block';
+  };
+  reader.readAsText(file,'UTF-8');
+}
+
+// Smart category detection by keywords
+function detectCategory(name){
+  const n=name.toLowerCase().trim();
+  const rules=[
+    // Зарплата / люди
+    {cat:'Зарплата',keys:['аванс дима','расчет дима','дима','абыл','темир','мурат','илья','ахун','ахаун','зарплата','расчет','доплата','помощь','документ']},
+    // Материалы / стройка
+    {cat:'Закуп',keys:['цемент','клинец','кум','шебень','тас','материал','арматура','кирпич','агаш','лист','сетка','габион','краска','солярка','трамбовка','кабанчик','смеситель','корпе','тосек']},
+    // Техника
+    {cat:'Оборудование',keys:['погрузчик','экскаватор','кран','техника','вентиляц','электрик','электро']},
+    // Продукты / еда
+    {cat:'Продукты',keys:['продукты','нан','ет','мелочь','хлеб','еда']},
+    // Транспорт
+    {cat:'Транспорт',keys:['проезд','транспорт','такси','бензин','газ','авто']},
+    // Аренда
+    {cat:'Аренда',keys:['аренда','маркиза','мебель']},
+  ];
+  for(const rule of rules){
+    for(const key of rule.keys){
+      if(n.includes(key))return rule.cat;
+    }
+  }
+  return null;
+}
+
+function getCidByName(catName){
+  if(!catName)return null;
+  const c=D.categories.find(x=>x.name===catName);
+  return c?c.id:null;
+}
+
+function assignCat(idx,cid){
+  if(window._csvRows&&window._csvRows[idx]){
+    window._csvRows[idx].forceCid=cid||null;
+  }
+}
+
+async function doImport(){
+  const rows=window._csvRows||[];
+  const pid=window._importPid;
+  const fallbackCid=window._importCid||D.categories[0]?.id;
+  if(!rows.length||!pid)return;
+  const btn=document.getElementById('import-btn');
+  if(btn){btn.textContent='Импортируем...';btn.disabled=true;}
+  let done=0;
+  for(const row of rows){
+    const detectedName=detectCategory(row.name);
+    const cid=row.forceCid||(detectedName?getCidByName(detectedName):null)||fallbackCid;
+    const e={pid,cid,amt:row.amt,note:row.name,payer:'me',created_at:row.date,adv:false,adv_total:null,party:'',adv_status:null,deadline:null};
+    await addDoc(collection(db,'expenses'),e);
+    done++;
+    if(btn)btn.textContent=`Импортируем... ${done}/${rows.length}`;
+  }
+  window._csvRows=[];
+  closeSheet();
+  render();
+  setTimeout(()=>alert('✓ Импортировано '+done+' записей!'),300);
+}
+
 function exportCSV(){
   const rows=[['Дата','Проект','Категория','Кто платит','Сумма','Комментарий','Аванс','Общая сумма','Остаток','Статус']];
   D.expenses.slice().sort((a,b)=>(b._t||0)-(a._t||0)).forEach(e=>{
@@ -1054,7 +1211,7 @@ function renderInvView(pr,inv){
       const pn=e.payer==='me'||!e.payer?(pr.owner||'Руководитель'):(pr.investors?.find(i=>i.id===e.payer)?.name||'—');
       const pc=(e.payer==='me'||!e.payer)?(pr.color||'#30D158'):avc(pn);
       return`<div class="exp-item">
-        <div class="exp-ico" style="background:${cc(ci)}22">${c.icon}</div>
+        <div class="exp-ico" style="background:${ci>=0?cc(ci):ccId(e.cid)}22">${c.icon}</div>
         <div class="exp-body">
           <div class="exp-name">${e.note||c.name}</div>
           <div class="exp-meta"><span class="pill ${pi(ci)}">${c.name}</span><span class="pdot" style="background:${pc}"></span><span>${pn}</span><span style="color:var(--text3)">·</span><span>${dt(e.created_at)}</span></div>
@@ -1065,7 +1222,7 @@ function renderInvView(pr,inv){
 }
 
 // EXPOSE
-Object.assign(window,{openAddExp,showAddSheet,tfSetPid,tfSetCid,tfSetPayer,tfToggleAdv,doSaveExp,npToggleCat,openProjCats,showProjCatsSheet,toggleGlobalCat,addOwnCat,delOwnCat,saveOwnCatIcon,saveOwnCatName,editExp,showEditSheet,tfSetCidEdit,tfSetPayerEdit,tfToggleAdvEdit,doUpdateExp,
+Object.assign(window,{openImport,previewCSV,doImport,assignCat,detectCategory,openAddExp,showAddSheet,tfSetPid,tfSetCid,tfSetPayer,tfToggleAdv,doSaveExp,npToggleCat,openProjCats,showProjCatsSheet,toggleGlobalCat,addOwnCat,delOwnCat,saveOwnCatIcon,saveOwnCatName,editExp,showEditSheet,tfSetCidEdit,tfSetPayerEdit,tfToggleAdvEdit,doUpdateExp,
   newProj,editProj,showProjSheet,doSaveProj,doDelProj,npSetType,npPickColor,npAddInv,syncNP,
   newCat,editCat,showCatSheet,tcPickIcon,doSaveCat,delCat,delExp,closeBill,exportCSV,
   go,openProj,copyTxt,closeSheet,sheetClose,S,TF,NP,TC});
