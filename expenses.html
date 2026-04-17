@@ -395,7 +395,7 @@ function vProject(){
   </div>
   <div style="display:flex;gap:8px;align-items:center;padding:0 16px;margin-bottom:8px">
     <div class="fbar" style="flex:1;padding:0;margin:0">
-      <button class="fc ${S.fcat==='all'?'on':''}" onclick="S.fcat='all';render()">Все</button>
+      <button class="fc ${S.fcat==='all'?'on':''}" onclick="setFcat('all')">Все</button>
       ${usedCats.map(cid=>{const c=getcat(cid);return`<button class="fc ${S.fcat===cid?'on':''}" onclick="setFcat('${cid}')">${c.icon} ${c.name}</button>`;}).join('')}
     </div>
     <select class="sortsel" onchange="S.sort=this.value;render()">
@@ -403,7 +403,7 @@ function vProject(){
     </select>
   </div>
   ${isInv?`<div class="fbar" style="margin-bottom:10px">
-    <button class="fc ${S.fpay==='all'?'on':''}" onclick="S.fpay='all';render()">Все</button>
+    <button class="fc ${S.fpay==='all'?'on':''}" onclick="setFpay('all')">Все</button>
     ${payers.map(inv=>`<button class="fc ${S.fpay===inv.id?'on-p':''}" onclick="setFpay('${inv.id}')">${inv.name.split(' ')[0]}</button>`).join('')}
   </div>`:''}
   ${ex.length===0?`<div class="empty"><div class="empty-icon">📭</div><div class="empty-title">Нет расходов</div><div class="empty-sub">Нажмите + чтобы добавить</div></div>`:
@@ -452,7 +452,7 @@ function vAll(){
   </div>
   <div style="display:flex;gap:8px;align-items:center;padding:0 16px;margin-bottom:10px">
     <div class="fbar" style="flex:1;padding:0;margin:0">
-      <button class="fc ${S.fcat==='all'?'on':''}" onclick="S.fcat='all';render()">Все</button>
+      <button class="fc ${S.fcat==='all'?'on':''}" onclick="setFcat('all')">Все</button>
       ${D.categories.map(c=>`<button class="fc ${S.fcat===c.id?'on':''}" onclick="setFcat('${c.id}')">${c.icon} ${c.name}</button>`).join('')}
     </div>
     <select class="sortsel" onchange="S.sort=this.value;render()">
@@ -1007,8 +1007,8 @@ async function doUpdateExp(){
   render();
 }
 
-function setFcat(id){S.fcat=S.fcat===id?'all':id;render();}
-function setFpay(id){S.fpay=S.fpay===id?'all':id;render();}
+function setFcat(id){S.fcat=id==='all'?'all':(S.fcat===id?'all':id);render();}
+function setFpay(id){S.fpay=id==='all'?'all':(S.fpay===id?'all':id);render();}
 function openImport(){
   sheetOpen(`
     <div class="sheet-title">Импорт из CSV</div>
