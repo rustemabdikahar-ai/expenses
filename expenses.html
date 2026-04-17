@@ -245,6 +245,7 @@ const avc=s=>{const c=COLORS;let h=0;for(const x of s)h=(h*31+x.charCodeAt(0))%c
 const ini=s=>s.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
 const pname=(pid,pr)=>pid==='me'||!pid?(pr?.owner||'Руководитель'):(pr?.investors?.find(i=>i.id===pid)?.name||'—');
 const ptotal=id=>D.expenses.filter(e=>e.pid===id).reduce((s,e)=>s+e.amt,0);
+const c2total=(pid,cur2)=>D.expenses.filter(e=>e.pid===pid&&e.c2_amt).reduce((s,e)=>s+(+e.c2_amt||0),0);
 const atotal=()=>D.expenses.reduce((s,e)=>s+e.amt,0);
 
 // Get categories for a project: global selected + project-specific
@@ -342,6 +343,7 @@ function vProjects(){
       <div>
         <div class="proj-name">${p.name}</div>
         <div class="proj-amount" style="color:${p.color}">${fmt(ptotal(p.id))}</div>
+      ${p.multi&&p.currency2?`<div style="font-size:14px;font-weight:600;color:var(--blue);margin-top:1px">${c2total(p.id,p.currency2).toLocaleString('ru-RU',{maximumFractionDigits:2})} ${p.currency2}</div>`:''}
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
         <span class="proj-badge ${p.type==='investor'?'badge-inv':'badge-per'}">${p.type==='investor'?'Инвесторский':'Личный'}</span>
@@ -377,7 +379,7 @@ function vProject(){
   <button class="back" onclick="go('projects')">‹ Назад</button>
   <div style="flex:1;text-align:center">
     <div style="font-size:16px;font-weight:700">${p.name}</div>
-    <div style="font-size:13px;color:var(--text2)">${fmt(total)}</div>
+    <div style="font-size:13px;color:var(--text2)">${fmt(total)}${p.multi&&p.currency2?' · '+c2total(p.id,p.currency2).toLocaleString('ru-RU',{maximumFractionDigits:2})+' '+p.currency2:''}</div>
   </div>
   <button class="icon-wrap" onclick="S.apid='${p.id}';go('analytics')">📊</button>
   <button class="icon-wrap" onclick="openProjCats('${p.id}')" title="Категории проекта">🏷️</button>
@@ -419,7 +421,7 @@ function vProject(){
           <span class="pill ${pi(ci)}">${c.name}</span>
           ${isInv?`<span class="pdot" style="background:${pc}"></span><span>${pn}</span>`:''}
           <span style="color:var(--text3)">·</span><span>${dt(e.created_at)}</span>
-          ${e.currency==='AED'?`<span class="pill" style="background:rgba(10,132,255,0.12);color:var(--blue)">AED</span>`:''}
+          ${e.currency&&e.currency!=='KZT'&&e.c2_amt?`<span class="pill" style="background:rgba(10,132,255,0.12);color:var(--blue)">${e.currency}</span>`:''}
           ${e.adv&&e.adv_status==='pending'?`<span class="pill" style="background:rgba(255,159,10,0.15);color:var(--orange)">Аванс</span>`:''}
           ${e.adv&&e.adv_status==='pending'&&e.deadline?`<span class="pill" style="background:${new Date(e.deadline)<new Date()?'rgba(255,69,58,0.15)':'rgba(0,0,0,0.06)'};color:${new Date(e.deadline)<new Date()?'var(--red)':'var(--text2)'}">⏰ до ${dt(e.deadline)}</span>`:''}
           ${e.adv&&e.adv_status==='done'?`<span class="pill" style="background:rgba(48,209,88,0.15);color:var(--green2)">Закрыт</span>`:''}
@@ -427,7 +429,7 @@ function vProject(){
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
         <div class="exp-amt">${fmt(e.amt)}</div>
-        ${e.currency==='AED'&&e.aed_amt?`<div style="font-size:11px;color:var(--text2);text-align:right">${(+e.aed_amt).toLocaleString('ru-RU')} AED</div>`:''}
+        ${e.c2_amt&&e.currency&&e.currency!=='KZT'?`<div style="font-size:11px;color:var(--blue);text-align:right">${(+e.c2_amt).toLocaleString('ru-RU',{maximumFractionDigits:2})} ${e.currency}</div>`:''}
         <div style="display:flex;gap:4px">
           <button onclick="editExp('${e.id}')" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:14px;padding:2px 4px">✏️</button>
           <button onclick="delExp('${e.id}')" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:14px;padding:2px 0">✕</button>
@@ -479,7 +481,7 @@ function vAll(){
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
         <div class="exp-amt">${fmt(e.amt)}</div>
-        ${e.currency==='AED'&&e.aed_amt?`<div style="font-size:11px;color:var(--text2);text-align:right">${(+e.aed_amt).toLocaleString('ru-RU')} AED</div>`:''}
+        ${e.c2_amt&&e.currency&&e.currency!=='KZT'?`<div style="font-size:11px;color:var(--blue);text-align:right">${(+e.c2_amt).toLocaleString('ru-RU',{maximumFractionDigits:2})} ${e.currency}</div>`:''}
         <div style="display:flex;gap:4px">
           <button onclick="editExp('${e.id}')" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:14px;padding:2px 4px">✏️</button>
           <button onclick="delExp('${e.id}')" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:14px;padding:2px 0">✕</button>
@@ -553,7 +555,7 @@ function vAnalytics(){
 <div class="page">
   <div class="stats-row">
     <div class="stat-card"><div class="stat-label">Итого расходов</div><div class="stat-value">${fmt(total)}</div></div>
-    <div class="stat-card"><div class="stat-label">в дирхамах</div><div class="stat-value">${ex.filter(e=>e.currency==='AED'&&e.aed_amt).reduce((s,e)=>s+(+e.aed_amt),0).toLocaleString('ru-RU')+' AED'}</div></div>
+    ${pr&&pr.multi?`<div class="stat-card"><div class="stat-label">в ${CURRENCIES[pr.currency2]?.name||pr.currency2}</div><div class="stat-value">${ex.filter(e=>e.c2_amt).reduce((s,e)=>s+(+e.c2_amt),0).toLocaleString('ru-RU',{maximumFractionDigits:0})+' '+(pr.currency2||'')+'</div></div>'}\`:'\`}
     <div class="stat-card"><div class="stat-label">Записей</div><div class="stat-value">${ex.length}</div></div>
   </div>
   ${isInv?`<div class="sec-hdr"><span class="sec-title">По участникам</span></div>
@@ -637,7 +639,7 @@ function closeSheet(){
 
 // ADD EXPENSE
 function openAddExp(pid){
-  TF={pid:pid||null,cid:null,amt:'',note:'',payer:'me',adv:false,total:'',party:'',deadline:'',currency:'KZT',aed_amt:'',rate:null};
+  TF={pid:pid||null,cid:null,amt:'',note:'',payer:'me',adv:false,total:'',party:'',deadline:'',currency:'KZT',aed_amt:'',c2_amt:'',rate:null,created_at:new Date().toISOString().split('T')[0]};
   const sp=TF.pid?getproj(TF.pid):null;
   if(sp&&projCats(TF.pid).length>0)TF.cid=projCats(TF.pid)[0].id;
   else if(D.categories.length>0)TF.cid=D.categories[0].id;
@@ -664,15 +666,15 @@ function showAddSheet(){
         <button class="chip ${TF.payer==='me'?'on-p':''}" onclick="tfSetPayer('me')">${sp.owner||'Руководитель'}</button>
         ${(sp.investors||[]).map(inv=>`<button class="chip ${TF.payer===inv.id?'on-p':''}" onclick="tfSetPayer('${inv.id}')">${inv.name}</button>`).join('')}
       </div></div>`:''}
-    <div class="sheet-section"><label class="sheet-label">Валюта и сумма</label>
-      <div style="display:flex;gap:8px;margin-bottom:8px">
-        <button class="chip ${!TF.currency||TF.currency==='KZT'?'on':''}" onclick="setCurrency('KZT')" style="flex:1;justify-content:center">₸ Тенге</button>
-        <button class="chip ${TF.currency==='AED'?'on':''}" onclick="setCurrency('AED')" style="flex:1;justify-content:center">🇦🇪 Дирхам</button>
-      </div>
-      ${TF.currency==='AED'?`
-      <input id="ai" class="inp inp-big" type="number" inputmode="numeric" placeholder="0 AED" value="${TF.aed_amt||''}" oninput="TF.aed_amt=this.value;fetchRate()">
-      <div id="rate-info" style="margin-top:8px;padding:10px 12px;background:rgba(0,0,0,0.04);border-radius:var(--r2);font-size:13px;color:var(--text2)">${TF.rate?`Курс: 1 AED = ${TF.rate.toFixed(2)} ₸ → <b style="color:var(--text)">${fmt(Math.round((TF.aed_amt||0)*TF.rate))}</b>`:' Введите сумму для конвертации'}</div>
+    <div class="sheet-section">
+      ${sp&&sp.multi?`
+      <label class="sheet-label">Сумма в тенге (₸)</label>
+      <input id="ai" class="inp inp-big" type="number" inputmode="numeric" placeholder="0 ₸" value="${TF.amt}" oninput="TF.amt=this.value;updSaveBtn();autoConvertToC2()">
+      <label class="sheet-label" style="margin-top:10px">Сумма в ${CURRENCIES[sp.currency2]?.flag||''} ${CURRENCIES[sp.currency2]?.name||sp.currency2} (по курсу на дату)</label>
+      <input id="c2i" class="inp inp-big" type="number" inputmode="numeric" placeholder="0 ${CURRENCIES[sp.currency2]?.symbol||sp.currency2}" value="${TF.c2_amt||''}" oninput="TF.c2_amt=this.value;autoConvertToKZT()" style="color:var(--blue)">
+      <div id="rate-info" style="margin-top:8px;padding:10px 12px;background:rgba(0,0,0,0.04);border-radius:var(--r2);font-size:13px;color:var(--text2)">${TF.rate?`Курс: 1 ${sp.currency2} = ${TF.rate.toFixed(2)} ₸`:'Введите сумму — курс загрузится автоматически'}</div>
       `:`
+      <label class="sheet-label">Сумма (₸)</label>
       <input id="ai" class="inp inp-big" type="number" inputmode="numeric" placeholder="0 ₸" value="${TF.amt}" oninput="TF.amt=this.value;updSaveBtn()">
       `}
     </div>
@@ -698,60 +700,75 @@ function showAddSheet(){
   setTimeout(()=>{const ai=$('ai');if(ai){ai.focus();ai.addEventListener('input',updSaveBtn);}},350);
 }
 
-function setCurrency(cur){
-  syncTF();
-  TF.currency=cur;
-  TF.aed_amt='';TF.rate=null;
-  showAddSheet();
+async function getRateForDate(cur2,date){
+  try{
+    const base=cur2.toLowerCase();
+    const res=await fetch(`https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@${date}/v1/currencies/${base}.json`);
+    if(res.ok){const d=await res.json();const rate=d?.[base]?.kzt;if(rate)return rate;}
+    // fallback latest
+    const res2=await fetch(`https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/${base}.json`);
+    if(res2.ok){const d2=await res2.json();return d2?.[base]?.kzt||null;}
+  }catch(e){}
+  return null;
 }
 
-async function fetchRate(){
+async function autoConvertToC2(){
+  // KZT entered → convert to C2
+  const sp=TF.pid?getproj(TF.pid):null;
+  if(!sp||!sp.multi)return;
   const ai=document.getElementById('ai');
-  if(ai)TF.aed_amt=ai.value;
-  if(!TF.aed_amt||parseFloat(TF.aed_amt)<=0)return;
+  if(ai)TF.amt=ai.value;
+  if(!TF.amt||parseFloat(TF.amt)<=0)return;
   const dateInp=document.getElementById('date-inp');
   const date=dateInp?dateInp.value:new Date().toISOString().split('T')[0];
   const rateInfo=document.getElementById('rate-info');
   if(rateInfo)rateInfo.innerHTML='⏳ Загружаю курс...';
-  try{
-    // Try multiple APIs for reliability
-    let rate=null;
-    // API 1: open.er-api.com (free, CORS ok, но только текущий курс)
-    // API 2: cdn.jsdelivr.net/npm/@fawazahmed0/currency-api (исторические даты, CORS ok)
-    const apiDate=date.replace(/-/g,'.');
-    const res=await fetch(`https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@${date}/v1/currencies/aed.json`);
-    if(res.ok){
-      const data=await res.json();
-      rate=data?.aed?.kzt||null;
-    }
-    if(!rate){
-      // fallback: latest rate
-      const res2=await fetch('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/aed.json');
-      if(res2.ok){const data2=await res2.json();rate=data2?.aed?.kzt||null;}
-    }
-    if(rate){
-      TF.rate=rate;
-      const kzt=Math.round(parseFloat(TF.aed_amt)*rate);
-      TF.amt=String(kzt);
-      if(rateInfo)rateInfo.innerHTML=`Курс: 1 AED = ${rate.toFixed(2)} ₸ → <b style="color:var(--text)">${fmt(kzt)}</b>`;
-      updSaveBtn();
-    } else {
-      if(rateInfo)rateInfo.innerHTML='⚠️ Не удалось загрузить курс. Введите сумму в ₸ вручную';
-    }
-  }catch(e){
-    // Final fallback: approximate rate
-    const approxRate=132;
-    TF.rate=approxRate;
-    const kzt=Math.round(parseFloat(TF.aed_amt)*approxRate);
-    TF.amt=String(kzt);
-    if(rateInfo)rateInfo.innerHTML=`⚠️ Примерный курс: 1 AED ≈ ${approxRate} ₸ → <b style="color:var(--text)">${fmt(kzt)}</b> <span style="color:var(--orange)">(уточните вручную)</span>`;
-    updSaveBtn();
+  const rate=await getRateForDate(sp.currency2,date);
+  if(rate){
+    TF.rate=rate;
+    const c2=Math.round((parseFloat(TF.amt)/rate)*100)/100;
+    TF.c2_amt=String(c2);
+    const c2inp=document.getElementById('c2i');
+    if(c2inp)c2inp.value=c2;
+    if(rateInfo)rateInfo.innerHTML=`Курс: 1 ${sp.currency2} = ${rate.toFixed(2)} ₸`;
+  } else {
+    if(rateInfo)rateInfo.innerHTML='⚠️ Не удалось загрузить курс';
   }
+  updSaveBtn();
 }
 
+async function autoConvertToKZT(){
+  // C2 entered → convert to KZT
+  const sp=TF.pid?getproj(TF.pid):null;
+  if(!sp||!sp.multi)return;
+  const c2inp=document.getElementById('c2i');
+  if(c2inp)TF.c2_amt=c2inp.value;
+  if(!TF.c2_amt||parseFloat(TF.c2_amt)<=0)return;
+  const dateInp=document.getElementById('date-inp');
+  const date=dateInp?dateInp.value:new Date().toISOString().split('T')[0];
+  const rateInfo=document.getElementById('rate-info');
+  if(rateInfo)rateInfo.innerHTML='⏳ Загружаю курс...';
+  const rate=await getRateForDate(sp.currency2,date);
+  if(rate){
+    TF.rate=rate;
+    const kzt=Math.round(parseFloat(TF.c2_amt)*rate);
+    TF.amt=String(kzt);
+    const ai=document.getElementById('ai');
+    if(ai)ai.value=kzt;
+    if(rateInfo)rateInfo.innerHTML=`Курс: 1 ${sp.currency2} = ${rate.toFixed(2)} ₸`;
+  } else {
+    if(rateInfo)rateInfo.innerHTML='⚠️ Не удалось загрузить курс. Введите ₸ вручную';
+  }
+  updSaveBtn();
+}
+
+// Keep setCurrency and fetchRate as stubs for compatibility
+function setCurrency(cur){syncTF();}
+async function fetchRate(){await autoConvertToKZT();}
+
 function syncTF(){
-  const ai=$('ai'),ni=$('ni'),ti=$('ti'),pi=$('pi');
-  if(ai){if(TF.currency==='AED')TF.aed_amt=ai.value;else TF.amt=ai.value;}if(ni)TF.note=ni.value;if(ti)TF.total=ti.value;if(pi)TF.party=pi.value;
+  const ai=$('ai'),ni=$('ni'),ti=$('ti'),pi=$('pi'),c2i=$('c2i');
+  if(ai)TF.amt=ai.value;if(ni)TF.note=ni.value;if(ti)TF.total=ti.value;if(pi)TF.party=pi.value;if(c2i)TF.c2_amt=c2i.value;
 }
 function updSaveBtn(){const b=$('sbtn');if(b)b.disabled=!(TF.pid&&String(TF.amt).trim()&&parseFloat(TF.amt)>0);}
 function tfSetPid(id){syncTF();TF.pid=id;TF.payer='me';const p=getproj(id);const cats=projCats(id);TF.cid=cats.length?cats[0].id:(D.categories[0]?.id||null);showAddSheet();}
@@ -762,14 +779,15 @@ function tfToggleAdv(){syncTF();TF.adv=!TF.adv;showAddSheet();}
 async function doSaveExp(){
   syncTF();
   if(!TF.pid||!TF.amt||parseFloat(TF.amt)<=0)return;
-  const e={pid:TF.pid,cid:TF.cid||D.categories[0]?.id,amt:parseFloat(TF.amt)||0,note:TF.note,payer:TF.payer||'me',created_at:TF.created_at||new Date().toISOString().split('T')[0],currency:TF.currency||'KZT',aed_amt:TF.currency==='AED'?parseFloat(TF.aed_amt)||0:null,rate:TF.currency==='AED'?TF.rate:null,adv:TF.adv,adv_total:TF.adv&&TF.total?parseFloat(TF.total):null,party:TF.party||'',adv_status:TF.adv?'pending':null,deadline:TF.adv&&TF.deadline?TF.deadline:null};
+  const sp2=TF.pid?getproj(TF.pid):null;
+  const e={pid:TF.pid,cid:TF.cid||D.categories[0]?.id,amt:parseFloat(TF.amt)||0,note:TF.note,payer:TF.payer||'me',created_at:TF.created_at||new Date().toISOString().split('T')[0],currency:sp2?.multi?sp2.currency2:'KZT',c2_amt:sp2?.multi?parseFloat(TF.c2_amt)||0:null,rate:sp2?.multi?TF.rate:null,adv:TF.adv,adv_total:TF.adv&&TF.total?parseFloat(TF.total):null,party:TF.party||'',adv_status:TF.adv?'pending':null,deadline:TF.adv&&TF.deadline?TF.deadline:null};
   closeSheet();
   await addDoc(collection(db,'expenses'),e);
 }
 
 // PROJECT MODAL
 function newProj(){NP={color:COLORS[0],type:'personal',name:'',owner:'',investors:[],cats:[]};editPid=null;showProjSheet();}
-function editProj(id){const p=getproj(id);NP={color:p.color,type:p.type||'personal',name:p.name,owner:p.owner||'',investors:p.investors?[...p.investors]:[],cats:p.cats?[...p.cats]:[]};editPid=id;showProjSheet();}
+function editProj(id){const p=getproj(id);NP={color:p.color,type:p.type||'personal',name:p.name,owner:p.owner||'',investors:p.investors?[...p.investors]:[],cats:p.cats?[...p.cats]:[],multi:p.multi||false,currency2:p.currency2||'AED'};editPid=id;showProjSheet();}
 
 function showProjSheet(){
   sheetOpen(`
@@ -779,6 +797,26 @@ function showProjSheet(){
         <button class="chip ${NP.type==='personal'?'on':''}" onclick="npSetType('personal')">👤 Личный</button>
         <button class="chip ${NP.type==='investor'?'on':''}" onclick="npSetType('investor')">👥 Инвесторский</button>
       </div>
+    </div>
+    <div class="sheet-section"><label class="sheet-label">Учёт валюты</label>
+      <div class="chips">
+        <button class="chip ${!NP.multi?'on':''}" onclick="npSetMulti(false)">₸ Только тенге</button>
+        <button class="chip ${NP.multi?'on':''}" onclick="npSetMulti(true)">🌍 Мультивалютный</button>
+      </div>
+      ${NP.multi?`<div style="margin-top:10px">
+        <label class="sheet-label" style="margin-bottom:6px">Вторая валюта</label>
+        <div class="chips">${Object.values(CURRENCIES).map(c=>`<button class="chip ${NP.currency2===c.code?'on':''}" onclick="npSetCurrency2('${c.code}')">${c.flag} ${c.name}</button>`).join('')}</div>
+      </div>`:''}
+    </div>
+    <div class="sheet-section"><label class="sheet-label">Учёт валюты</label>
+      <div class="chips">
+        <button class="chip ${!NP.multi?'on':''}" onclick="npSetMulti(false)">₸ Стандартный (тенге)</button>
+        <button class="chip ${NP.multi?'on':''}" onclick="npSetMulti(true)">🌍 Мультивалютный</button>
+      </div>
+      ${NP.multi?`<div style="margin-top:10px">
+        <label class="sheet-label" style="margin-bottom:6px">Вторая валюта</label>
+        <div class="chips">${Object.entries(CURRENCIES).map(([code,cur])=>`<button class="chip ${NP.currency2===code?'on':''}" onclick="npSetCurrency2('${code}')">${cur.flag} ${cur.name} (${cur.sym})</button>`).join('')}</div>
+      </div>`:''}
     </div>
     <div class="sheet-section"><label class="sheet-label">Название</label>
       <input id="pni" class="inp" type="text" placeholder="Название проекта..." value="${NP.name}" oninput="NP.name=this.value">
@@ -828,7 +866,11 @@ function syncNP(){
   if(pni)NP.name=pni.value;if(pwn)NP.owner=pwn.value;
 }
 function npSetType(t){syncNP();NP.type=t;showProjSheet();}
+function npSetMulti(v){syncNP();NP.multi=v;showProjSheet();}
+function npSetCurrency2(c){syncNP();NP.currency2=c;showProjSheet();}
 function npPickColor(i){syncNP();NP.color=COLORS[i];showProjSheet();}
+function npSetMulti(v){syncNP();NP.multi=v;showProjSheet();}
+function npSetCurrency2(c){syncNP();NP.currency2=c;showProjSheet();}
 function npToggleCat(id){
   syncNP();
   if(!NP.cats)NP.cats=[];
@@ -848,7 +890,7 @@ function copyTxt(t){navigator.clipboard?navigator.clipboard.writeText(t).then(()
 async function doSaveProj(){
   syncNP();
   if(!NP.name.trim())return;
-  const p={name:NP.name.trim(),color:NP.color,type:NP.type,owner:NP.owner||'',investors:NP.type==='investor'?NP.investors:[],cats:NP.cats||[]};
+  const p={name:NP.name.trim(),color:NP.color,type:NP.type,owner:NP.owner||'',investors:NP.type==='investor'?NP.investors:[],cats:NP.cats||[],multi:NP.multi||false,currency2:NP.multi?NP.currency2:'KZT'};
   closeSheet();
   if(editPid){await updateDoc(doc(db,'projects',editPid),p);const i=D.projects.findIndex(x=>x.id===editPid);if(i>=0)D.projects[i]={...D.projects[i],...p};}
   else{const r=await addDoc(collection(db,'projects'),p);D.projects.push({id:r.id,...p});}
@@ -1332,13 +1374,13 @@ function renderInvView(pr,inv){
           <div class="exp-meta"><span class="pill ${pi(ci)}">${c.name}</span><span class="pdot" style="background:${pc}"></span><span>${pn}</span><span style="color:var(--text3)">·</span><span>${dt(e.created_at)}</span></div>
         </div>
         <div class="exp-amt">${fmt(e.amt)}</div>
-        ${e.currency==='AED'&&e.aed_amt?`<div style="font-size:11px;color:var(--text2);text-align:right">${(+e.aed_amt).toLocaleString('ru-RU')} AED</div>`:''}
+        ${e.c2_amt&&e.currency&&e.currency!=='KZT'?`<div style="font-size:11px;color:var(--blue);text-align:right">${(+e.c2_amt).toLocaleString('ru-RU',{maximumFractionDigits:2})} ${e.currency}</div>`:''}
       </div>`;}).join('')}</div>`}
   </div>`;
 }
 
 // EXPOSE
-Object.assign(window,{setFcat,setFpay,exportProjCSV,setCurrency,fetchRate,openImport,previewCSV,doImport,assignCat,detectCategory,clearProjExpenses,openAddExp,showAddSheet,tfSetPid,tfSetCid,tfSetPayer,tfToggleAdv,doSaveExp,npToggleCat,openProjCats,showProjCatsSheet,toggleGlobalCat,addOwnCat,delOwnCat,saveOwnCatIcon,saveOwnCatName,editExp,showEditSheet,tfSetCidEdit,tfSetPayerEdit,tfToggleAdvEdit,doUpdateExp,
+Object.assign(window,{setFcat,setFpay,exportProjCSV,setCurrency,fetchRate,npSetMulti,npSetCurrency2,npSetMulti,npSetCurrency2,autoConvertToC2,autoConvertToKZT,openImport,previewCSV,doImport,assignCat,detectCategory,clearProjExpenses,openAddExp,showAddSheet,tfSetPid,tfSetCid,tfSetPayer,tfToggleAdv,doSaveExp,npToggleCat,openProjCats,showProjCatsSheet,toggleGlobalCat,addOwnCat,delOwnCat,saveOwnCatIcon,saveOwnCatName,editExp,showEditSheet,tfSetCidEdit,tfSetPayerEdit,tfToggleAdvEdit,doUpdateExp,
   newProj,editProj,showProjSheet,doSaveProj,doDelProj,npSetType,npPickColor,npAddInv,syncNP,
   newCat,editCat,showCatSheet,tcPickIcon,doSaveCat,delCat,delExp,closeBill,exportCSV,
   go,openProj,copyTxt,closeSheet,sheetClose,S,TF,NP,TC});
