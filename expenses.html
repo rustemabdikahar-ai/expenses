@@ -419,6 +419,7 @@ function vProject(){
           <span class="pill ${pi(ci)}">${c.name}</span>
           ${isInv?`<span class="pdot" style="background:${pc}"></span><span>${pn}</span>`:''}
           <span style="color:var(--text3)">·</span><span>${dt(e.created_at)}</span>
+          ${e.currency==='AED'?`<span class="pill" style="background:rgba(10,132,255,0.12);color:var(--blue)">AED</span>`:''}
           ${e.adv&&e.adv_status==='pending'?`<span class="pill" style="background:rgba(255,159,10,0.15);color:var(--orange)">Аванс</span>`:''}
           ${e.adv&&e.adv_status==='pending'&&e.deadline?`<span class="pill" style="background:${new Date(e.deadline)<new Date()?'rgba(255,69,58,0.15)':'rgba(0,0,0,0.06)'};color:${new Date(e.deadline)<new Date()?'var(--red)':'var(--text2)'}">⏰ до ${dt(e.deadline)}</span>`:''}
           ${e.adv&&e.adv_status==='done'?`<span class="pill" style="background:rgba(48,209,88,0.15);color:var(--green2)">Закрыт</span>`:''}
@@ -426,6 +427,7 @@ function vProject(){
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
         <div class="exp-amt">${fmt(e.amt)}</div>
+        ${e.currency==='AED'&&e.aed_amt?`<div style="font-size:11px;color:var(--text2);text-align:right">${(+e.aed_amt).toLocaleString('ru-RU')} AED</div>`:''}
         <div style="display:flex;gap:4px">
           <button onclick="editExp('${e.id}')" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:14px;padding:2px 4px">✏️</button>
           <button onclick="delExp('${e.id}')" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:14px;padding:2px 0">✕</button>
@@ -477,6 +479,7 @@ function vAll(){
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
         <div class="exp-amt">${fmt(e.amt)}</div>
+        ${e.currency==='AED'&&e.aed_amt?`<div style="font-size:11px;color:var(--text2);text-align:right">${(+e.aed_amt).toLocaleString('ru-RU')} AED</div>`:''}
         <div style="display:flex;gap:4px">
           <button onclick="editExp('${e.id}')" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:14px;padding:2px 4px">✏️</button>
           <button onclick="delExp('${e.id}')" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:14px;padding:2px 0">✕</button>
@@ -550,6 +553,7 @@ function vAnalytics(){
 <div class="page">
   <div class="stats-row">
     <div class="stat-card"><div class="stat-label">Итого расходов</div><div class="stat-value">${fmt(total)}</div></div>
+    <div class="stat-card"><div class="stat-label">в дирхамах</div><div class="stat-value">${ex.filter(e=>e.currency==='AED'&&e.aed_amt).reduce((s,e)=>s+(+e.aed_amt),0).toLocaleString('ru-RU')+' AED'}</div></div>
     <div class="stat-card"><div class="stat-label">Записей</div><div class="stat-value">${ex.length}</div></div>
   </div>
   ${isInv?`<div class="sec-hdr"><span class="sec-title">По участникам</span></div>
@@ -633,7 +637,7 @@ function closeSheet(){
 
 // ADD EXPENSE
 function openAddExp(pid){
-  TF={pid:pid||null,cid:null,amt:'',note:'',payer:'me',adv:false,total:'',party:'',deadline:''};
+  TF={pid:pid||null,cid:null,amt:'',note:'',payer:'me',adv:false,total:'',party:'',deadline:'',currency:'KZT',aed_amt:'',rate:null};
   const sp=TF.pid?getproj(TF.pid):null;
   if(sp&&projCats(TF.pid).length>0)TF.cid=projCats(TF.pid)[0].id;
   else if(D.categories.length>0)TF.cid=D.categories[0].id;
@@ -660,8 +664,17 @@ function showAddSheet(){
         <button class="chip ${TF.payer==='me'?'on-p':''}" onclick="tfSetPayer('me')">${sp.owner||'Руководитель'}</button>
         ${(sp.investors||[]).map(inv=>`<button class="chip ${TF.payer===inv.id?'on-p':''}" onclick="tfSetPayer('${inv.id}')">${inv.name}</button>`).join('')}
       </div></div>`:''}
-    <div class="sheet-section"><label class="sheet-label">Сумма (₸)</label>
-      <input id="ai" class="inp inp-big" type="number" inputmode="numeric" placeholder="0" value="${TF.amt}" oninput="TF.amt=this.value;updSaveBtn()">
+    <div class="sheet-section"><label class="sheet-label">Валюта и сумма</label>
+      <div style="display:flex;gap:8px;margin-bottom:8px">
+        <button class="chip ${!TF.currency||TF.currency==='KZT'?'on':''}" onclick="setCurrency('KZT')" style="flex:1;justify-content:center">₸ Тенге</button>
+        <button class="chip ${TF.currency==='AED'?'on':''}" onclick="setCurrency('AED')" style="flex:1;justify-content:center">🇦🇪 Дирхам</button>
+      </div>
+      ${TF.currency==='AED'?`
+      <input id="ai" class="inp inp-big" type="number" inputmode="numeric" placeholder="0 AED" value="${TF.aed_amt||''}" oninput="TF.aed_amt=this.value;fetchRate()">
+      <div id="rate-info" style="margin-top:8px;padding:10px 12px;background:rgba(0,0,0,0.04);border-radius:var(--r2);font-size:13px;color:var(--text2)">${TF.rate?`Курс: 1 AED = ${TF.rate.toFixed(2)} ₸ → <b style="color:var(--text)">${fmt(Math.round((TF.aed_amt||0)*TF.rate))}</b>`:' Введите сумму для конвертации'}</div>
+      `:`
+      <input id="ai" class="inp inp-big" type="number" inputmode="numeric" placeholder="0 ₸" value="${TF.amt}" oninput="TF.amt=this.value;updSaveBtn()">
+      `}
     </div>
     <div class="sheet-section"><label class="sheet-label">Комментарий</label>
       <input id="ni" class="inp" type="text" placeholder="Что за расход?" value="${TF.note}" oninput="TF.note=this.value" onkeydown="if(event.key==='Enter')doSaveExp()">
@@ -685,9 +698,39 @@ function showAddSheet(){
   setTimeout(()=>{const ai=$('ai');if(ai){ai.focus();ai.addEventListener('input',updSaveBtn);}},350);
 }
 
+function setCurrency(cur){
+  syncTF();
+  TF.currency=cur;
+  TF.aed_amt='';TF.rate=null;
+  showAddSheet();
+}
+
+async function fetchRate(){
+  const ai=document.getElementById('ai');
+  if(ai)TF.aed_amt=ai.value;
+  if(!TF.aed_amt||parseFloat(TF.aed_amt)<=0)return;
+  const dateInp=document.getElementById('date-inp');
+  const date=dateInp?dateInp.value:new Date().toISOString().split('T')[0];
+  const rateInfo=document.getElementById('rate-info');
+  if(rateInfo)rateInfo.innerHTML='⏳ Загружаю курс...';
+  try{
+    const res=await fetch(`https://api.frankfurter.app/${date}?from=AED&to=KZT`);
+    const data=await res.json();
+    TF.rate=data.rates?.KZT||null;
+    if(TF.rate){
+      const kzt=Math.round(parseFloat(TF.aed_amt)*TF.rate);
+      TF.amt=String(kzt);
+      if(rateInfo)rateInfo.innerHTML=`Курс: 1 AED = ${TF.rate.toFixed(2)} ₸ → <b style="color:var(--text)">${fmt(kzt)}</b>`;
+      updSaveBtn();
+    }
+  }catch(e){
+    if(rateInfo)rateInfo.innerHTML='❌ Ошибка загрузки курса. Введите сумму в ₸ вручную';
+  }
+}
+
 function syncTF(){
   const ai=$('ai'),ni=$('ni'),ti=$('ti'),pi=$('pi');
-  if(ai)TF.amt=ai.value;if(ni)TF.note=ni.value;if(ti)TF.total=ti.value;if(pi)TF.party=pi.value;
+  if(ai){if(TF.currency==='AED')TF.aed_amt=ai.value;else TF.amt=ai.value;}if(ni)TF.note=ni.value;if(ti)TF.total=ti.value;if(pi)TF.party=pi.value;
 }
 function updSaveBtn(){const b=$('sbtn');if(b)b.disabled=!(TF.pid&&String(TF.amt).trim()&&parseFloat(TF.amt)>0);}
 function tfSetPid(id){syncTF();TF.pid=id;TF.payer='me';const p=getproj(id);const cats=projCats(id);TF.cid=cats.length?cats[0].id:(D.categories[0]?.id||null);showAddSheet();}
@@ -698,7 +741,7 @@ function tfToggleAdv(){syncTF();TF.adv=!TF.adv;showAddSheet();}
 async function doSaveExp(){
   syncTF();
   if(!TF.pid||!TF.amt||parseFloat(TF.amt)<=0)return;
-  const e={pid:TF.pid,cid:TF.cid||D.categories[0]?.id,amt:parseFloat(TF.amt),note:TF.note,payer:TF.payer||'me',created_at:new Date().toISOString().split('T')[0],adv:TF.adv,adv_total:TF.adv&&TF.total?parseFloat(TF.total):null,party:TF.party||'',adv_status:TF.adv?'pending':null,deadline:TF.adv&&TF.deadline?TF.deadline:null};
+  const e={pid:TF.pid,cid:TF.cid||D.categories[0]?.id,amt:parseFloat(TF.amt)||0,note:TF.note,payer:TF.payer||'me',created_at:TF.created_at||new Date().toISOString().split('T')[0],currency:TF.currency||'KZT',aed_amt:TF.currency==='AED'?parseFloat(TF.aed_amt)||0:null,rate:TF.currency==='AED'?TF.rate:null,adv:TF.adv,adv_total:TF.adv&&TF.total?parseFloat(TF.total):null,party:TF.party||'',adv_status:TF.adv?'pending':null,deadline:TF.adv&&TF.deadline?TF.deadline:null};
   closeSheet();
   await addDoc(collection(db,'expenses'),e);
 }
@@ -1268,12 +1311,13 @@ function renderInvView(pr,inv){
           <div class="exp-meta"><span class="pill ${pi(ci)}">${c.name}</span><span class="pdot" style="background:${pc}"></span><span>${pn}</span><span style="color:var(--text3)">·</span><span>${dt(e.created_at)}</span></div>
         </div>
         <div class="exp-amt">${fmt(e.amt)}</div>
+        ${e.currency==='AED'&&e.aed_amt?`<div style="font-size:11px;color:var(--text2);text-align:right">${(+e.aed_amt).toLocaleString('ru-RU')} AED</div>`:''}
       </div>`;}).join('')}</div>`}
   </div>`;
 }
 
 // EXPOSE
-Object.assign(window,{setFcat,setFpay,exportProjCSV,openImport,previewCSV,doImport,assignCat,detectCategory,clearProjExpenses,openAddExp,showAddSheet,tfSetPid,tfSetCid,tfSetPayer,tfToggleAdv,doSaveExp,npToggleCat,openProjCats,showProjCatsSheet,toggleGlobalCat,addOwnCat,delOwnCat,saveOwnCatIcon,saveOwnCatName,editExp,showEditSheet,tfSetCidEdit,tfSetPayerEdit,tfToggleAdvEdit,doUpdateExp,
+Object.assign(window,{setFcat,setFpay,exportProjCSV,setCurrency,fetchRate,openImport,previewCSV,doImport,assignCat,detectCategory,clearProjExpenses,openAddExp,showAddSheet,tfSetPid,tfSetCid,tfSetPayer,tfToggleAdv,doSaveExp,npToggleCat,openProjCats,showProjCatsSheet,toggleGlobalCat,addOwnCat,delOwnCat,saveOwnCatIcon,saveOwnCatName,editExp,showEditSheet,tfSetCidEdit,tfSetPayerEdit,tfToggleAdvEdit,doUpdateExp,
   newProj,editProj,showProjSheet,doSaveProj,doDelProj,npSetType,npPickColor,npAddInv,syncNP,
   newCat,editCat,showCatSheet,tcPickIcon,doSaveCat,delCat,delExp,closeBill,exportCSV,
   go,openProj,copyTxt,closeSheet,sheetClose,S,TF,NP,TC});
