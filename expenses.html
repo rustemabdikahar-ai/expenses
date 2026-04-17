@@ -562,7 +562,7 @@ function vAnalytics(){
 <div class="page">
   <div class="stats-row">
     <div class="stat-card"><div class="stat-label">Итого расходов</div><div class="stat-value">${fmt(total)}</div></div>
-    ${pr&&pr.multi?`<div class="stat-card"><div class="stat-label">в ${CURRENCIES[pr.currency2]?.name||pr.currency2}</div><div class="stat-value">${ex.filter(e=>e.c2_amt).reduce((s,e)=>s+(+e.c2_amt),0).toLocaleString('ru-RU',{maximumFractionDigits:0})+' '+(pr.currency2||'')+'</div></div>'}\`:'\`}
+      ${pr&&pr.multi?`<div class="stat-card"><div class="stat-label">в ${CURRENCIES[pr.currency2]?.name||pr.currency2||''}</div><div class="stat-value">${ex.filter(e=>e.c2_amt).reduce((s,e)=>s+(+e.c2_amt),0).toLocaleString('ru-RU',{maximumFractionDigits:2})} ${pr.currency2||''}</div></div>`:''}
     <div class="stat-card"><div class="stat-label">Записей</div><div class="stat-value">${ex.length}</div></div>
   </div>
   ${isInv?`<div class="sec-hdr"><span class="sec-title">По участникам</span></div>
@@ -678,7 +678,7 @@ function showAddSheet(){
       <label class="sheet-label">Сумма в тенге (₸)</label>
       <input id="ai" class="inp inp-big" type="number" inputmode="numeric" placeholder="0 ₸" value="${TF.amt}" oninput="TF.amt=this.value;updSaveBtn();autoConvertToC2()">
       <label class="sheet-label" style="margin-top:10px">Сумма в ${CURRENCIES[sp.currency2]?.flag||''} ${CURRENCIES[sp.currency2]?.name||sp.currency2} (по курсу на дату)</label>
-      <input id="c2i" class="inp inp-big" type="number" inputmode="numeric" placeholder="0 ${CURRENCIES[sp.currency2]?.symbol||sp.currency2}" value="${TF.c2_amt||''}" oninput="TF.c2_amt=this.value;autoConvertToKZT()" style="color:var(--blue)">
+      <input id="c2i" class="inp inp-big" type="number" inputmode="numeric" placeholder="0 ${CURRENCIES[sp.currency2]?.sym||sp.currency2}" value="${TF.c2_amt||''}" oninput="TF.c2_amt=this.value;autoConvertToKZT()" style="color:var(--blue)">
       <div id="rate-info" style="margin-top:8px;padding:10px 12px;background:rgba(0,0,0,0.04);border-radius:var(--r2);font-size:13px;color:var(--text2)">${TF.rate?`Курс: 1 ${sp.currency2} = ${TF.rate.toFixed(2)} ₸`:'Введите сумму — курс загрузится автоматически'}</div>
       `:`
       <label class="sheet-label">Сумма (₸)</label>
@@ -812,17 +812,7 @@ function showProjSheet(){
       </div>
       ${NP.multi?`<div style="margin-top:10px">
         <label class="sheet-label" style="margin-bottom:6px">Вторая валюта</label>
-        <div class="chips">${Object.values(CURRENCIES).map(c=>`<button class="chip ${NP.currency2===c.code?'on':''}" onclick="npSetCurrency2('${c.code}')">${c.flag} ${c.name}</button>`).join('')}</div>
-      </div>`:''}
-    </div>
-    <div class="sheet-section"><label class="sheet-label">Учёт валюты</label>
-      <div class="chips">
-        <button class="chip ${!NP.multi?'on':''}" onclick="npSetMulti(false)">₸ Стандартный (тенге)</button>
-        <button class="chip ${NP.multi?'on':''}" onclick="npSetMulti(true)">🌍 Мультивалютный</button>
-      </div>
-      ${NP.multi?`<div style="margin-top:10px">
-        <label class="sheet-label" style="margin-bottom:6px">Вторая валюта</label>
-        <div class="chips">${Object.entries(CURRENCIES).map(([code,cur])=>`<button class="chip ${NP.currency2===code?'on':''}" onclick="npSetCurrency2('${code}')">${cur.flag} ${cur.name} (${cur.sym})</button>`).join('')}</div>
+        <div class="chips">${Object.entries(CURRENCIES).map(([code,cur])=>`<button class="chip ${NP.currency2===code?'on':''}" onclick="npSetCurrency2('${code}')"> ${cur.flag} ${cur.name}</button>`).join('')}</div>
       </div>`:''}
     </div>
     <div class="sheet-section"><label class="sheet-label">Название</label>
@@ -876,8 +866,8 @@ function npSetType(t){syncNP();NP.type=t;showProjSheet();}
 function npSetMulti(v){syncNP();NP.multi=v;showProjSheet();}
 function npSetCurrency2(c){syncNP();NP.currency2=c;showProjSheet();}
 function npPickColor(i){syncNP();NP.color=COLORS[i];showProjSheet();}
-function npSetMulti(v){syncNP();NP.multi=v;showProjSheet();}
-function npSetCurrency2(c){syncNP();NP.currency2=c;showProjSheet();}
+
+
 function npToggleCat(id){
   syncNP();
   if(!NP.cats)NP.cats=[];
