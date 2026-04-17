@@ -676,7 +676,7 @@ function showAddSheet(){
     <div class="sheet-section">
       ${sp&&sp.multi?`
       <label class="sheet-label">Сумма в тенге (₸)</label>
-      <input id="ai" class="inp inp-big" type="number" inputmode="numeric" placeholder="0 ₸" value="${TF.amt}" oninput="TF.amt=this.value;updSaveBtn();autoConvertToC2()">
+      <input id="ai" class="inp inp-big" type="number" inputmode="numeric" placeholder="0 ₸" value="${TF.amt}" oninput="TF.amt=this.value;updSaveBtn();clearTimeout(window._ct);window._ct=setTimeout(autoConvertToC2,800)">
       <label class="sheet-label" style="margin-top:10px">Сумма в ${CURRENCIES[sp.currency2]?.flag||''} ${CURRENCIES[sp.currency2]?.name||sp.currency2} (по курсу на дату)</label>
       <input id="c2i" class="inp inp-big" type="number" inputmode="numeric" placeholder="0 ${CURRENCIES[sp.currency2]?.sym||sp.currency2}" value="${TF.c2_amt||''}" oninput="TF.c2_amt=this.value;autoConvertToKZT()" style="color:var(--blue)">
       <div id="rate-info" style="margin-top:8px;padding:10px 12px;background:rgba(0,0,0,0.04);border-radius:var(--r2);font-size:13px;color:var(--text2)">${TF.rate?`Курс: 1 ${sp.currency2} = ${TF.rate.toFixed(2)} ₸`:'Введите сумму — курс загрузится автоматически'}</div>
@@ -737,7 +737,7 @@ async function autoConvertToC2(){
     TF.c2_amt=String(c2);
     const c2inp=document.getElementById('c2i');
     if(c2inp)c2inp.value=c2;
-    if(rateInfo)rateInfo.innerHTML=`Курс: 1 ${sp.currency2} = ${rate.toFixed(2)} ₸`;
+    if(rateInfo)rateInfo.innerHTML=`Курс: 1 ${sp.currency2} = ${rate.toFixed(2)} ₸ → <b style="color:var(--blue)">${c2.toLocaleString('ru-RU',{maximumFractionDigits:2})} ${sp.currency2}</b>`;
   } else {
     if(rateInfo)rateInfo.innerHTML='⚠️ Не удалось загрузить курс';
   }
@@ -762,7 +762,7 @@ async function autoConvertToKZT(){
     TF.amt=String(kzt);
     const ai=document.getElementById('ai');
     if(ai)ai.value=kzt;
-    if(rateInfo)rateInfo.innerHTML=`Курс: 1 ${sp.currency2} = ${rate.toFixed(2)} ₸`;
+    if(rateInfo)rateInfo.innerHTML=`Курс: 1 ${sp.currency2} = ${rate.toFixed(2)} ₸ → <b style="color:var(--blue)">${c2.toLocaleString('ru-RU',{maximumFractionDigits:2})} ${sp.currency2}</b>`;
   } else {
     if(rateInfo)rateInfo.innerHTML='⚠️ Не удалось загрузить курс. Введите ₸ вручную';
   }
@@ -1377,7 +1377,7 @@ function renderInvView(pr,inv){
 }
 
 // EXPOSE
-Object.assign(window,{setFcat,setFpay,exportProjCSV,setCurrency,fetchRate,npSetMulti,npSetCurrency2,npSetMulti,npSetCurrency2,autoConvertToC2,autoConvertToKZT,openImport,previewCSV,doImport,assignCat,detectCategory,clearProjExpenses,openAddExp,showAddSheet,tfSetPid,tfSetCid,tfSetPayer,tfToggleAdv,doSaveExp,npToggleCat,openProjCats,showProjCatsSheet,toggleGlobalCat,addOwnCat,delOwnCat,saveOwnCatIcon,saveOwnCatName,editExp,showEditSheet,tfSetCidEdit,tfSetPayerEdit,tfToggleAdvEdit,doUpdateExp,
+Object.assign(window,{setFcat,setFpay,exportProjCSV,setCurrency,fetchRate,npSetMulti,npSetCurrency2,autoConvertToC2,autoConvertToKZT,npSetMulti,npSetCurrency2,autoConvertToC2,autoConvertToKZT,openImport,previewCSV,doImport,assignCat,detectCategory,clearProjExpenses,openAddExp,showAddSheet,tfSetPid,tfSetCid,tfSetPayer,tfToggleAdv,doSaveExp,npToggleCat,openProjCats,showProjCatsSheet,toggleGlobalCat,addOwnCat,delOwnCat,saveOwnCatIcon,saveOwnCatName,editExp,showEditSheet,tfSetCidEdit,tfSetPayerEdit,tfToggleAdvEdit,doUpdateExp,
   newProj,editProj,showProjSheet,doSaveProj,doDelProj,npSetType,npPickColor,npAddInv,syncNP,
   newCat,editCat,showCatSheet,tcPickIcon,doSaveCat,delCat,delExp,closeBill,exportCSV,
   go,openProj,copyTxt,closeSheet,sheetClose,S,TF,NP,TC});
