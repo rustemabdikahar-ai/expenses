@@ -251,9 +251,9 @@ const ccId=id=>{let h=0;for(const c of String(id))h=(h*31+c.charCodeAt(0))%COLOR
 const avc=s=>{const c=COLORS;let h=0;for(const x of s)h=(h*31+x.charCodeAt(0))%c.length;return c[h];};
 const ini=s=>s.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
 const pname=(pid,pr)=>pid==='me'||!pid?(pr?.owner||'Руководитель'):(pr?.investors?.find(i=>i.id===pid)?.name||'—');
-const ptotal=id=>D.expenses.filter(e=>e.pid===id).reduce((s,e)=>s+e.amt,0);
+const ptotal=id=>D.expenses.filter(e=>e.pid===id).reduce((s,e)=>s+(e.amt||e.amount||0),0);
 const c2total=(pid,cur2)=>D.expenses.filter(e=>e.pid===pid&&e.c2_amt).reduce((s,e)=>s+(+e.c2_amt||0),0);
-const atotal=()=>D.expenses.reduce((s,e)=>s+e.amt,0);
+const atotal=()=>D.expenses.reduce((s,e)=>s+(e.amt||e.amount||0),0);
 
 // Get categories for a project: global selected + project-specific
 const projCats=pid=>{
@@ -282,7 +282,7 @@ async function loadAll(){
   const[ps,cs,es]=await Promise.all([getDocs(collection(db,'projects')),getDocs(collection(db,'categories')),getDocs(collection(db,'expenses'))]);
   D.projects=ps.docs.map(d=>({id:d.id,...d.data()}));
   D.categories=cs.docs.map(d=>({id:d.id,...d.data()}));
-  D.expenses=es.docs.map(d=>({id:d.id,...d.data(),_t:d.data().created_at?new Date(d.data().created_at).getTime():0}));
+  D.expenses=es.docs.map(d=>{const data=d.data();return{id:d.id,...data,amt:data.amt||data.amount||0,_t:data.created_at?new Date(data.created_at).getTime():0};});
   if(!D.categories.length)await seedCats();
 }
 async function seedCats(){
@@ -292,7 +292,7 @@ async function seedCats(){
 function subscribe(){
   onSnapshot(collection(db,'expenses'),snap=>{
     snap.docChanges().forEach(ch=>{
-      const d={id:ch.doc.id,...ch.doc.data(),_t:ch.doc.data().created_at?new Date(ch.doc.data().created_at).getTime():0};
+      const raw=ch.doc.data();const d={id:ch.doc.id,...raw,amt:raw.amt||raw.amount||0,_t:raw.created_at?new Date(raw.created_at).getTime():0};
       if(ch.type==='added'&&!D.expenses.find(e=>e.id===d.id))D.expenses.push(d);
       else if(ch.type==='modified'){const i=D.expenses.findIndex(e=>e.id===d.id);if(i>=0)D.expenses[i]=d;}
       else if(ch.type==='removed')D.expenses=D.expenses.filter(e=>e.id!==ch.doc.id);
