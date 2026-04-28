@@ -156,6 +156,27 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;ba
 
 /* LOADING */
 .loading{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80vh;gap:16px}
+
+/* PROTOCOL STYLES */
+.proto-table{width:100%;border-collapse:collapse;font-size:14px;background:#fff}
+.proto-table th{background:#F5F5F7;padding:11px 14px;text-align:left;font-size:12px;font-weight:600;color:#6E6E73;text-transform:uppercase;letter-spacing:0.4px;border-bottom:2px solid #E5E5EA;white-space:nowrap}
+.proto-table td{padding:11px 14px;border-bottom:1px solid #F2F2F7;vertical-align:top;font-size:14px}
+.proto-table tr:last-child td{border-bottom:none}
+.proto-table tr:hover td{background:#FAFAFA}
+.prio-dot{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:4px;vertical-align:middle;flex-shrink:0}
+.prio-1{background:#FF453A}.prio-2{background:#FF9F0A}.prio-3{background:#30D158}.prio-4{background:#AEAEB2}
+.days-overdue{color:#FF453A;font-weight:700}
+.days-urgent{color:#FF9F0A;font-weight:700}
+.days-ok{color:#1C7A3A;font-weight:600}
+.days-done{color:#AEAEB2}
+.proto-card{background:#fff;border-radius:20px;margin-bottom:16px;box-shadow:0 2px 16px rgba(0,0,0,0.08);overflow:hidden;cursor:pointer}
+.proto-card:active{opacity:0.85}
+.table-wrap{overflow-x:auto;border-radius:16px;box-shadow:0 2px 16px rgba(0,0,0,0.08);margin-bottom:20px}
+.proto-page{padding:20px;max-width:1400px;margin:0 auto}
+.badge-open{background:rgba(255,159,10,0.12);color:#92400E;font-size:11px;padding:3px 9px;border-radius:8px;font-weight:600}
+.badge-done2{background:rgba(48,209,88,0.12);color:#065F46;font-size:11px;padding:3px 9px;border-radius:8px;font-weight:600}
+.edit-comment{width:100%;padding:6px 8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;color:var(--text);background:#fff;outline:none;resize:vertical;min-height:40px}
+.edit-comment:focus{border-color:var(--blue)}
 .spin{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:spin 0.8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
@@ -229,7 +250,7 @@ const P=new URLSearchParams(location.search);
 const IS_INV=!!(P.get('investor')&&P.get('project'));
 
 let D={projects:[],categories:[],expenses:[]};
-let S={view:'projects',pid:null,modal:null,q:'',fcat:'all',fpay:'all',sort:'nd',apid:null};
+let S={view:'projects',pid:null,modal:null,q:'',fcat:'all',fpay:'all',sort:'nd',apid:null,protoId:null,protoViewer:false};
 let TF={pid:null,cid:null,amt:'',note:'',payer:'me',adv:false,total:'',party:''};
 let TC={name:'',icon:'📌'};
 let NP={color:COLORS[0],type:'personal',name:'',owner:'',investors:[]};
@@ -322,11 +343,13 @@ function vProjects(){
   <div style="flex:1">
     <div class="topbar-title">Расходы</div>
   </div>
+  <button class="icon-wrap" onclick="go('protocols')" title="Протоколы" style="background:rgba(10,132,255,0.12);font-size:18px">📑</button>
   <button class="icon-wrap" onclick="go('all')" title="Все расходы">📋</button>
   <button class="icon-wrap" onclick="go('analytics')" title="Аналитика">📊</button>
   <button class="icon-wrap" onclick="go('bills')" title="Счета">${bills.length?'🔴':'🧾'}</button>
   <button class="icon-wrap" onclick="go('categories')" title="Категории">🏷️</button>
   <button class="icon-wrap" onclick="openImport()" title="Импорт CSV">📥</button>
+  <a href="protocol.html" class="icon-wrap" title="Протоколы" style="text-decoration:none">📝</a>
 </div>
 <div class="page">
   <div class="stats-row">
@@ -1300,6 +1323,293 @@ function exportProjCSV(pid){
   document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
 }
 
+
+// ============ PROTOCOLS ============
+let PR = { protocols: [], tasks: [] };
+
+async function loadProtocols(){
+  const[ps,ts]=await Promise.all([getDocs(collection(db,'protocols')),getDocs(collection(db,'proto_tasks'))]);
+  PR.protocols=ps.docs.map(d=>({id:d.id,...d.data()}));
+  PR.tasks=ts.docs.map(d=>({id:d.id,...d.data()}));
+}
+
+function subscribeProtocols(){
+  onSnapshot(collection(db,'proto_tasks'),snap=>{
+    snap.docChanges().forEach(ch=>{
+      const d={id:ch.doc.id,...ch.doc.data()};
+      if(ch.type==='added'&&!PR.tasks.find(t=>t.id===d.id))PR.tasks.push(d);
+      else if(ch.type==='modified'){const i=PR.tasks.findIndex(t=>t.id===d.id);if(i>=0)PR.tasks[i]=d;}
+      else if(ch.type==='removed')PR.tasks=PR.tasks.filter(t=>t.id!==ch.doc.id);
+    });
+    if(S.view==='protocol'||S.view==='protocols')render();
+  });
+  onSnapshot(collection(db,'protocols'),snap=>{
+    snap.docChanges().forEach(ch=>{
+      const d={id:ch.doc.id,...ch.doc.data()};
+      if(ch.type==='added'&&!PR.protocols.find(p=>p.id===d.id))PR.protocols.push(d);
+      else if(ch.type==='modified'){const i=PR.protocols.findIndex(p=>p.id===d.id);if(i>=0)PR.protocols[i]=d;}
+      else if(ch.type==='removed')PR.protocols=PR.protocols.filter(p=>p.id!==ch.doc.id);
+    });
+    if(S.view==='protocols')render();
+  });
+}
+
+function daysLeft(deadline){
+  if(!deadline)return null;
+  const diff=Math.ceil((new Date(deadline)-new Date())/(1000*60*60*24));
+  return diff;
+}
+function daysLabel(d,isDone){
+  if(isDone)return'<span class="days-done">Выполнено</span>';
+  if(d===null)return'<span class="days-done">—</span>';
+  if(d<0)return`<span class="days-overdue">Просрочено ${Math.abs(d)} дн.</span>`;
+  if(d===0)return'<span class="days-urgent">Сегодня!</span>';
+  if(d<=3)return`<span class="days-urgent">${d} дн.</span>`;
+  return`<span class="days-ok">${d} дн.</span>`;
+}
+function prioLabel(p){
+  const labels={1:'Критично',2:'Важно',3:'Обычно',4:'Низкий'};
+  return labels[p]||'Обычно';
+}
+
+// PROTOCOLS LIST VIEW
+function vProtocols(){
+  const total=PR.protocols.length;
+  return`
+<div class="topbar">
+  <button class="back" onclick="go('projects')">‹ Назад</button>
+  <div style="flex:1;text-align:center"><div style="font-size:17px;font-weight:700">Протоколы</div></div>
+  <button class="icon-wrap" style="background:var(--green);color:#fff;font-size:20px" onclick="openNewProtocol()">+</button>
+</div>
+<div style="padding:16px">
+  ${PR.protocols.length===0?`<div class="empty"><div class="empty-icon">📑</div><div class="empty-title">Протоколов нет</div><div class="empty-sub">Нажмите + чтобы создать первый</div></div>`:
+  PR.protocols.map(p=>{
+    const tasks=PR.tasks.filter(t=>t.proto_id===p.id);
+    const done=tasks.filter(t=>t.done).length;
+    const overdue=tasks.filter(t=>!t.done&&t.deadline&&daysLeft(t.deadline)<0).length;
+    return`<div class="proto-card" onclick="openProtocol('${p.id}')">
+      <div style="padding:18px 20px 12px">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px">
+          <div style="font-size:18px;font-weight:700;color:var(--text)">${p.name}</div>
+          <div style="display:flex;gap:6px;align-items:center">
+            <button onclick="event.stopPropagation();editProtocol('${p.id}')" style="background:rgba(0,0,0,0.06);border:none;border-radius:10px;padding:5px 10px;font-size:13px;cursor:pointer">✏️</button>
+          </div>
+        </div>
+        ${p.description?`<div style="font-size:13px;color:var(--text2);margin-bottom:8px">${p.description}</div>`:''}
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <span style="font-size:13px;color:var(--text2)">${tasks.length} задач · ${done} выполнено</span>
+          ${overdue?`<span class="badge-open">⚠️ ${overdue} просрочено</span>`:''}
+          ${done===tasks.length&&tasks.length>0?`<span class="badge-done2">✓ Все выполнены</span>`:''}
+        </div>
+        <div style="background:var(--bg);border-radius:6px;height:6px;margin-top:10px;overflow:hidden">
+          <div style="height:100%;border-radius:6px;background:var(--green);width:${tasks.length?Math.round(done/tasks.length*100):0}%;transition:width 0.4s"></div>
+        </div>
+      </div>
+      <div style="padding:8px 20px 12px;border-top:1px solid var(--border);display:flex;justify-content:space-between;font-size:12px;color:var(--text2)">
+        <span>Обновлено: ${p.updated||'—'}</span>
+        <span style="color:var(--blue)">Открыть таблицу ›</span>
+      </div>
+    </div>`;
+  }).join('')}
+</div>`;
+}
+
+// PROTOCOL TABLE VIEW
+function vProtocol(){
+  const p=PR.protocols.find(x=>x.id===S.protoId);
+  if(!p)return'<div class="loading"><div>Протокол не найден</div></div>';
+  const tasks=PR.tasks.filter(t=>t.proto_id===p.id).sort((a,b)=>a.num-b.num);
+  const isViewer=S.protoViewer;
+  return`
+<div class="topbar" style="max-width:100%;padding:14px 20px">
+  ${isViewer?'':`<button class="back" onclick="go('protocols')">‹ Назад</button>`}
+  <div style="flex:1${isViewer?';text-align:center':''}">
+    <div style="font-size:17px;font-weight:700">${p.name}</div>
+    ${p.description?`<div style="font-size:12px;color:var(--text2)">${p.description}</div>`:''}
+  </div>
+  ${isViewer?'<span class="badge-open" style="flex-shrink:0">Просмотр</span>':`
+  <button onclick="openNewTask('${p.id}')" style="background:var(--green);border:none;border-radius:10px;padding:7px 14px;color:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">+ Задача</button>`}
+</div>
+<div class="proto-page">
+  ${tasks.length===0?`<div class="empty"><div class="empty-icon">📋</div><div class="empty-title">Задач нет</div><div class="empty-sub">Нажмите "+ Задача" чтобы добавить</div></div>`:`
+  <div class="table-wrap">
+    <table class="proto-table">
+      <thead><tr>
+        <th style="width:50px">№</th>
+        <th>Задача</th>
+        <th>Ответственный</th>
+        <th style="min-width:220px">Комментарий</th>
+        <th>Важность</th>
+        <th>Дедлайн</th>
+        <th>Осталось</th>
+        ${isViewer?'':'<th style="width:60px"></th>'}
+      </tr></thead>
+      <tbody>
+        ${tasks.map(t=>{
+          const dl=daysLeft(t.deadline);
+          const prio=t.priority||3;
+          return`<tr style="opacity:${t.done?'0.55':'1'}">
+            <td class="proto-num">${t.num}</td>
+            <td style="font-weight:${t.done?'400':'600'};color:var(--text);text-decoration:${t.done?'line-through':'none'}">${t.task}</td>
+            <td style="white-space:nowrap">${t.person||'—'}</td>
+            <td>${isViewer?`<span style="font-size:13px;color:var(--text2)">${t.comment||'—'}</span>`:
+              `<textarea class="edit-comment" rows="2" onchange="saveTaskComment('${t.id}',this.value)" placeholder="Добавить комментарий...">${t.comment||''}</textarea>`}
+            </td>
+            <td style="white-space:nowrap"><span class="prio-dot prio-${prio}"></span>${prioLabel(prio)}</td>
+            <td style="white-space:nowrap;color:var(--text2)">${t.deadline?new Date(t.deadline).toLocaleDateString('ru-RU',{day:'numeric',month:'short',year:'numeric'}):'—'}</td>
+            <td>${daysLabel(dl,t.done)}</td>
+            ${isViewer?'':
+            `<td style="white-space:nowrap">
+              <button onclick="toggleTaskDone('${t.id}',${!t.done})" title="${t.done?'Открыть':'Выполнено'}" style="background:none;border:none;font-size:18px;cursor:pointer">${t.done?'↩️':'✅'}</button>
+              <button onclick="editTask('${t.id}')" style="background:none;border:none;font-size:16px;cursor:pointer">✏️</button>
+              <button onclick="deleteTask('${t.id}')" style="background:none;border:none;font-size:16px;cursor:pointer;color:var(--red)">✕</button>
+            </td>`}
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>
+  </div>`}
+</div>`;
+}
+
+// ---- PROTOCOL MODALS ----
+let NProto={name:'',description:''};
+let NTask={proto_id:'',num:'',task:'',person:'',comment:'',priority:3,deadline:'',done:false};
+let editTaskId=null,editProtoId=null;
+
+function openNewProtocol(){NProto={name:'',description:''};editProtoId=null;showProtoSheet();}
+function editProtocol(id){const p=PR.protocols.find(x=>x.id===id);if(!p)return;NProto={name:p.name,description:p.description||''};editProtoId=id;showProtoSheet();}
+function openProtocol(id){S.protoId=id;S.protoViewer=false;go('protocol');}
+function openNewTask(pid){
+  const tasks=PR.tasks.filter(t=>t.proto_id===pid);
+  const maxNum=tasks.length?Math.max(...tasks.map(t=>t.num||0)):0;
+  NTask={proto_id:pid,num:maxNum+1,task:'',person:'',comment:'',priority:3,deadline:'',done:false};
+  editTaskId=null;showTaskSheet();
+}
+function editTask(id){const t=PR.tasks.find(x=>x.id===id);if(!t)return;NTask={...t};editTaskId=id;showTaskSheet();}
+
+function showProtoSheet(){
+  sheetOpen(`
+    <div class="sheet-title">${editProtoId?'Редактировать':'Новый протокол'}</div>
+    <div class="sheet-section"><label class="sheet-label">Название протокола</label>
+      <input id="proto-name" class="inp" type="text" placeholder="Например: МГЭС — Апрель 2026" value="${NProto.name}" oninput="NProto.name=this.value">
+    </div>
+    <div class="sheet-section"><label class="sheet-label">Описание (необязательно)</label>
+      <input id="proto-desc" class="inp" type="text" placeholder="Краткое описание..." value="${NProto.description}" oninput="NProto.description=this.value">
+    </div>
+    ${editProtoId?`<div class="sheet-section"><label class="sheet-label">Ссылка для просмотра</label>
+      <div class="inv-link-box">${protoViewLink(editProtoId)}</div>
+      <button onclick="copyTxt('${protoViewLink(editProtoId)}')" class="copy-btn">📋 Копировать ссылку</button>
+    </div>
+    <button class="btn-del" style="margin-bottom:8px" onclick="deleteProtocol('${editProtoId}')">Удалить протокол</button>`:''}
+    <button class="btn-main" onclick="saveProtocol()">Сохранить</button>
+  `);
+  setTimeout(()=>{const i=document.getElementById('proto-name');if(i)i.focus();},300);
+}
+
+function showTaskSheet(){
+  sheetOpen(`
+    <div class="sheet-title">${editTaskId?'Редактировать задачу':'Новая задача'}</div>
+    <div class="sheet-section"><label class="sheet-label">Номер задачи</label>
+      <input id="task-num" class="inp" type="number" value="${NTask.num}" oninput="NTask.num=+this.value" style="width:80px">
+    </div>
+    <div class="sheet-section"><label class="sheet-label">Задача</label>
+      <input id="task-name" class="inp" type="text" placeholder="Описание задачи..." value="${NTask.task}" oninput="NTask.task=this.value">
+    </div>
+    <div class="sheet-section"><label class="sheet-label">Ответственный</label>
+      <input id="task-person" class="inp" type="text" placeholder="Имя ответственного..." value="${NTask.person}" oninput="NTask.person=this.value">
+    </div>
+    <div class="sheet-section"><label class="sheet-label">Важность</label>
+      <div class="chips">
+        <button class="chip ${NTask.priority===1?'on':''}" onclick="setTaskPrio(1)" style="${NTask.priority===1?'':'background:rgba(255,69,58,0.08);border-color:rgba(255,69,58,0.3);color:#FF453A'}">🔴 Критично</button>
+        <button class="chip ${NTask.priority===2?'on':''}" onclick="setTaskPrio(2)" style="${NTask.priority===2?'':'background:rgba(255,159,10,0.08);border-color:rgba(255,159,10,0.3);color:#FF9F0A'}">🟡 Важно</button>
+        <button class="chip ${NTask.priority===3?'on':''}" onclick="setTaskPrio(3)">🟢 Обычно</button>
+        <button class="chip ${NTask.priority===4?'on':''}" onclick="setTaskPrio(4)">⚪ Низкий</button>
+      </div>
+    </div>
+    <div class="sheet-section"><label class="sheet-label">Дедлайн</label>
+      <input id="task-deadline" type="date" class="inp" value="${NTask.deadline||''}" oninput="NTask.deadline=this.value">
+    </div>
+    <div class="sheet-section"><label class="sheet-label">Комментарий</label>
+      <textarea id="task-comment" class="inp" rows="3" placeholder="Статус, примечания..." style="resize:vertical" oninput="NTask.comment=this.value">${NTask.comment||''}</textarea>
+    </div>
+    ${editTaskId?`<button class="btn-del" style="margin-bottom:8px" onclick="deleteTask('${editTaskId}');closeSheet()">Удалить задачу</button>`:''}
+    <button class="btn-main" onclick="saveTask()">Сохранить</button>
+  `);
+  setTimeout(()=>{const i=document.getElementById('task-name');if(i)i.focus();},300);
+}
+
+function setTaskPrio(p){NTask.priority=p;showTaskSheet();}
+function protoViewLink(pid){return location.origin+location.pathname+'?proto='+pid;}
+
+async function saveProtocol(){
+  const n=document.getElementById('proto-name');const d=document.getElementById('proto-desc');
+  if(n)NProto.name=n.value.trim();if(d)NProto.description=d.value.trim();
+  if(!NProto.name)return;
+  const data={name:NProto.name,description:NProto.description,updated:new Date().toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'})};
+  closeSheet();
+  if(editProtoId){await updateDoc(doc(db,'protocols',editProtoId),data);const i=PR.protocols.findIndex(x=>x.id===editProtoId);if(i>=0)PR.protocols[i]={...PR.protocols[i],...data};}
+  else{const r=await addDoc(collection(db,'protocols'),data);PR.protocols.push({id:r.id,...data});}
+  render();
+}
+
+async function deleteProtocol(id){
+  closeSheet();
+  const toD=PR.tasks.filter(t=>t.proto_id===id);
+  for(const t of toD)await deleteDoc(doc(db,'proto_tasks',t.id));
+  PR.tasks=PR.tasks.filter(t=>t.proto_id!==id);
+  await deleteDoc(doc(db,'protocols',id));
+  PR.protocols=PR.protocols.filter(p=>p.id!==id);
+  go('protocols');
+}
+
+async function saveTask(){
+  const n=document.getElementById('task-name');const pe=document.getElementById('task-person');
+  const cm=document.getElementById('task-comment');const dl=document.getElementById('task-deadline');
+  const nm=document.getElementById('task-num');
+  if(n)NTask.task=n.value.trim();if(pe)NTask.person=pe.value.trim();
+  if(cm)NTask.comment=cm.value.trim();if(dl)NTask.deadline=dl.value;if(nm)NTask.num=+nm.value;
+  if(!NTask.task)return;
+  const data={proto_id:NTask.proto_id,num:NTask.num||1,task:NTask.task,person:NTask.person||'',comment:NTask.comment||'',priority:NTask.priority||3,deadline:NTask.deadline||'',done:NTask.done||false};
+  closeSheet();
+  if(editTaskId){await updateDoc(doc(db,'proto_tasks',editTaskId),data);const i=PR.tasks.findIndex(x=>x.id===editTaskId);if(i>=0)PR.tasks[i]={...PR.tasks[i],...data};}
+  else{const r=await addDoc(collection(db,'proto_tasks'),data);PR.tasks.push({id:r.id,...data});}
+  render();
+}
+
+async function deleteTask(id){
+  await deleteDoc(doc(db,'proto_tasks',id));
+  PR.tasks=PR.tasks.filter(t=>t.id!==id);
+  render();
+}
+
+async function toggleTaskDone(id,done){
+  await updateDoc(doc(db,'proto_tasks',id),{done});
+  const t=PR.tasks.find(x=>x.id===id);if(t)t.done=done;
+  render();
+}
+
+async function saveTaskComment(id,val){
+  await updateDoc(doc(db,'proto_tasks',id),{comment:val});
+  const t=PR.tasks.find(x=>x.id===id);if(t)t.comment=val;
+}
+
+// Protocol viewer mode
+async function loadProtoViewerMode(){
+  const pid=new URLSearchParams(location.search).get('proto');
+  if(!pid)return false;
+  const[ps,ts]=await Promise.all([getDocs(collection(db,'protocols')),getDocs(collection(db,'proto_tasks'))]);
+  PR.protocols=ps.docs.map(d=>({id:d.id,...d.data()}));
+  PR.tasks=ts.docs.map(d=>({id:d.id,...d.data()})).filter(t=>t.proto_id===pid);
+  S.protoId=pid;S.protoViewer=true;S.view='protocol';
+  // live update
+  onSnapshot(collection(db,'proto_tasks'),snap=>{
+    PR.tasks=snap.docs.map(d=>({id:d.id,...d.data()})).filter(t=>t.proto_id===pid);
+    render();
+  });
+  return true;
+}
+
 function exportCSV(){
   const rows=[['Дата','Проект','Категория','Кто платит','Сумма','Комментарий','Аванс','Общая сумма','Остаток','Статус']];
   D.expenses.slice().sort((a,b)=>(b._t||0)-(a._t||0)).forEach(e=>{
@@ -1320,7 +1630,11 @@ function go(view){
 function openProj(id){S.pid=id;S.apid=id;go('project');}
 
 // FAB — auto-pass project when inside project view
-document.getElementById('fab').onclick=()=>openAddExp(S.view==='project'?S.pid:null);
+document.getElementById('fab').onclick=()=>{
+  if(S.view==='protocol')openNewTask(S.protoId);
+  else if(S.view==='protocols')openNewProtocol();
+  else openAddExp(S.view==='project'?S.pid:null);
+};
 
 // INVESTOR VIEW
 async function loadInvView(){
@@ -1378,7 +1692,7 @@ function renderInvView(pr,inv){
 }
 
 // EXPOSE
-Object.assign(window,{setFcat,setFpay,exportProjCSV,setCurrency,fetchRate,npSetMulti,npSetCurrency2,autoConvertToC2,autoConvertToKZT,npSetMulti,npSetCurrency2,autoConvertToC2,autoConvertToKZT,openImport,previewCSV,doImport,assignCat,detectCategory,clearProjExpenses,openAddExp,showAddSheet,tfSetPid,tfSetCid,tfSetPayer,tfToggleAdv,doSaveExp,npToggleCat,openProjCats,showProjCatsSheet,toggleGlobalCat,addOwnCat,delOwnCat,saveOwnCatIcon,saveOwnCatName,editExp,showEditSheet,tfSetCidEdit,tfSetPayerEdit,tfToggleAdvEdit,doUpdateExp,
+Object.assign(window,{setFcat,setFpay,exportProjCSV,setCurrency,fetchRate,npSetMulti,npSetCurrency2,autoConvertToC2,autoConvertToKZT,openProtocol,openNewProtocol,editProtocol,openNewTask,editTask,deleteTask,toggleTaskDone,saveTaskComment,setTaskPrio,deleteProtocol,npSetMulti,npSetCurrency2,autoConvertToC2,autoConvertToKZT,openImport,previewCSV,doImport,assignCat,detectCategory,clearProjExpenses,openAddExp,showAddSheet,tfSetPid,tfSetCid,tfSetPayer,tfToggleAdv,doSaveExp,npToggleCat,openProjCats,showProjCatsSheet,toggleGlobalCat,addOwnCat,delOwnCat,saveOwnCatIcon,saveOwnCatName,editExp,showEditSheet,tfSetCidEdit,tfSetPayerEdit,tfToggleAdvEdit,doUpdateExp,
   newProj,editProj,showProjSheet,doSaveProj,doDelProj,npSetType,npPickColor,npAddInv,syncNP,
   newCat,editCat,showCatSheet,tcPickIcon,doSaveCat,delCat,delExp,closeBill,exportCSV,
   go,openProj,copyTxt,closeSheet,sheetClose,S,TF,NP,TC});
@@ -1386,7 +1700,7 @@ Object.assign(window,{setFcat,setFpay,exportProjCSV,setCurrency,fetchRate,npSetM
 // INIT
 if(IS_INV){loadInvView();}
 else{
-  loadAll().then(()=>{subscribe();render();}).catch(err=>{
+  loadAll().then(()=>{loadProtocols().then(()=>{subscribeProtocols();subscribe();render();});}).catch(err=>{
     console.error(err);
     $('app').innerHTML=`<div class="loading" style="padding:24px;text-align:center;gap:16px">
       <div style="font-size:40px">⚠️</div>
