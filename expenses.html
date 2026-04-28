@@ -250,7 +250,7 @@ const P=new URLSearchParams(location.search);
 const IS_INV=!!(P.get('investor')&&P.get('project'));
 
 let D={projects:[],categories:[],expenses:[]};
-let S={view:'projects',pid:null,modal:null,q:'',fcat:'all',fpay:'all',sort:'nd',apid:null,protoId:null,protoViewer:false};
+let S={view:'projects',pid:null,modal:null,q:'',fcat:'all',fpay:'all',sort:'nd',apid:null,protoId:null,protoViewer:false,protoSort:'priority'};
 let TF={pid:null,cid:null,amt:'',note:'',payer:'me',adv:false,total:'',party:''};
 let TC={name:'',icon:'📌'};
 let NP={color:COLORS[0],type:'personal',name:'',owner:'',investors:[]};
@@ -332,8 +332,8 @@ function render(){
   else if(S.view==='categories'){$('app').innerHTML=vCategories();fab.className='fab';}
   else if(S.view==='all'){$('app').innerHTML=vAll();fab.className='fab show';}
   else if(S.view==='bills'){$('app').innerHTML=vBills();fab.className='fab';}
-  else if(S.view==='protocols'){$('app').innerHTML=vProtocols();fab.className='fab show';}
-  else if(S.view==='protocol'){$('app').innerHTML=vProtocol();fab.className='fab show';}
+  else if(S.view==='protocols'){$('app').innerHTML=vProtocols();fab.className='fab show';document.querySelector('.app').style.maxWidth='430px';}
+  else if(S.view==='protocol'){$('app').innerHTML=vProtocol();fab.className='fab show';document.querySelector('.app').style.maxWidth='100%';}
 }
 
 // VIEWS
@@ -347,11 +347,9 @@ function vProjects(){
   </div>
   <button class="icon-wrap" onclick="goProtocols()" title="Протоколы" style="background:rgba(10,132,255,0.12);font-size:18px">📑</button>
   <button class="icon-wrap" onclick="goAll()" title="Все расходы">📋</button>
-  <button class="icon-wrap" onclick="goAnalytics()" title="Аналитика">📊</button>
-  <button class="icon-wrap" onclick="goBills()" title="Счета">${bills.length?'🔴':'🧾'}</button>
   <button class="icon-wrap" onclick="goCategories()" title="Категории">🏷️</button>
   <button class="icon-wrap" onclick="goImport()" title="Импорт CSV">📥</button>
-  <a href="protocol.html" class="icon-wrap" title="Протоколы" style="text-decoration:none">📝</a>
+  
 </div>
 <div class="page">
   <div class="stats-row">
@@ -1420,7 +1418,13 @@ function vProtocols(){
 function vProtocol(){
   const p=PR.protocols.find(x=>x.id===S.protoId);
   if(!p)return'<div class="loading"><div>Протокол не найден</div></div>';
-  const tasks=PR.tasks.filter(t=>t.proto_id===p.id).sort((a,b)=>a.num-b.num);
+  let tasks=PR.tasks.filter(t=>t.proto_id===p.id);
+  // Sort tasks
+  if(S.protoSort==='priority')tasks=tasks.sort((a,b)=>(a.priority||3)-(b.priority||3));
+  else if(S.protoSort==='-priority')tasks=tasks.sort((a,b)=>(b.priority||3)-(a.priority||3));
+  else if(S.protoSort==='deadline')tasks=tasks.sort((a,b)=>{if(!a.deadline)return 1;if(!b.deadline)return -1;return a.deadline>b.deadline?1:-1;});
+  else if(S.protoSort==='-deadline')tasks=tasks.sort((a,b)=>{if(!a.deadline)return 1;if(!b.deadline)return -1;return b.deadline>a.deadline?1:-1;});
+  else tasks=tasks.sort((a,b)=>a.num-b.num);
   const isViewer=S.protoViewer;
   return`
 <div class="topbar" style="max-width:100%;padding:14px 20px">
@@ -1441,8 +1445,8 @@ function vProtocol(){
         <th>Задача</th>
         <th>Ответственный</th>
         <th style="min-width:220px">Комментарий</th>
-        <th>Важность</th>
-        <th>Дедлайн</th>
+        <th style="cursor:pointer" onclick="toggleProtoSort('priority')">Важность ${S.protoSort==='priority'?'↑':S.protoSort==='-priority'?'↓':'↕'}</th>
+        <th style="cursor:pointer" onclick="toggleProtoSort('deadline')">Дедлайн ${S.protoSort==='deadline'?'↑':S.protoSort==='-deadline'?'↓':'↕'}</th>
         <th>Осталось</th>
         ${isViewer?'':'<th style="width:60px"></th>'}
       </tr></thead>
@@ -1512,9 +1516,6 @@ function showProtoSheet(){
 function showTaskSheet(){
   sheetOpen(`
     <div class="sheet-title">${editTaskId?'Редактировать задачу':'Новая задача'}</div>
-    <div class="sheet-section"><label class="sheet-label">Номер задачи</label>
-      <input id="task-num" class="inp" type="number" value="${NTask.num}" oninput="NTask.num=+this.value" style="width:80px">
-    </div>
     <div class="sheet-section"><label class="sheet-label">Задача</label>
       <input id="task-name" class="inp" type="text" placeholder="Описание задачи..." value="${NTask.task}" oninput="NTask.task=this.value">
     </div>
@@ -1523,10 +1524,10 @@ function showTaskSheet(){
     </div>
     <div class="sheet-section"><label class="sheet-label">Важность</label>
       <div class="chips">
-        <button class="chip ${NTask.priority===1?'on':''}" onclick="setTaskPrio(1)" style="${NTask.priority===1?'':'background:rgba(255,69,58,0.08);border-color:rgba(255,69,58,0.3);color:#FF453A'}">🔴 Критично</button>
-        <button class="chip ${NTask.priority===2?'on':''}" onclick="setTaskPrio(2)" style="${NTask.priority===2?'':'background:rgba(255,159,10,0.08);border-color:rgba(255,159,10,0.3);color:#FF9F0A'}">🟡 Важно</button>
-        <button class="chip ${NTask.priority===3?'on':''}" onclick="setTaskPrio(3)">🟢 Обычно</button>
-        <button class="chip ${NTask.priority===4?'on':''}" onclick="setTaskPrio(4)">⚪ Низкий</button>
+        <button class="chip prio-chip ${NTask.priority===1?'on':''}" data-prio="1" onclick="setTaskPrio(1)" style="${NTask.priority===1?'':'background:rgba(255,69,58,0.08);border-color:rgba(255,69,58,0.3);color:#FF453A'}">🔴 Критично</button>
+        <button class="chip prio-chip ${NTask.priority===2?'on':''}" data-prio="2" onclick="setTaskPrio(2)" style="${NTask.priority===2?'':'background:rgba(255,159,10,0.08);border-color:rgba(255,159,10,0.3);color:#FF9F0A'}">🟡 Важно</button>
+        <button class="chip prio-chip ${NTask.priority===3?'on':''}" data-prio="3" onclick="setTaskPrio(3)">🟢 Обычно</button>
+        <button class="chip prio-chip ${NTask.priority===4?'on':''}" data-prio="4" onclick="setTaskPrio(4)">⚪ Низкий</button>
       </div>
     </div>
     <div class="sheet-section"><label class="sheet-label">Дедлайн</label>
@@ -1541,7 +1542,23 @@ function showTaskSheet(){
   setTimeout(()=>{const i=document.getElementById('task-name');if(i)i.focus();},300);
 }
 
-function setTaskPrio(p){NTask.priority=p;showTaskSheet();}
+function setTaskPrio(p){
+  // Save current inputs before changing priority
+  const n=document.getElementById('task-name');
+  const pe=document.getElementById('task-person');
+  const cm=document.getElementById('task-comment');
+  const dl=document.getElementById('task-deadline');
+  if(n)NTask.task=n.value;
+  if(pe)NTask.person=pe.value;
+  if(cm)NTask.comment=cm.value;
+  if(dl)NTask.deadline=dl.value;
+  NTask.priority=p;
+  // Just update button styles without rebuilding form
+  document.querySelectorAll('.prio-chip').forEach(b=>{
+    const bp=+b.dataset.prio;
+    b.className='chip prio-chip'+(bp===p?' on':'');
+  });
+}
 function protoViewLink(pid){return location.origin+location.pathname+'?proto='+pid;}
 
 async function saveProtocol(){
@@ -1550,8 +1567,14 @@ async function saveProtocol(){
   if(!NProto.name)return;
   const data={name:NProto.name,description:NProto.description,updated:new Date().toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'})};
   closeSheet();
-  if(editProtoId){await updateDoc(doc(db,'protocols',editProtoId),data);const i=PR.protocols.findIndex(x=>x.id===editProtoId);if(i>=0)PR.protocols[i]={...PR.protocols[i],...data};}
-  else{const r=await addDoc(collection(db,'protocols'),data);PR.protocols.push({id:r.id,...data});}
+  if(editProtoId){
+    await updateDoc(doc(db,'protocols',editProtoId),data);
+    const i=PR.protocols.findIndex(x=>x.id===editProtoId);
+    if(i>=0)PR.protocols[i]={...PR.protocols[i],...data};
+  } else {
+    await addDoc(collection(db,'protocols'),data);
+    // onSnapshot handles adding
+  }
   render();
 }
 
@@ -1574,9 +1597,15 @@ async function saveTask(){
   if(!NTask.task)return;
   const data={proto_id:NTask.proto_id,num:NTask.num||1,task:NTask.task,person:NTask.person||'',comment:NTask.comment||'',priority:NTask.priority||3,deadline:NTask.deadline||'',done:NTask.done||false};
   closeSheet();
-  if(editTaskId){await updateDoc(doc(db,'proto_tasks',editTaskId),data);const i=PR.tasks.findIndex(x=>x.id===editTaskId);if(i>=0)PR.tasks[i]={...PR.tasks[i],...data};}
-  else{const r=await addDoc(collection(db,'proto_tasks'),data);PR.tasks.push({id:r.id,...data});}
-  render();
+  if(editTaskId){
+    await updateDoc(doc(db,'proto_tasks',editTaskId),data);
+    const i=PR.tasks.findIndex(x=>x.id===editTaskId);
+    if(i>=0)PR.tasks[i]={...PR.tasks[i],...data};
+    render();
+  } else {
+    await addDoc(collection(db,'proto_tasks'),data);
+    // Don't push locally - onSnapshot will handle it
+  }
 }
 
 async function deleteTask(id){
@@ -1627,6 +1656,9 @@ function exportCSV(){
 function go(view){
   if(view==='project'&&!S.pid)view='projects';
   S.view=view;S.q='';S.fcat='all';S.fpay='all';
+  // Reset max-width when leaving protocol
+  const appEl=document.querySelector('.app');
+  if(appEl)appEl.style.maxWidth=view==='protocol'?'100%':'430px';
   render();
 }
 function openProj(id){S.pid=id;S.apid=id;go('project');}
@@ -1699,6 +1731,12 @@ function goAll(){go('all');}
 function goAnalytics(){S.apid=null;go('analytics');}
 function goBills(){go('bills');}
 function goCategories(){go('categories');}
+function toggleProtoSort(field){
+  if(S.protoSort===field)S.protoSort='-'+field;
+  else if(S.protoSort==='-'+field)S.protoSort='num';
+  else S.protoSort=field;
+  render();
+}
 function goProtocols(){
   loadProtocols().then(()=>{
     subscribeProtocols();
@@ -1709,7 +1747,7 @@ function goProtocols(){
 function goImport(){openImport();}
 
 // EXPOSE
-Object.assign(window,{goProjects,goAll,goAnalytics,goBills,goCategories,goProtocols,goImport,setFcat,setFpay,exportProjCSV,setCurrency,fetchRate,npSetMulti,npSetCurrency2,autoConvertToC2,autoConvertToKZT,openProtocol,openNewProtocol,editProtocol,openNewTask,editTask,deleteTask,toggleTaskDone,saveTaskComment,setTaskPrio,deleteProtocol,saveProtocol,saveTask,openImport,previewCSV,doImport,assignCat,detectCategory,openAddExp,showAddSheet,tfSetPid,tfSetCid,tfSetPayer,tfToggleAdv,doSaveExp,npToggleCat,openProjCats,showProjCatsSheet,toggleGlobalCat,addOwnCat,delOwnCat,saveOwnCatIcon,saveOwnCatName,editExp,showEditSheet,tfSetCidEdit,tfSetPayerEdit,tfToggleAdvEdit,doUpdateExp,newProj,editProj,showProjSheet,doSaveProj,doDelProj,npSetType,npPickColor,npAddInv,syncNP,newCat,editCat,showCatSheet,tcPickIcon,doSaveCat,delCat,delExp,closeBill,exportCSV,go,openProj,copyTxt,closeSheet,sheetClose,S,TF,NP,TC});
+Object.assign(window,{goProjects,goAll,goAnalytics,goBills,goCategories,goProtocols,goImport,toggleProtoSort,setFcat,setFpay,exportProjCSV,setCurrency,fetchRate,npSetMulti,npSetCurrency2,autoConvertToC2,autoConvertToKZT,openProtocol,openNewProtocol,editProtocol,openNewTask,editTask,deleteTask,toggleTaskDone,saveTaskComment,setTaskPrio,deleteProtocol,saveProtocol,saveTask,openImport,previewCSV,doImport,assignCat,detectCategory,openAddExp,showAddSheet,tfSetPid,tfSetCid,tfSetPayer,tfToggleAdv,doSaveExp,npToggleCat,openProjCats,showProjCatsSheet,toggleGlobalCat,addOwnCat,delOwnCat,saveOwnCatIcon,saveOwnCatName,editExp,showEditSheet,tfSetCidEdit,tfSetPayerEdit,tfToggleAdvEdit,doUpdateExp,newProj,editProj,showProjSheet,doSaveProj,doDelProj,npSetType,npPickColor,npAddInv,syncNP,newCat,editCat,showCatSheet,tcPickIcon,doSaveCat,delCat,delExp,closeBill,exportCSV,go,openProj,copyTxt,closeSheet,sheetClose,S,TF,NP,TC});
 
 // INIT
 if(IS_INV){loadInvView();}
