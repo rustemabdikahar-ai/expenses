@@ -332,6 +332,8 @@ function render(){
   else if(S.view==='categories'){$('app').innerHTML=vCategories();fab.className='fab';}
   else if(S.view==='all'){$('app').innerHTML=vAll();fab.className='fab show';}
   else if(S.view==='bills'){$('app').innerHTML=vBills();fab.className='fab';}
+  else if(S.view==='protocols'){$('app').innerHTML=vProtocols();fab.className='fab show';}
+  else if(S.view==='protocol'){$('app').innerHTML=vProtocol();fab.className='fab show';}
 }
 
 // VIEWS
@@ -1698,11 +1700,11 @@ function goAnalytics(){S.apid=null;go('analytics');}
 function goBills(){go('bills');}
 function goCategories(){go('categories');}
 function goProtocols(){
-  if(PR.protocols.length===0){
-    loadProtocols().then(()=>{subscribeProtocols();go('protocols');});
-  } else {
-    go('protocols');
-  }
+  loadProtocols().then(()=>{
+    subscribeProtocols();
+    S.view='protocols';
+    render();
+  });
 }
 function goImport(){openImport();}
 
