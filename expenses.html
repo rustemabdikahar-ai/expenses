@@ -343,12 +343,12 @@ function vProjects(){
   <div style="flex:1">
     <div class="topbar-title">Расходы</div>
   </div>
-  <button class="icon-wrap" onclick="go('protocols')" title="Протоколы" style="background:rgba(10,132,255,0.12);font-size:18px">📑</button>
-  <button class="icon-wrap" onclick="go('all')" title="Все расходы">📋</button>
-  <button class="icon-wrap" onclick="go('analytics')" title="Аналитика">📊</button>
-  <button class="icon-wrap" onclick="go('bills')" title="Счета">${bills.length?'🔴':'🧾'}</button>
-  <button class="icon-wrap" onclick="go('categories')" title="Категории">🏷️</button>
-  <button class="icon-wrap" onclick="openImport()" title="Импорт CSV">📥</button>
+  <button class="icon-wrap" onclick="goProtocols()" title="Протоколы" style="background:rgba(10,132,255,0.12);font-size:18px">📑</button>
+  <button class="icon-wrap" onclick="goAll()" title="Все расходы">📋</button>
+  <button class="icon-wrap" onclick="goAnalytics()" title="Аналитика">📊</button>
+  <button class="icon-wrap" onclick="goBills()" title="Счета">${bills.length?'🔴':'🧾'}</button>
+  <button class="icon-wrap" onclick="goCategories()" title="Категории">🏷️</button>
+  <button class="icon-wrap" onclick="goImport()" title="Импорт CSV">📥</button>
   <a href="protocol.html" class="icon-wrap" title="Протоколы" style="text-decoration:none">📝</a>
 </div>
 <div class="page">
@@ -1691,11 +1691,17 @@ function renderInvView(pr,inv){
   </div>`;
 }
 
+// NAV HELPERS
+function goProjects(){go('projects');}
+function goAll(){go('all');}
+function goAnalytics(){S.apid=null;go('analytics');}
+function goBills(){go('bills');}
+function goCategories(){go('categories');}
+function goProtocols(){go('protocols');}
+function goImport(){openImport();}
+
 // EXPOSE
-Object.assign(window,{setFcat,setFpay,exportProjCSV,setCurrency,fetchRate,npSetMulti,npSetCurrency2,autoConvertToC2,autoConvertToKZT,openProtocol,openNewProtocol,editProtocol,openNewTask,editTask,deleteTask,toggleTaskDone,saveTaskComment,setTaskPrio,deleteProtocol,saveProtocol,saveTask,npSetMulti,npSetCurrency2,autoConvertToC2,autoConvertToKZT,openImport,previewCSV,doImport,assignCat,detectCategory,clearProjExpenses,openAddExp,showAddSheet,tfSetPid,tfSetCid,tfSetPayer,tfToggleAdv,doSaveExp,npToggleCat,openProjCats,showProjCatsSheet,toggleGlobalCat,addOwnCat,delOwnCat,saveOwnCatIcon,saveOwnCatName,editExp,showEditSheet,tfSetCidEdit,tfSetPayerEdit,tfToggleAdvEdit,doUpdateExp,
-  newProj,editProj,showProjSheet,doSaveProj,doDelProj,npSetType,npPickColor,npAddInv,syncNP,
-  newCat,editCat,showCatSheet,tcPickIcon,doSaveCat,delCat,delExp,closeBill,exportCSV,
-  go,openProj,copyTxt,closeSheet,sheetClose,S,TF,NP,TC});
+Object.assign(window,{goProjects,goAll,goAnalytics,goBills,goCategories,goProtocols,goImport,setFcat,setFpay,exportProjCSV,setCurrency,fetchRate,npSetMulti,npSetCurrency2,autoConvertToC2,autoConvertToKZT,openProtocol,openNewProtocol,editProtocol,openNewTask,editTask,deleteTask,toggleTaskDone,saveTaskComment,setTaskPrio,deleteProtocol,saveProtocol,saveTask,openImport,previewCSV,doImport,assignCat,detectCategory,openAddExp,showAddSheet,tfSetPid,tfSetCid,tfSetPayer,tfToggleAdv,doSaveExp,npToggleCat,openProjCats,showProjCatsSheet,toggleGlobalCat,addOwnCat,delOwnCat,saveOwnCatIcon,saveOwnCatName,editExp,showEditSheet,tfSetCidEdit,tfSetPayerEdit,tfToggleAdvEdit,doUpdateExp,newProj,editProj,showProjSheet,doSaveProj,doDelProj,npSetType,npPickColor,npAddInv,syncNP,newCat,editCat,showCatSheet,tcPickIcon,doSaveCat,delCat,delExp,closeBill,exportCSV,go,openProj,copyTxt,closeSheet,sheetClose,S,TF,NP,TC});
 
 // INIT
 if(IS_INV){loadInvView();}
