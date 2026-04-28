@@ -1697,7 +1697,13 @@ function goAll(){go('all');}
 function goAnalytics(){S.apid=null;go('analytics');}
 function goBills(){go('bills');}
 function goCategories(){go('categories');}
-function goProtocols(){go('protocols');}
+function goProtocols(){
+  if(PR.protocols.length===0){
+    loadProtocols().then(()=>{subscribeProtocols();go('protocols');});
+  } else {
+    go('protocols');
+  }
+}
 function goImport(){openImport();}
 
 // EXPOSE
